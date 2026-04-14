@@ -1,7 +1,7 @@
 {
   "name": "Evaluándonos",
   "short_name": "Evaluándonos",
-  "start_url": "./evaluandonos.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#4f46e5",

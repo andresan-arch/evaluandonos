@@ -1,6 +1,6 @@
 const CACHE_NAME = 'evaluandonos-v1';
 const urlsToCache = [
-  './evaluandonos.html',
+  './index.html',
   './manifest.json'
 ];
 
