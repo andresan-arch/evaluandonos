@@ -1461,7 +1461,11 @@
       status.innerText = '⏳ Creando usuario...';
       try {
         // 1. Crear cuenta en Supabase Auth
-        const { data, error } = await supabaseClient.auth.signUp({ email, password: pass });
+        const { data, error } = await supabaseClient.auth.signUp({ 
+          email, 
+          password: pass,
+          options: { data: { nombre: nombre, name: nombre } }
+        });
         if (error) throw error;
 
         const userId = data.user?.id;
@@ -1469,7 +1473,7 @@
 
         // 2. Insertar en perfiles con el UUID del usuario
         const { error: pErr } = await supabaseClient.from('perfiles')
-          .upsert({ id: userId, email, nombre, rol }, { onConflict: 'email' });
+          .upsert({ id: userId, email, nombre, rol }, { onConflict: 'id' });
         if (pErr) throw pErr;
 
         status.innerText = `✅ Usuario creado: ${nombre} (${email}) — ${rol}`;
@@ -1505,12 +1509,16 @@
             if (!email || !pass) { fail++; continue; }
 
             try {
-              const { data: signData, error: sErr } = await supabaseClient.auth.signUp({ email, password: pass });
+              const { data: signData, error: sErr } = await supabaseClient.auth.signUp({ 
+                email, 
+                password: pass,
+                options: { data: { nombre: nombre, name: nombre } }
+              });
               if (sErr && !sErr.message.includes('already registered')) throw sErr;
 
               const userId = signData?.user?.id;
               if (userId) {
-                await supabaseClient.from('perfiles').upsert({ id: userId, email, nombre, rol }, { onConflict: 'email' });
+                await supabaseClient.from('perfiles').upsert({ id: userId, email, nombre, rol }, { onConflict: 'id' });
               } else {
                 await supabaseClient.from('perfiles').update({ nombre, rol }).eq('email', email);
               }
