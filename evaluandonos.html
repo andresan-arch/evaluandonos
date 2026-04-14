@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evaluándonos - Análisis Estadístico</title>
+  
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4f46e5">
+  <link rel="apple-touch-icon" href="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --success: #22c55e;
+      --gray: #94a3b8;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding-bottom: 40px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: white;
+      padding: 0;
+      text-align: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header-banner {
+      width: 100%;
+      background: white;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-bottom: 4px solid var(--primary);
+      max-height: 250px;
+      overflow: hidden;
+    }
+
+    .header-logo {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+      max-height: 200px;
+    }
+
+    .header-sub {
+      background: var(--primary);
+      color: white;
+      padding: 10px 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 96%;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* Selectores */
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      background: var(--card);
+      padding: 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      margin-top: -3.5rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+
+    select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: white;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    select:focus {
+      border-color: var(--primary);
+    }
+
+    /* Grid Principal */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .question-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--bg);
+    }
+
+    .media-container img {
+      max-width: 100%;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Opciones */
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border: 2px solid #f1f5f9;
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+
+    .option.correct {
+      border-color: var(--success);
+      background: #f0fdf4;
+    }
+
+    .option-letter {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      margin-right: 1rem;
+      flex-shrink: 0;
+    }
+
+    .option.correct .option-letter {
+      background: var(--success);
+    }
+
+    .option-content {
+      font-size: 1rem;
+    }
+
+    /* Footer */
+    footer {
+      background: white;
+      padding: 40px 0;
+      text-align: center;
+      margin-top: 4rem;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .footer-logo {
+      height: 60px;
+      opacity: 0.8;
+      transition: opacity 0.3s;
+    }
+
+    .footer-logo:hover {
+      opacity: 1;
+    }
+
+    .footer-copy {
+      font-size: 0.75rem;
+      color: var(--gray);
+      margin-top: 10px;
+    }
+
+    /* Gráfica */
+    .chart-container {
+      position: relative;
+      height: 400px;
+      width: 100%;
+    }
+
+    .stats-summary {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .stat-box {
+      text-align: center;
+    }
+
+    .stat-val {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--gray);
+      text-transform: uppercase;
+    }
+
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      display: none;
+    }
+
+    /* Login Overlay */
+    #login-mask {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.9) 0%, rgba(124, 58, 237, 0.9) 100%),
+        url('https://andresan.com/wp-content/uploads/2024/02/IMG_20240215_102553.jpg');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 3rem;
+      border-radius: 30px;
+      width: 90%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .login-card h2 {
+      color: var(--text);
+      margin-bottom: 2rem;
+      font-weight: 800;
+    }
+
+    .login-card input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 1.2rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 15px;
+      font-size: 1rem;
+      background: white;
+    }
+
+    .login-card button {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    /* Period Selector */
+    .period-container {
+      display: flex;
+      justify-content: center;
+      margin: 1.5rem 0;
+    }
+
+    .period-tabs {
+      display: inline-flex;
+      background: #e2e8f0;
+      padding: 5px;
+      border-radius: 100px;
+      gap: 5px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .period-tab {
+      padding: 10px 25px;
+      border-radius: 100px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #64748b;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+    }
+
+    .period-tab.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Colores Específicos por Periodo */
+    #tab-1 { color: #3b82f6; }
+    #tab-1.active { background: #3b82f6; color: white; }
+    
+    #tab-2 { color: #10b981; }
+    #tab-2.active { background: #10b981; color: white; }
+    
+    #tab-3 { color: #8b5cf6; }
+    #tab-3.active { background: #8b5cf6; color: white; }
+
+    /* Botones de Asignatura */
+    .asig-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.25rem 0;
+    }
+
+    .asig-btn {
+      padding: 7px 16px;
+      border-radius: 100px;
+      border: 2px solid;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.82rem;
+      transition: all 0.25s;
+      background: transparent;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .asig-btn.selected {
+      color: white !important;
+    }
+
+    /* Admin Panel */
+    .admin-trigger {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background: var(--text);
+      color: white;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+    }
+
+    .admin-panel {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 300px;
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      display: none;
+      z-index: 100;
+    }
+
+    .admin-panel h4 {
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .status-msg {
+      font-size: 0.75rem;
+      margin-top: 5px;
+      color: var(--gray);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="loading">✨ Cargando análisis...</div>
+
+  <div id="login-mask">
+    <div class="login-card">
+      <img src="https://andresan.com/wp-content/uploads/2024/02/Logo-Andresan-Vectorizado-Peque.png"
+        style="width: 120px; margin-bottom: 1rem;">
+      <h2>Acceso Seguro</h2>
+      <input type="text" id="li-user" placeholder="Usuario">
+      <input type="password" id="li-pass" placeholder="Contraseña">
+      <div id="login-err" style="color: #ef4444; font-size: 0.8rem; margin-bottom: 1rem; display: none;"></div>
+      <button onclick="intentarLogin()" id="btn-login">Ingresar</button>
+    </div>
+  </div>
+
+  <header>
+    <div class="header-banner" style="max-height:250px; overflow: hidden;">
+      <img src="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/evaluandonos.png"
+        style="width: 100%; height: 100%; object-fit: cover; display: block;" alt="Evaluándonos Banner">
+    </div>
+    <div class="header-sub">
+      <div class="container">
+        <span style="font-weight:600;">Evaluándonos — Análisis Estadístico</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Badge flotante de usuario (siempre visible) -->
+  <div id="user-badge" style="display:none; position:fixed; top:16px; right:16px; z-index:3000;
+    background:white; border-radius:50px; padding:8px 16px 8px 12px;
+    box-shadow:0 4px 20px rgba(79,70,229,0.25); border:1px solid #e2e8f0;
+    align-items:center; gap:10px; font-family:'Outfit',sans-serif;">
+    <div style="width:34px; height:34px; background:linear-gradient(135deg,#4f46e5,#7c3aed); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:0.9rem;" id="user-avatar">?</div>
+    <div style="line-height:1.2;">
+      <div id="user-nombre" style="font-weight:700; color:#1e293b; font-size:0.85rem;"></div>
+      <div id="user-email" style="color:#94a3b8; font-size:0.72rem; display:none;"></div>
+    </div>
+    <button onclick="logout()" title="Cerrar sesión"
+      style="background:#f1f5f9; color:#ef4444; border:none; padding:6px 10px; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.8rem;">⏻</button>
+  </div>
+
+  <main class="container">
+    <!-- Selectores y Periodo -->
+    <div class="controls" style="display:flex; gap:2rem; align-items:stretch;">
+      <!-- Columna izquierda: botones + filtros -->
+      <div style="flex:1; display:flex; flex-direction:column; gap:1.2rem;">
+        <div style="display:flex; justify-content:center;">
+          <div class="period-tabs">
+            <div id="tab-1" class="period-tab active" onclick="setPeriodo(1)">Evaluándonos 1</div>
+            <div id="tab-2" class="period-tab" onclick="setPeriodo(2)">Evaluándonos 2</div>
+            <div id="tab-3" class="period-tab" onclick="setPeriodo(3)">Evaluándonos Final</div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:1rem;">
+          <div class="control-group">
+            <label>Grado</label>
+            <select id="sel-grado" onchange="cargarAsignaturas()">
+              <option value="">Seleccione grado...</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Asignatura</label>
+            <select id="sel-asig" onchange="onAsigChange(this)" style="border-left:5px solid #e2e8f0; transition:border-color 0.3s, background 0.3s;">
+              <option value="">Seleccione asignatura...</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Pregunta</label>
+            <select id="sel-pregunta" onchange="mostrarAnalisis()">
+              <option value="">Seleccione pregunta...</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- Columna derecha: logo -->
+      <div style="display:flex; align-items:center; justify-content:center; border-left:2px solid #f1f5f9; padding-left:2rem; flex-shrink:0;">
+        <img src="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png"
+          style="height:120px; width:auto; object-fit:contain;" alt="Logo Evaluándonos">
+      </div>
+    </div>
+
+    <!-- Resultados -->
+    <div id="resultado-container" style="display: none;">
+      <div class="dashboard-grid">
+        <!-- Pregunta y Opciones -->
+        <div class="card">
+          <h2 class="question-title" id="pregunta-display-num">Pregunta #</h2>
+          <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+            <div id="pregunta-media" class="media-container"></div>
+            <p id="pregunta-texto" style="font-size: 1.1rem; color: var(--text); font-weight: 500; margin: 0; line-height: 1.6;"></p>
+          </div>
+
+          <div id="options-list" class="options-list">
+            <div id="opt-a" class="option">
+              <span class="option-letter">A</span>
+              <div id="txt-a" class="option-content"></div>
+            </div>
+            <div id="opt-b" class="option">
+              <span class="option-letter">B</span>
+              <div id="txt-b" class="option-content"></div>
+            </div>
+            <div id="opt-c" class="option">
+              <span class="option-letter">C</span>
+              <div id="txt-c" class="option-content"></div>
+            </div>
+            <div id="opt-d" class="option">
+              <span class="option-letter">D</span>
+              <div id="txt-d" class="option-content"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfica -->
+        <div class="card">
+          <h2 class="question-title">Distribución de Respuestas</h2>
+          <div class="chart-container">
+            <canvas id="barChart"></canvas>
+          </div>
+          <div class="stats-summary">
+            <div class="stat-box"
+              style="background: rgba(99, 102, 241, 0.1); color: var(--primary); border: 2px solid rgba(99, 102, 241, 0.2);">
+              <span id="stat-total" class="stat-val" style="color: var(--primary);">0</span>
+              <span class="stat-label" style="color: var(--primary);">Personas Evaluadas</span>
+            </div>
+            <div class="stat-box">
+              <span id="stat-correctas" class="stat-val">0</span>
+              <span class="stat-label">Aciertos</span>
+            </div>
+            <div id="stat-p-box" class="stat-box">
+              <span id="stat-porcentaje" class="stat-val">0%</span>
+              <span class="stat-label">% Éxito</span>
+            </div>
+          </div>
+        </div>
+      </div> <!-- Cierra dashboard-grid -->
+    </div> <!-- Cierra resultado-container -->
+
+    <!-- Panel de Administración -->
+    <div class="admin-trigger" onclick="toggleAdmin()" style="display:none;">⚙️ Administrar Datos</div>
+    <div class="admin-panel" id="admin-panel" style="width:380px;">
+      
+      <!-- Tabs del admin -->
+      <div style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+        <button onclick="switchAdminTab('datos')" id="atab-datos"
+          style="flex:1; padding:8px; border-radius:8px; border:none; background:#4f46e5; color:white; font-weight:700; cursor:pointer; font-size:0.8rem;">📊 Datos</button>
+        <button onclick="switchAdminTab('usuarios')" id="atab-usuarios"
+          style="flex:1; padding:8px; border-radius:8px; border:2px solid #4f46e5; background:transparent; color:#4f46e5; font-weight:700; cursor:pointer; font-size:0.8rem;">👥 Usuar.</button>
+        <button onclick="switchAdminTab('imagenes')" id="atab-imagenes"
+          style="flex:1; padding:8px; border-radius:8px; border:2px solid #4f46e5; background:transparent; color:#4f46e5; font-weight:700; cursor:pointer; font-size:0.8rem;">🖼️ Imgs</button>
+      </div>
+
+      <!-- Tab: Datos -->
+      <div id="apanel-datos">
+        <h4 style="margin-bottom:0.5rem;">Importar CSV ZipGrade</h4>
+        <p style="font-size: 0.8rem; margin-bottom: 10px; color: #64748b;">Estructura: A=Grado, B=Nombre, D=Clave,
+          E=Pregunta... (S:Z=Mapeo)</p>
+        <input type="file" id="csv-file" accept=".csv,.tsv"
+          style="font-size: 0.75rem; padding: 5px; border: 1px dashed #cbd5e1; width:100%;">
+
+        <div id="admin-debug" style="margin-top: 15px; overflow-x: auto; max-width: 100%; display: none;">
+          <p style="font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 5px;">👀 Previsualización:</p>
+          <table id="debug-table"
+            style="font-size: 0.65rem; border-collapse: collapse; width: 100%; background: #f8fafc; border: 1px solid #e2e8f0;">
+          </table>
+          <button id="btn-confirm-upload" onclick="finalizarSubida()"
+            style="margin-top: 10px; background: #10b981; width: 100%;">Los datos se ven bien, ¡SUBIR!</button>
+        </div>
+
+        <button id="btn-parse-debug" onclick="previsualizarDatos()"
+          style="margin-top: 10px; background: #2563eb; color: white; font-weight: bold; padding: 10px; width:100%; border:none; border-radius:8px; cursor:pointer;">🔍 ANALIZAR ARCHIVO</button>
+        <div id="admin-status" class="status-msg"></div>
+      </div>
+
+      <!-- Tab: Usuarios -->
+      <div id="apanel-usuarios" style="display:none;">
+        <h4 style="margin-bottom:1rem;">Gestión de Usuarios</h4>
+
+        <!-- Agregar usuario individual -->
+        <div style="background:#f8fafc; border-radius:12px; padding:1rem; margin-bottom:1rem;">
+          <p style="font-size:0.8rem; font-weight:700; margin-bottom:0.75rem; color:#4f46e5;">➕ Agregar usuario</p>
+          <input type="email" id="nu-email" placeholder="email@andresan.com"
+            style="width:100%; padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.85rem; margin-bottom:0.5rem;">
+          <input type="text" id="nu-nombre" placeholder="Nombre completo"
+            style="width:100%; padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.85rem; margin-bottom:0.5rem;">
+          <input type="password" id="nu-pass" placeholder="Contraseña"
+            style="width:100%; padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.85rem; margin-bottom:0.5rem;">
+          <select id="nu-rol"
+            style="width:100%; padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.85rem; margin-bottom:0.75rem;">
+            <option value="lector">Lector (solo filtros)</option>
+            <option value="admin">Admin (acceso total)</option>
+          </select>
+          <button onclick="crearUsuario()" 
+            style="width:100%; padding:10px; background:#4f46e5; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Crear Usuario</button>
+        </div>
+
+        <!-- Importación masiva CSV -->
+        <div style="background:#f8fafc; border-radius:12px; padding:1rem;">
+          <p style="font-size:0.8rem; font-weight:700; margin-bottom:0.5rem; color:#4f46e5;">📋 Importar desde CSV</p>
+          <p style="font-size:0.72rem; color:#64748b; margin-bottom:0.75rem;">Columnas requeridas: <code>email</code>, <code>password</code>, <code>nombre</code>, <code>rol</code></p>
+          <input type="file" id="users-csv" accept=".csv"
+            style="font-size:0.75rem; padding:5px; border:1px dashed #cbd5e1; width:100%; margin-bottom:0.5rem;">
+          <button onclick="importarUsuariosCSV()"
+            style="width:100%; padding:10px; background:#10b981; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer;">📥 Importar Usuarios</button>
+        </div>
+
+        <div id="users-status" class="status-msg" style="margin-top:0.5rem;"></div>
+      </div>
+
+      <!-- Tab: Imágenes -->
+      <div id="apanel-imagenes" style="display:none; max-height:450px; overflow-y:auto; padding-right:5px;">
+        <h4 style="margin-bottom:1rem;">Galería Individual</h4>
+        
+        <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem;">
+          <select id="aimg-grado" style="flex:1; padding:6px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;" onchange="cargarAsignaturasAdminImg()">
+            <option value="">Grado...</option>
+          </select>
+          <select id="aimg-periodo" style="flex:1; padding:6px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;" onchange="cargarAsignaturasAdminImg()">
+            <option value="1">Período 1</option>
+            <option value="2">Período 2</option>
+            <option value="3">Final</option>
+          </select>
+        </div>
+        <select id="aimg-asig" style="width:100%; margin-bottom:0.5rem; padding:6px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;" onchange="cargarPreguntasAdminImg()">
+          <option value="">Asignatura...</option>
+        </select>
+        <select id="aimg-preg" style="width:100%; margin-bottom:1rem; padding:6px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;" onchange="verDetallePreguntaAdmin()">
+          <option value="">Pregunta...</option>
+        </select>
+
+        <div id="aimg-detalle" style="display:none; background:#f8fafc; padding:1rem; border-radius:12px; font-size:0.8rem; border:1px solid #e2e8f0;">
+            <p style="font-weight:800; color:var(--primary); margin-bottom:10px;" id="aimg-title">Pregunta #?</p>
+            <div id="aimg-fields" style="display:flex; flex-direction:column; gap:10px;"></div>
+        </div>
+
+        <div id="aimg-status" class="status-msg" style="margin-top:10px; font-weight:bold;"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <img src="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/andresanbordessinfondo.png"
+        class="footer-logo" alt="AndréSán Footer">
+      <p class="footer-copy">© 2026 SGA AndréSán - Sistema Integrado de Gestión Académica</p>
+    </div>
+  </footer>
+
+  <script>
+    const SB_URL = "https://pmfrdrihzdhhjxokabjm.supabase.co";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtZnJkcmloemRoaGp4b2thYmptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NTA5OTIsImV4cCI6MjA5MTQyNjk5Mn0.FnQWmxg0p4oUgAQBVhoy6wqIMOk3qk4pifI2voeQvV0";
+    const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+
+    let myChart = null;
+    let currentPeriodo = 1;
+    let currentUser = null;
+    let currentRole = 'lector';
+
+    const $ = id => document.getElementById(id);
+
+    async function checkSession() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        loguearExitoso(session.user);
+      }
+    }
+
+    async function intentarLogin() {
+      const userVal = $('li-user').value.trim();
+      const pass = $('li-pass').value;
+      const btn = $('btn-login');
+      const err = $('login-err');
+
+      if (!userVal || !pass) return alert("Completa los datos");
+
+      err.style.display = 'none';
+      btn.disabled = true; btn.innerText = "Verificando...";
+
+      const email = userVal.includes('@') ? userVal : `${userVal}@andresan.com`;
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+
+      if (error) {
+        err.innerText = "Usuario o contraseña incorrectos";
+        err.style.display = 'block';
+      } else {
+        loguearExitoso(data.user);
+      }
+      btn.disabled = false; btn.innerText = "Ingresar";
+    }
+
+    async function loguearExitoso(user) {
+      currentUser = user;
+      $('login-mask').style.display = 'none';
+
+      try {
+        // Consultamos el perfil (buscamos rol y nombre/Nombre para ser resilientes)
+        const { data: perfil } = await supabaseClient.from('perfiles').select('*').eq('email', user.email).maybeSingle();
+        const nombrePerfil = perfil ? (perfil.nombre || perfil.Nombre) : null;
+        const nombre = nombrePerfil || user.user_metadata?.full_name || user.user_metadata?.nombre || user.email.split('@')[0];
+
+        // Mostrar badge flotante
+        const badge = $('user-badge');
+        badge.style.display = 'flex';
+        if ($('user-nombre')) $('user-nombre').innerText = nombre;
+        if ($('user-email')) $('user-email').innerText = user.email;
+        if ($('user-avatar')) $('user-avatar').innerText = nombre.charAt(0).toUpperCase();
+
+        if (perfil && perfil.rol === 'admin') {
+          currentRole = 'admin';
+          document.querySelector('.admin-trigger').style.display = 'block';
+        } else {
+          currentRole = 'lector';
+          document.querySelector('.admin-trigger').style.display = 'none';
+        }
+      } catch (e) {
+        currentRole = 'lector';
+        document.querySelector('.admin-trigger').style.display = 'none';
+        // Mostrar badge mínimo aun si falla perfiles
+        const badge = $('user-badge');
+        if (badge) { badge.style.display = 'flex'; }
+        if ($('user-email')) $('user-email').innerText = user.email;
+        if ($('user-avatar')) $('user-avatar').innerText = user.email.charAt(0).toUpperCase();
+      }
+
+      init();
+    }
+
+    async function logout() {
+      await supabaseClient.auth.signOut();
+      location.reload();
+    }
+
+    function setPeriodo(p) {
+      currentPeriodo = p;
+      document.querySelectorAll('.period-tab').forEach((t, i) => {
+        t.classList.toggle('active', (i + 1) === p);
+      });
+      init();
+    }
+
+    async function init() {
+      // Sin auto-detección: el usuario elige el periodo libremente con los botones
+      await cargarGrados();
+    }
+
+    async function cargarGrados() {
+      showLoading(true);
+      try {
+        const { data, error } = await supabaseClient.from('eval_resultados')
+          .select('grado')
+          .eq('periodo', currentPeriodo);
+
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+          console.warn("No hay datos para el periodo:", currentPeriodo);
+          $('sel-grado').innerHTML = '<option value="">Sin datos en Periodo ' + currentPeriodo + '</option>';
+        } else {
+          const distinct = [...new Set(data.map(i => i.grado))].sort((a, b) => a - b);
+          $('sel-grado').innerHTML = '<option value="">Seleccione grado...</option>' +
+            distinct.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
+        }
+
+      } catch (e) {
+        console.error("Error grados:", e);
+        alert("Error al cargar grados: Verifica los permisos (RLS) en Supabase.");
+      }
+
+      const asigSel = $('sel-asig');
+      if (asigSel) { 
+        asigSel.innerHTML = '<option value="">Seleccione asignatura...</option>'; 
+        asigSel.style.borderLeft = '5px solid #e2e8f0'; 
+        asigSel.style.background = 'white'; 
+        asigSel.style.fontWeight = '';
+      }
+      
+      const pSel = $('sel-pregunta');
+      if (pSel) pSel.innerHTML = '<option value="">Seleccione pregunta...</option>';
+      
+      const resCont = $('resultado-container');
+      if (resCont) resCont.style.display = 'none';
+      
+      showLoading(false);
+    }
+
+    // Paleta de colores por asignatura (se asigna por índice)
+    const ASIG_COLORES = ['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f97316','#06b6d4'];
+    // Mapa de valor -> color para colorear el select al cambiar
+    const asigColorMap = {};
+
+    function onAsigChange(sel) {
+      const color = asigColorMap[sel.value] || '#e2e8f0';
+      if (sel.value) {
+        sel.style.borderLeft = '5px solid ' + color;
+        sel.style.background = color + '18'; // 18 = ~10% opacity hex
+        sel.style.color = '#1e293b';
+        sel.style.fontWeight = '700';
+      } else {
+        sel.style.borderLeft = '5px solid #e2e8f0';
+        sel.style.background = 'white';
+        sel.style.fontWeight = '';
+      }
+      cargarPreguntas();
+    }
+
+    async function cargarAsignaturas() {
+      const grado = $('sel-grado').value;
+      if (!grado) return;
+
+      showLoading(true);
+      try {
+        const { data: mapData } = await supabaseClient.from('eval_preguntas')
+          .select('asignatura').eq('grado', grado).eq('periodo', currentPeriodo);
+
+        const sel = $('sel-asig');
+        sel.style.borderLeft = '5px solid #e2e8f0';
+        sel.style.background = 'white';
+        sel.style.fontWeight = '';
+        $('sel-pregunta').innerHTML = '<option value="">Seleccione pregunta...</option>';
+
+        let items = [], prefix = 'MAPPING';
+
+        if (mapData && mapData.length > 0) {
+          items = [...new Set(mapData.map(i => i.asignatura))].sort((a,b) => a.localeCompare(b,'es'));
+        } else {
+          const { data: resData } = await supabaseClient.from('eval_resultados')
+            .select('quiz_name').eq('grado', grado).eq('periodo', currentPeriodo);
+          if (resData && resData.length > 0) {
+            items = [...new Set(resData.map(i => i.quiz_name))].sort((a,b) => a.localeCompare(b,'es'));
+            prefix = 'QUIZ';
+          }
+        }
+
+        // Construir opciones y mapa de colores
+        let html = '<option value="">Seleccione asignatura...</option>';
+        items.forEach((item, i) => {
+          const color = ASIG_COLORES[i % ASIG_COLORES.length];
+          const val = `${prefix}:${item}`;
+          asigColorMap[val] = color;
+          html += `<option value="${val}">${item}</option>`;
+        });
+        sel.innerHTML = html;
+
+      } catch (e) {
+        console.error('Error Asignaturas:', e);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function cargarPreguntas() {
+      const grado = $('sel-grado').value;
+      const asigVal = $('sel-asig').value;
+      if (!grado || !asigVal) return;
+
+      showLoading(true);
+      try {
+        let distinctPreguntas = [];
+
+        if (asigVal.startsWith('MAPPING:')) {
+          const asignatura = asigVal.replace('MAPPING:', '');
+          const { data } = await supabaseClient.from('eval_preguntas')
+            .select('pregunta_num')
+            .eq('grado', grado)
+            .eq('asignatura', asignatura)
+            .eq('periodo', currentPeriodo)
+            .order('pregunta_num');
+
+          if (data) {
+            distinctPreguntas = [...new Set(data.map(i => i.pregunta_num))].sort((a, b) => a - b);
+          }
+        } else {
+          const quiz = asigVal.replace('QUIZ:', '');
+          const { data } = await supabaseClient.from('eval_resultados')
+            .select('pregunta_num')
+            .eq('grado', grado)
+            .eq('quiz_name', quiz)
+            .eq('periodo', currentPeriodo)
+            .order('pregunta_num');
+
+          if (data) {
+            distinctPreguntas = [...new Set(data.map(i => i.pregunta_num))].sort((a, b) => a - b);
+          }
+        }
+
+        $('sel-pregunta').innerHTML = '<option value="">Seleccione pregunta...</option>' +
+          distinctPreguntas.map(p => `<option value="${p}">Pregunta ${p}</option>`).join('');
+      } catch (e) {
+        console.error("Error Preguntas:", e);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function mostrarAnalisis() {
+      const grado = $('sel-grado').value;
+      const num = $('sel-pregunta').value;
+      if (!grado || !num) return;
+
+      showLoading(true);
+
+      try {
+        // Buscamos resultados y mapeo de forma robusta (limit(1) previene crasheos si por accidente se subieron datos duplicados)
+        const [mapRes, dataRes] = await Promise.all([
+          supabaseClient.from('eval_preguntas').select('*').eq('grado', grado).eq('pregunta_num', num).eq('periodo', currentPeriodo).limit(1),
+          supabaseClient.from('eval_resultados').select('*').eq('grado', grado).eq('pregunta_num', num).eq('periodo', currentPeriodo).limit(1)
+        ]);
+
+        if (dataRes.data && dataRes.data.length > 0) {
+          let mapping = mapRes.data && mapRes.data.length > 0 ? mapRes.data[0] : null;
+          const stats = dataRes.data[0];
+
+          // MODO RESILIENCIA: Si no se subió cuestionario, creamos uno virtual para mostrar los datos.
+          if (!mapping) {
+            mapping = {
+              pregunta_num: num,
+              texto_pregunta: `Pregunta #${num} (Evaluación sin archivo de mapeo detallado)`,
+              opcion_a: "Opción A",
+              opcion_b: "Opción B",
+              opcion_c: "Opción C",
+              opcion_d: "Opción D"
+            };
+          }
+          renderUI(mapping, stats);
+        } else {
+          alert("No se encontraron resultados completos para esta pregunta en Resultados. ¿Seguro que subiste el CSV de Zipgrade para este grado?");
+        }
+      } catch (e) {
+        console.error("Error en mostrarAnalisis:", e);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function renderUI(mapping, stats) {
+      $('resultado-container').style.display = 'block';
+      $('pregunta-display-num').innerText = `Pregunta #${mapping.pregunta_num}`;
+
+      renderMedia('pregunta-texto', 'pregunta-media', mapping.texto_pregunta);
+
+      const key = (stats.key || "").trim().toUpperCase();
+      const counts = [stats.resp_a_count, stats.resp_b_count, stats.resp_c_count, stats.resp_d_count];
+      const opts = ["A", "B", "C", "D"];
+      const labels = ["opcion_a", "opcion_b", "opcion_c", "opcion_d"];
+
+      const optionsHtml = opts.map((o, i) => {
+        const isCorrect = (o === key);
+        return `
+          <div class="option ${isCorrect ? 'correct' : ''}">
+            <div class="option-letter">${o}</div>
+            <div class="option-content" id="opt-text-${o}">${mapping[labels[i]] || 'N/A'}</div>
+            <div id="opt-media-${o}"></div>
+          </div>
+        `;
+      }).join('');
+
+      $('options-list').innerHTML = optionsHtml;
+
+      // Render media individualmente
+      opts.forEach(o => renderMedia(`opt-text-${o}`, `opt-media-${o}`, mapping[`opcion_${o.toLowerCase()}`]));
+
+      $('stat-correctas').innerText = stats.cant_correctas;
+      $('stat-porcentaje').innerText = stats.porc_correctas + "%";
+
+      const totalPersonas = stats.porc_correctas > 0 ? Math.round((stats.cant_correctas * 100) / stats.porc_correctas) : (counts.reduce((a, b) => a + b, 0));
+      const elTotal = document.getElementById('stat-total');
+      if (elTotal) elTotal.innerText = totalPersonas;
+
+      updateChart(counts, key);
+    }
+
+    function renderMedia(textId, mediaId, content) {
+      const textElem = $(textId);
+      const mediaElem = $(mediaId);
+      if (!textElem || !mediaElem) return;
+
+      textElem.innerText = "";
+      mediaElem.innerHTML = "";
+      if (!content) return;
+
+      let textPart = "";
+      let imgPart = "";
+
+      const str = content.toString();
+      if (str.includes(" ||| ")) {
+        const parts = str.split(" ||| ");
+        textPart = parts[0];
+        imgPart = parts[1];
+      } else if (str.startsWith("http")) {
+        imgPart = str;
+      } else {
+        textPart = str;
+      }
+
+      if (textPart && textPart.trim() !== "") {
+        textElem.innerText = textPart;
+      }
+      if (imgPart && imgPart.trim().startsWith("http")) {
+        mediaElem.innerHTML = `<img src="${imgPart}" style="max-width:100%; border-radius:10px; margin-top:10px;">`;
+      }
+    }
+
+    function updateChart(counts, key) {
+      if (myChart) myChart.destroy();
+      const ctx = $('barChart').getContext('2d');
+      const labels = ['A', 'B', 'C', 'D'];
+      const colors = labels.map(o => o === key ? '#10b981' : '#6366f1');
+
+      // Add a slight top padding so labels don't get clipped
+      Chart.register(ChartDataLabels);
+
+      myChart = new Chart(ctx, {
+        type: 'bar',
+        plugins: [ChartDataLabels],
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Respuestas',
+            data: counts,
+            backgroundColor: colors,
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              color: '#1e293b',
+              font: { weight: 'bold', size: 16 },
+              anchor: 'end',
+              align: 'top',
+              formatter: function (value) {
+                return value > 0 ? value : '';
+              }
+            }
+          },
+          layout: {
+            padding: { top: 25 }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0 },
+              grid: { display: false }
+            },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function showLoading(show) {
+      $('loading').style.display = show ? 'flex' : 'none';
+    }
+
+    // --- Lógica de Diagnóstico ---
+    let cachedRows = null;
+
+    function toggleAdmin() {
+      const p = $('admin-panel');
+      if (p.style.display === 'block') {
+        p.style.display = 'none';
+      } else {
+        p.style.display = 'block';
+      }
+    }
+
+    function switchAdminTab(tab) {
+      $('apanel-datos').style.display = tab === 'datos' ? 'block' : 'none';
+      $('apanel-usuarios').style.display = tab === 'usuarios' ? 'block' : 'none';
+      $('apanel-imagenes').style.display = tab === 'imagenes' ? 'block' : 'none';
+
+      $('atab-datos').style.background = tab === 'datos' ? '#4f46e5' : 'transparent';
+      $('atab-datos').style.color = tab === 'datos' ? 'white' : '#4f46e5';
+      $('atab-datos').style.border = tab === 'datos' ? 'none' : '2px solid #4f46e5';
+
+      $('atab-usuarios').style.background = tab === 'usuarios' ? '#4f46e5' : 'transparent';
+      $('atab-usuarios').style.color = tab === 'usuarios' ? 'white' : '#4f46e5';
+      $('atab-usuarios').style.border = tab === 'usuarios' ? 'none' : '2px solid #4f46e5';
+
+      $('atab-imagenes').style.background = tab === 'imagenes' ? '#4f46e5' : 'transparent';
+      $('atab-imagenes').style.color = tab === 'imagenes' ? 'white' : '#4f46e5';
+      $('atab-imagenes').style.border = tab === 'imagenes' ? 'none' : '2px solid #4f46e5';
+
+      if (tab === 'imagenes' && $('aimg-grado').options.length === 1) {
+        cargarGradosAdminImg();
+      }
+    }
+
+    // --- LÓGICA DE SUBIDA DE IMÁGENES A PREGUNTAS ---
+    async function cargarGradosAdminImg() {
+      $('aimg-status').innerText = "Cargando grados...";
+      const { data, error } = await supabaseClient.from('eval_preguntas').select('grado');
+      if (data) {
+        const distinct = [...new Set(data.map(i => i.grado))].sort((a,b)=>a-b);
+        $('aimg-grado').innerHTML = '<option value="">Grado...</option>' + distinct.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
+      }
+      $('aimg-status').innerText = "";
+    }
+
+    async function cargarAsignaturasAdminImg() {
+      const g = $('aimg-grado').value;
+      const p = $('aimg-periodo').value;
+      if (!g) return;
+      $('aimg-status').innerText = "Cargando asignaturas...";
+      const { data } = await supabaseClient.from('eval_preguntas').select('asignatura').eq('grado',g).eq('periodo',p);
+      if (data) {
+        const distinct = [...new Set(data.map(i => i.asignatura))].sort((a,b)=>a.localeCompare(b,'es'));
+        $('aimg-asig').innerHTML = '<option value="">Asignatura...</option>' + distinct.map(a => `<option value="${a}">${a}</option>`).join('');
+      }
+      $('aimg-preg').innerHTML = '<option value="">Pregunta...</option>';
+      $('aimg-detalle').style.display = 'none';
+      $('aimg-status').innerText = "";
+    }
+
+    async function cargarPreguntasAdminImg() {
+      const g = $('aimg-grado').value;
+      const p = $('aimg-periodo').value;
+      const a = $('aimg-asig').value;
+      if (!a) return;
+      $('aimg-status').innerText = "Cargando pregs...";
+      const { data } = await supabaseClient.from('eval_preguntas').select('pregunta_num').eq('grado',g).eq('periodo',p).eq('asignatura',a).order('pregunta_num');
+      if (data) {
+        const distinct = [...new Set(data.map(i => i.pregunta_num))].sort((x,y)=>x-y);
+        $('aimg-preg').innerHTML = '<option value="">Pregunta...</option>' + distinct.map(x => `<option value="${x}">#${x}</option>`).join('');
+      }
+      $('aimg-detalle').style.display = 'none';
+      $('aimg-status').innerText = "";
+    }
+
+    async function verDetallePreguntaAdmin() {
+      const g = $('aimg-grado').value, p = $('aimg-periodo').value, a = $('aimg-asig').value, num = $('aimg-preg').value;
+      if (!num) { $('aimg-detalle').style.display = 'none'; return; }
+      
+      $('aimg-status').innerText = "Cargando mapeo...";
+      const { data } = await supabaseClient.from('eval_preguntas').select('*').eq('grado',g).eq('periodo',p).eq('asignatura',a).eq('pregunta_num',num).maybeSingle();
+      
+      if (!data) {
+        $('aimg-status').innerText = "No se halló mapeo para esta pregunta.";
+        $('aimg-detalle').style.display = 'none';
+        return;
+      }
+
+      $('aimg-title').innerText = `🎨 Pregunta #${num} - ${a}`;
+      const fields = [
+        { key: 'texto_pregunta', label: 'Texto/Imagen Pregunta' },
+        { key: 'opcion_a', label: 'Opción A' },
+        { key: 'opcion_b', label: 'Opción B' },
+        { key: 'opcion_c', label: 'Opción C' },
+        { key: 'opcion_d', label: 'Opción D' }
+      ];
+
+      let html = '';
+      fields.forEach(f => {
+        const val = data[f.key] || '';
+        let textDisplay = "";
+        let imgUrl = "";
+
+        if (val.includes(" ||| ")) {
+          const parts = val.split(" ||| ");
+          textDisplay = parts[0];
+          imgUrl = parts[1];
+        } else if (val.startsWith("http")) {
+          imgUrl = val;
+        } else {
+          textDisplay = val;
+        }
+
+        let previewHtml = '';
+        if (imgUrl) {
+          previewHtml = `
+            <div style="margin-top:5px; position:relative; display:inline-block;">
+              <img src="${imgUrl}" style="max-height:60px; border-radius:4px; border:1px solid #ddd;">
+              <button onclick="removerImagenMapeo('${data.id}', '${f.key}')" 
+                style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; border:none; width:20px; height:20px; border-radius:50%; font-size:12px; cursor:pointer;" title="Eliminar Imagen">×</button>
+            </div>`;
+        } else {
+          previewHtml = `<span style="color:#64748b; font-size:0.65rem;">(Sin Imagen)</span>`;
+        }
+
+        html += `
+          <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:5px;">
+              <div style="display:flex; flex-direction:column;">
+                <span style="font-weight:bold; color:#1e293b; font-size:0.75rem;">${f.label}</span>
+                <span style="color:#64748b; font-size:0.65rem; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">📝 ${textDisplay || 'Sin texto'}</span>
+              </div>
+              ${previewHtml}
+            </div>
+            <div style="display:flex; gap:5px; align-items:center; margin-top:5px;">
+              <input type="file" id="file-${f.key}" accept="image/*" style="font-size:0.7rem; width:140px;">
+              <button onclick="subirImagenMapeo('${data.id}', '${f.key}')" 
+                style="background:#10b981; color:white; border:none; border-radius:6px; padding:4px 8px; font-weight:bold; font-size:0.7rem; cursor:pointer;">Subir</button>
+            </div>
+          </div>
+        `;
+      });
+
+      $('aimg-fields').innerHTML = html;
+      $('aimg-detalle').style.display = 'block';
+      $('aimg-status').innerText = "";
+    }
+
+    async function removerImagenMapeo(rowId, colName) {
+      if (!confirm("¿Seguro que quieres eliminar esta imagen?")) return;
+      const st = $('aimg-status');
+      st.innerText = "⏳ Eliminando imagen...";
+      try {
+        // Obtenemos el valor actual para preservar el texto
+        const { data: curr } = await supabaseClient.from('eval_preguntas').select(colName).eq('id', rowId).single();
+        let newContent = "";
+        if (curr && curr[colName]) {
+          const str = curr[colName].toString();
+          if (str.includes(" ||| ")) newContent = str.split(" ||| ")[0];
+          else if (!str.startsWith("http")) newContent = str;
+        }
+
+        const { error } = await supabaseClient.from('eval_preguntas').update({ [colName]: newContent }).eq('id', rowId);
+        if (error) throw error;
+        st.innerText = "✅ Imagen eliminada.";
+        verDetallePreguntaAdmin();
+        if ($('resultado-container').style.display !== 'none') mostrarAnalisis();
+      } catch (e) {
+        console.error("Error al eliminar:", e);
+        st.innerText = "❌ Error: " + (e.message || "Desconocido");
+      }
+    }
+
+    async function subirImagenMapeo(rowId, colName) {
+      const fileInput = $(`file-${colName}`);
+      const file = fileInput.files[0];
+      if (!file) return alert("Selecciona una imagen primero.");
+
+      const st = $('aimg-status');
+      st.innerText = "⏳ Subiendo imagen y guardando...";
+
+      try {
+        const ext = file.name.split('.').pop();
+        const fname = `evt2026_${colName}_${Date.now()}.${ext}`;
+        const filePath = fname;
+
+        const { error: uploadError } = await supabaseClient.storage.from('assets').upload(filePath, file, { cacheControl: '3600', upsert: false });
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabaseClient.storage.from('assets').getPublicUrl(filePath);
+
+        const { data: curr } = await supabaseClient.from('eval_preguntas').select(colName).eq('id', rowId).single();
+        let textPart = "";
+        if (curr && curr[colName]) {
+           const str = curr[colName].toString();
+           if (str.includes(" ||| ")) textPart = str.split(" ||| ")[0];
+           else if (!str.startsWith("http")) textPart = str;
+        }
+        
+        const finalContent = textPart ? `${textPart} ||| ${publicUrl}` : publicUrl;
+
+        const { error: updError } = await supabaseClient.from('eval_preguntas').update({ [colName]: finalContent }).eq('id', rowId);
+        if (updError) throw updError;
+
+        st.innerText = "✅ ¡Actualizado exitosamente!";
+        fileInput.value = "";
+        verDetallePreguntaAdmin();
+
+        const isShowingPreg = $('sel-pregunta') && $('sel-pregunta').value == $('aimg-preg').value;
+        if (isShowingPreg && $('sel-grado').value == $('aimg-grado').value) {
+           mostrarAnalisis();
+        }
+
+      } catch (e) {
+        st.innerText = "❌ Error: " + (e.message || "Desconocido");
+        console.error(e);
+      }
+    }
+
+    async function crearUsuario() {
+      const email = $('nu-email').value.trim();
+      const nombre = $('nu-nombre').value.trim();
+      const pass = $('nu-pass').value;
+      const rol = $('nu-rol').value;
+      const status = $('users-status');
+
+      if (!email || !pass || !nombre) return alert('Completa el nombre, email y la contraseña.');
+
+      status.innerText = '⏳ Creando usuario...';
+      try {
+        // 1. Crear cuenta en Supabase Auth
+        const { data, error } = await supabaseClient.auth.signUp({ email, password: pass });
+        if (error) throw error;
+
+        const userId = data.user?.id;
+        if (!userId) throw new Error('No se pudo obtener el ID del usuario.');
+
+        // 2. Insertar en perfiles con el UUID del usuario
+        const { error: pErr } = await supabaseClient.from('perfiles')
+          .upsert({ id: userId, email, nombre, rol }, { onConflict: 'email' });
+        if (pErr) throw pErr;
+
+        status.innerText = `✅ Usuario creado: ${nombre} (${email}) — ${rol}`;
+        $('nu-email').value = '';
+        $('nu-nombre').value = '';
+        $('nu-pass').value = '';
+      } catch (e) {
+        status.innerText = `❌ Error: ${e.message}`;
+      }
+    }
+
+    async function importarUsuariosCSV() {
+      const file = $('users-csv').files[0];
+      if (!file) return alert('Selecciona primero un archivo CSV.');
+      const status = $('users-status');
+      status.innerText = '⏳ Procesando archivo...';
+
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        encoding: 'UTF-8',
+        complete: async function(results) {
+          const rows = results.data;
+          if (!rows.length) return status.innerText = '❌ El archivo está vacío o mal formateado.';
+
+          let ok = 0, fail = 0;
+          for (const row of rows) {
+            const email = (row.email || '').trim();
+            const pass  = (row.password || row.contraseña || '').trim();
+            const nombre = (row.nombre || '').trim();
+            const rol   = (row.rol || 'lector').trim().toLowerCase();
+
+            if (!email || !pass) { fail++; continue; }
+
+            try {
+              const { data: signData, error: sErr } = await supabaseClient.auth.signUp({ email, password: pass });
+              if (sErr && !sErr.message.includes('already registered')) throw sErr;
+              
+              const userId = signData?.user?.id;
+              if (userId) {
+                await supabaseClient.from('perfiles').upsert({ id: userId, email, nombre, rol }, { onConflict: 'email' });
+              } else {
+                await supabaseClient.from('perfiles').update({ nombre, rol }).eq('email', email);
+              }
+              ok++;
+            } catch (e) { fail++; }
+
+            status.innerText = `⏳ Procesando... ${ok + fail}/${rows.length}`;
+          }
+          status.innerText = `✅ Listo: ${ok} creados/actualizados, ${fail} fallidos de ${rows.length} filas.`;
+        }
+      });
+    }
+
+    function updateStatus(msg) {
+      $('admin-status').innerText = msg;
+    }
+
+    function previsualizarDatos() {
+      const file = $('csv-file').files[0];
+      if (!file) return alert("Seleccion primero un archivo");
+
+      updateStatus("Analizando archivo...");
+      Papa.parse(file, {
+        header: false,
+        skipEmptyLines: true,
+        encoding: "UTF-8",
+        complete: function (results) {
+          cachedRows = results.data;
+          const table = $('debug-table');
+          table.innerHTML = "";
+
+          // Crear Cabecera con Indices
+          let headerHtml = "<tr>" + cachedRows[0].map((_, i) => `<th style='border:1px solid #ddd; background:#eee;'>COL ${i}</th>`).join('') + "</tr>";
+          table.innerHTML += headerHtml;
+
+          // Mostrar primeras 4 filas
+          const preview = cachedRows.slice(0, 4);
+          preview.forEach(row => {
+            let rowHtml = "<tr>" + row.map(cell => `<td style='border:1px solid #ddd; padding:4px;'>${cell}</td>`).join('') + "</tr>";
+            table.innerHTML += rowHtml;
+          });
+
+          $('admin-debug').style.display = 'block';
+          updateStatus("Análisis completado. Revisa la tabla arriba 👆");
+        }
+      });
+    }
+
+    async function finalizarSubida() {
+      if (!cachedRows) return;
+
+      const rows = [...cachedRows];
+      if (rows[0][0].toString().toLowerCase().includes("grado")) rows.shift();
+
+      const resultadosData = [];
+      const mapeoData = [];
+      const mapeoVisto = new Set();
+      let periodoDetectado = 1;
+
+      const parseRawNum = (val) => {
+        if (val === undefined || val === null || val === '') return 0;
+        let s = val.toString().trim().replace('%', '').replace(' ', '').replace(',', '.');
+        const n = parseFloat(s);
+        return isNaN(n) ? 0 : n;
+      };
+
+      const testRow = rows.find(r => r[1] && r[1].length > 5);
+      if (testRow) {
+        const name = testRow[1].toLowerCase();
+        if (name.includes('1p')) periodoDetectado = 1;
+        else if (name.includes('2p')) periodoDetectado = 2;
+        else if (name.includes('final')) periodoDetectado = 3;
+      }
+
+      const gradoRef = parseInt(rows[0][0]);
+      if (isNaN(gradoRef)) return alert("Error: No se pudo verificar el Grado inicial del archivo.");
+
+      // --- RESGUARDO DE IMÁGENES EXISTENTES ---
+      updateStatus("⏳ Resguardando imágenes existentes...");
+      const { data: existingPregs } = await supabaseClient.from('eval_preguntas')
+        .select('*').eq('periodo', periodoDetectado).eq('grado', gradoRef);
+      const imgBackup = {}; 
+      if (existingPregs) {
+        existingPregs.forEach(p => {
+          const key = `${p.asignatura}-${p.pregunta_num}`;
+          imgBackup[key] = p;
+        });
+      }
+
+      rows.forEach((row) => {
+        if (row.length < 5) return;
+        if (row[0] && row[4]) {
+          const nCorrect = parseRawNum(row[6]);
+          const pCorrect = parseRawNum(row[7]);
+          let totalEst = pCorrect > 0 ? (nCorrect * 100) / pCorrect : 0;
+          let actualKey = (row[3] || "").toString().trim().toUpperCase();
+          if (actualKey === "PRIMARY KEY") actualKey = (row[5] || "").toString().trim().toUpperCase();
+
+          const rMap = {};
+          const indicesLetras = [9, 11, 13, 15, 17], indicesValores = [10, 12, 14, 16, 18];
+          indicesLetras.forEach((idx, i) => {
+            const letra = (row[idx] || "").toString().trim().toUpperCase();
+            if (!letra) return;
+            const perc = parseRawNum(row[indicesValores[i]]);
+            rMap[letra] = (letra === actualKey) ? nCorrect : Math.round((perc * totalEst) / 100);
+          });
+
+          resultadosData.push({
+            grado: parseInt(row[0]), quiz_name: row[1], key: actualKey, pregunta_num: parseInt(row[4]),
+            cant_correctas: Math.round(nCorrect), porc_correctas: Math.round(pCorrect),
+            resp_a_count: rMap["A"] || 0, resp_b_count: rMap["B"] || 0, resp_c_count: rMap["C"] || 0, resp_d_count: rMap["D"] || 0,
+            periodo: periodoDetectado
+          });
+        }
+
+        const mG = row[18], mN = row[19];
+        if (mG && mN) {
+          const mk = `${mG}-${mN}`;
+          if (!mapeoVisto.has(mk)) {
+            mapeoVisto.add(mk);
+            const asignatura = row[20];
+            const pNum = parseInt(mN);
+            const bKey = `${asignatura}-${pNum}`;
+            const backup = imgBackup[bKey] || {};
+
+            // Smart Merge: Conservamos la imagen antigua si existía, unida al texto nuevo del CSV
+            const merge = (field, csvVal) => {
+              const prev = (backup[field] || "").toString();
+              let prevImg = "";
+              if (prev.includes(" ||| ")) prevImg = prev.split(" ||| ")[1];
+              else if (prev.startsWith("http")) prevImg = prev;
+
+              if (prevImg) return `${csvVal || ""} ||| ${prevImg}`;
+              return csvVal;
+            };
+
+            mapeoData.push({
+              grado: parseInt(mG),
+              pregunta_num: pNum,
+              asignatura: asignatura,
+              texto_pregunta: merge('texto_pregunta', row[21]),
+              opcion_a: merge('opcion_a', row[22]),
+              opcion_b: merge('opcion_b', row[23]),
+              opcion_c: merge('opcion_c', row[24]),
+              opcion_d: merge('opcion_d', row[25]),
+              periodo: periodoDetectado
+            });
+          }
+        }
+      });
+
+      if (resultadosData.length === 0) return alert("⛔ Error: No se hallaron datos válidos en el archivo.");
+
+      const confirmar = confirm(`¿Confirmas la subida?\n- Grado: ${gradoRef}\n- Periodo: ${periodoDetectado}\n- Resultados: ${resultadosData.length}\n- Mapeo: ${mapeoData.length}`);
+      if (!confirmar) return;
+
+      const btn = $('btn-confirm-upload');
+      btn.disabled = true; btn.innerText = "Subiendo...";
+
+      try {
+        updateStatus(`Paso 1: Limpiando base de datos...`);
+        await supabaseClient.from('eval_resultados').delete().eq('periodo', periodoDetectado).eq('grado', gradoRef);
+        await supabaseClient.from('eval_preguntas').delete().eq('periodo', periodoDetectado).eq('grado', gradoRef);
+
+        updateStatus(`Paso 2: Insertando resultados...`);
+        if (resultadosData.length) {
+          const { error: err1 } = await supabaseClient.from('eval_resultados').insert(resultadosData);
+          if (err1) throw err1;
+        }
+
+        updateStatus(`Paso 3: Insertando mapeo (con imágenes resguardadas)...`);
+        if (mapeoData.length) {
+          const { error: err2 } = await supabaseClient.from('eval_preguntas').insert(mapeoData);
+          if (err2) throw err2;
+        }
+
+        updateStatus("✅ ¡Importación EXITOSA!");
+        alert(`¡Carga completada con éxito!`);
+        location.reload();
+      } catch (e) {
+        console.error(e);
+        alert("Error al subir: " + (e.message || "Desconocido"));
+        btn.disabled = false; btn.innerText = "Reintentar Subida";
+      }
+    }
+
+    checkSession();
+
+    // Registrar Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(registration => {
+          console.log('SW registrado con éxito:', registration.scope);
+        }).catch(err => {
+          console.log('Registro de SW falló:', err);
+        });
+      });
+    }
+  </script>
+</body>
+
+</html>

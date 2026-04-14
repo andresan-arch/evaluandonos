@@ -1,0 +1,210 @@
+// ==========================================
+// CONFIGURACIÓN INICIAL
+// ==========================================
+const SPREADSHEET_ID = '1OwPnMrf54TdhMKxgsdlC6vZfvYwb5r1PqCivp9L9m5U';
+
+// Traducción de números a nombres de grados
+const MAPA_GRADOS = {
+  "1": "Primero", "2": "Segundo", "3": "Tercero", "4": "Cuarto", "5": "Quinto",
+  "6": "Sexto", "7": "Séptimo", "8": "Octavo", "9": "Noveno", "10": "Décimo", "11": "Undécimo"
+};
+
+/**
+ * Función principal que sirve la aplicación web
+ */
+function doGet() {
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheetFondo = ss.getSheetByName("fondo");
+    
+    // Objeto para pasar imágenes al HTML
+    let configImg = { 
+      fondo: "", 
+      banner: "", 
+      footerImg: "" // NUEVO: Imagen del footer desde A2
+    };
+    
+    if (sheetFondo) {
+      configImg.fondo = convertirUrlDrive(sheetFondo.getRange("A1").getValue());
+      configImg.banner = convertirUrlDrive(sheetFondo.getRange("B1").getValue());
+      // Cargar imagen del footer desde la celda A2
+      configImg.footerImg = convertirUrlDrive(sheetFondo.getRange("A2").getValue());
+    }
+    
+    const template = HtmlService.createTemplateFromFile('Index');
+    template.configImg = configImg;
+    
+    return template.evaluate()
+      .setTitle('Dashboard de Resultados')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+      
+  } catch (e) {
+    return HtmlService.createHtmlOutput('<h1>Error al cargar la aplicación: ' + e.message + '</h1>');
+  }
+}
+
+/**
+ * 1. Obtiene la lista única de GRADOS disponibles
+ * (Reemplaza a obtenerDatosFiltrosIniciales para ser más específico)
+ */
+function obtenerGrados(pestaña) {
+  try {
+    const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(pestaña);
+    const data = sheet.getDataRange().getValues();
+    data.shift(); // Remover encabezados
+    
+    // Columna 18 es Grado
+    const gradosRaw = [...new Set(data.map(row => String(row[18] || "").trim()).filter(String))];
+    
+    const gradosTraducidos = gradosRaw.map(g => ({
+      valor: g,
+      texto: MAPA_GRADOS[g] || "Grado " + g
+    })).sort((a, b) => parseInt(a.valor) - parseInt(b.valor));
+
+    return { grados: gradosTraducidos };
+    
+  } catch (e) {
+    Logger.log('Error en obtenerGrados: ' + e.message);
+    throw e;
+  }
+}
+
+/**
+ * 2. Obtiene ASIGNATURAS filtradas específicamente por el GRADO seleccionado
+ */
+function obtenerAsignaturasPorGrado(grado, pestaña) {
+  try {
+    const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(pestaña);
+    const data = sheet.getDataRange().getValues();
+    data.shift();
+    
+    // Filtrar filas donde la Columna 18 (Grado) coincida
+    const asignaturasFiltradas = data
+      .filter(row => String(row[18] || "").trim() == String(grado).trim())
+      .map(row => String(row[20] || "").trim()) // Columna 20 es Asignatura
+      .filter(String);
+    
+    // Retornar únicas y ordenadas
+    return [...new Set(asignaturasFiltradas)].sort();
+    
+  } catch (e) {
+    Logger.log('Error en obtenerAsignaturasPorGrado: ' + e.message);
+    throw e;
+  }
+}
+
+/**
+ * 3. Obtiene la lista de PREGUNTAS disponibles para un Grado y Asignatura
+ */
+function obtenerListaPreguntasFiltradas(grado, asignatura, pestaña) {
+  try {
+    const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(pestaña);
+    const data = sheet.getDataRange().getValues();
+    data.shift();
+    
+    // Filtrar por Grado (Col 18) y Asignatura (Col 20)
+    const numeros = data
+      .filter(row => String(row[18] || "").trim() == String(grado).trim() && 
+                     String(row[20] || "").trim() == String(asignatura).trim())
+      .map(row => row[19]) // Columna 19 es Número de Pregunta
+      .filter(n => n !== "" && n !== null);
+      
+    return [...new Set(numeros)].sort((a, b) => Number(a) - Number(b));
+    
+  } catch (e) {
+    Logger.log('Error en obtenerListaPreguntasFiltradas: ' + e.message);
+    throw e;
+  }
+}
+
+/**
+ * 4. Obtiene el DETALLE COMPLETO (Texto, Opciones, Estadísticas)
+ */
+function obtenerDetalleCompletoPregunta(grado, asignatura, numero, pestaña) {
+  try {
+    const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(pestaña);
+    const data = sheet.getDataRange().getValues();
+    data.shift();
+    
+    // Buscar fila de contenido (Columna 18: Grado, 20: Asignatura, 19: Pregunta)
+    const filaC = data.find(r => String(r[18] || "").trim() == String(grado).trim() && 
+                                 String(r[20] || "").trim() == String(asignatura).trim() && 
+                                 String(r[19] || "").trim() == String(numero).trim());
+    
+    // Buscar fila de estadísticas (Columna 0: Grado, 4: Pregunta)
+    const filaE = data.find(r => String(r[0] || "").trim() == String(grado).trim() && 
+                                 String(r[4] || "").trim() == String(numero).trim());
+
+    if (!filaC) throw new Error('No se encontró la pregunta en la hoja de contenido');
+    if (!filaE) throw new Error('No se encontraron estadísticas para esta pregunta');
+
+    // Funciones auxiliares de limpieza
+    const fv = (v) => convertirUrlDrive(v); // Convierte URLs de Drive
+    
+    const aNum = (v) => {
+      if (v === "" || v === null || v === undefined) return 0;
+      let n = parseFloat(String(v).replace('%','').replace(',','.'));
+      return isNaN(n) ? 0 : (n > 1 ? n / 100 : n);
+    };
+
+    // Cálculo de totales basado en porcentaje (Columnas originales: 6 y 7)
+    const cantC = parseFloat(filaE[6]) || 0; 
+    const porcC = aNum(filaE[7]);
+    const total = porcC > 0 ? Math.round(cantC / porcC) : 0;
+
+    return {
+      pregunta: {
+        texto: fv(filaC[21]), // Columna 21: Enunciado
+        opciones: { 
+          A: fv(filaC[22]), // Columna 22: Opción A
+          B: fv(filaC[23]), // Columna 23: Opción B
+          C: fv(filaC[24]), // Columna 24: Opción C
+          D: fv(filaC[25])  // Columna 25: Opción D
+        },
+        correcta: String(filaE[5] || "").trim().toUpperCase() // Columna 5: Respuesta Correcta
+      },
+      estadisticas: {
+        // Columnas de porcentajes en filaE: A=10, B=12, C=14, D=16
+        A: Math.round(total * aNum(filaE[10])),
+        B: Math.round(total * aNum(filaE[12])),
+        C: Math.round(total * aNum(filaE[14])),
+        D: Math.round(total * aNum(filaE[16])),
+        total: total
+      }
+    };
+    
+  } catch (e) {
+    Logger.log('Error en obtenerDetalleCompletoPregunta: ' + e.message);
+    throw e;
+  }
+}
+
+/**
+ * Utilidad: Convierte enlaces de Google Drive a formato visualizable (lh3)
+ */
+function convertirUrlDrive(url) {
+  if (!url || typeof url !== 'string') return url;
+  
+  let s = url.trim();
+  
+  // Detectar si es un enlace de Drive
+  if (s.includes('drive.google.com')) {
+    let id = "";
+    // Extraer ID de varios formatos posibles
+    if (s.includes('/file/d/')) {
+      id = s.split('/file/d/')[1].split('/')[0];
+    } else if (s.includes('id=')) {
+      id = s.split('id=')[1].split('&')[0];
+    } else if (s.includes('/d/')) {
+      id = s.split('/d/')[1].split('/')[0];
+    }
+    
+    if (id) {
+      // MÉTODO QUE SÍ FUNCIONA EN 2024/2025
+      return "https://lh3.googleusercontent.com/d/" + id;
+    }
+  }
+  
+  return s;
+}
