@@ -1518,12 +1518,17 @@
 
               const userId = signData?.user?.id;
               if (userId) {
-                await supabaseClient.from('perfiles').upsert({ id: userId, email, nombre, rol }, { onConflict: 'id' });
+                const { error: pErr } = await supabaseClient.from('perfiles').upsert({ id: userId, email, nombre, rol }, { onConflict: 'id' });
+                if (pErr) throw pErr;
               } else {
-                await supabaseClient.from('perfiles').update({ nombre, rol }).eq('email', email);
+                const { error: pErr2 } = await supabaseClient.from('perfiles').update({ nombre, rol }).eq('email', email);
+                if (pErr2) throw pErr2;
               }
               ok++;
-            } catch (e) { fail++; }
+            } catch (e) { 
+              console.error("Fallo con", email, e);
+              fail++; 
+            }
 
             status.innerText = `⏳ Procesando... ${ok + fail}/${rows.length}`;
           }
