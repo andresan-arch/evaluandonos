@@ -5,11 +5,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Evaluándonos - Análisis Estadístico</title>
-  
+
   <!-- PWA Meta Tags -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4f46e5">
-  <link rel="apple-touch-icon" href="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png">
+  <link rel="apple-touch-icon"
+    href="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
@@ -34,7 +35,7 @@
 
     body {
       background-color: #f1f5f9;
-      background-image: 
+      background-image:
         radial-gradient(at 80% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
         radial-gradient(at 0% 50%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
       background-attachment: fixed;
@@ -44,41 +45,55 @@
     }
 
     header {
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-      color: white;
-      padding: 0;
+      background: transparent;
+      padding: 1rem;
       text-align: center;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       position: relative;
-      overflow: hidden;
     }
 
     .header-banner {
       width: 100%;
-      background: white;
-      padding: 0;
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%);
       display: flex;
       justify-content: center;
       align-items: center;
-      border-bottom: 4px solid var(--primary);
-      max-height: 250px;
+      border-radius: 30px;
       overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(79, 70, 229, 0.3);
+      border: 3px solid rgba(255, 255, 255, 0.6);
+      position: relative;
+      margin: 0 auto;
+      max-width: 1400px;
+    }
+    
+    .header-banner img {
+      width: 100%; 
+      height: 280px; 
+      object-fit: cover; 
+      display: block;
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .header-logo {
-      width: 100%;
-      height: auto;
-      display: block;
-      object-fit: contain;
-      max-height: 200px;
+    .header-banner:hover img {
+      transform: scale(1.05); /* Soft zoom effect for wow factor */
     }
 
     .header-sub {
-      background: var(--primary);
-      color: white;
-      padding: 10px 0;
-      font-size: 0.9rem;
-      font-weight: 600;
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-50px);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      color: var(--primary);
+      padding: 10px 30px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      white-space: nowrap;
+      z-index: 2;
     }
 
     .container {
@@ -147,6 +162,7 @@
       border: 1px solid rgba(99, 102, 241, 0.1);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+
     .card:hover {
       transform: translateY(-4px);
       box-shadow: 0 25px 50px -12px rgba(79, 70, 229, 0.2);
@@ -183,6 +199,7 @@
       border-radius: 16px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
     .option:hover {
       border-color: rgba(99, 102, 241, 0.3);
       transform: translateX(4px);
@@ -380,14 +397,38 @@
     }
 
     /* Colores Específicos por Periodo */
-    #tab-1 { color: #3b82f6; }
-    #tab-1.active { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border:none; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
-    
-    #tab-2 { color: #10b981; }
-    #tab-2.active { background: linear-gradient(135deg, #10b981, #059669); color: white; border:none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
-    
-    #tab-3 { color: #ef4444; }
-    #tab-3.active { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border:none; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+    #tab-1 {
+      color: #3b82f6;
+    }
+
+    #tab-1.active {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    #tab-2 {
+      color: #10b981;
+    }
+
+    #tab-2.active {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    #tab-3 {
+      color: #ef4444;
+    }
+
+    #tab-3.active {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
 
     /* Botones de Asignatura */
     .asig-btns {
@@ -470,13 +511,10 @@
   </div>
 
   <header>
-    <div class="header-banner" style="max-height:250px; overflow: hidden;">
-      <img src="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/evaluandonos.png"
-        style="width: 100%; height: 100%; object-fit: cover; display: block;" alt="Evaluándonos Banner">
-    </div>
-    <div class="header-sub">
-      <div class="container">
-        <span style="font-weight:600;">Evaluándonos — Análisis Estadístico</span>
+    <div class="header-banner">
+      <img src="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/evaluandonos.png" alt="Evaluándonos Banner">
+      <div class="header-sub">
+        Evaluándonos — Análisis Estadístico
       </div>
     </div>
   </header>
@@ -486,7 +524,9 @@
     background:white; border-radius:50px; padding:8px 16px 8px 12px;
     box-shadow:0 4px 20px rgba(79,70,229,0.25); border:1px solid #e2e8f0;
     align-items:center; gap:10px; font-family:'Outfit',sans-serif;">
-    <div style="width:34px; height:34px; background:linear-gradient(135deg,#4f46e5,#7c3aed); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:0.9rem;" id="user-avatar">?</div>
+    <div
+      style="width:34px; height:34px; background:linear-gradient(135deg,#4f46e5,#7c3aed); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:0.9rem;"
+      id="user-avatar">?</div>
     <div style="line-height:1.2;">
       <div id="user-nombre" style="font-weight:700; color:#1e293b; font-size:0.85rem;"></div>
       <div id="user-email" style="color:#94a3b8; font-size:0.72rem; display:none;"></div>
@@ -516,7 +556,8 @@
           </div>
           <div class="control-group">
             <label>Asignatura</label>
-            <select id="sel-asig" onchange="onAsigChange(this)" style="border-left:5px solid #e2e8f0; transition:border-color 0.3s, background 0.3s;">
+            <select id="sel-asig" onchange="onAsigChange(this)"
+              style="border-left:5px solid #e2e8f0; transition:border-color 0.3s, background 0.3s;">
               <option value="">Seleccione asignatura...</option>
             </select>
           </div>
@@ -529,7 +570,8 @@
         </div>
       </div>
       <!-- Columna derecha: logo -->
-      <div style="display:flex; align-items:center; justify-content:center; border-left:2px solid #f1f5f9; padding-left:2rem; flex-shrink:0;">
+      <div
+        style="display:flex; align-items:center; justify-content:center; border-left:2px solid #f1f5f9; padding-left:2rem; flex-shrink:0;">
         <img src="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png"
           style="height:120px; width:auto; object-fit:contain;" alt="Logo Evaluándonos">
       </div>
@@ -541,9 +583,11 @@
         <!-- Pregunta y Opciones -->
         <div class="card">
           <h2 class="question-title" id="pregunta-display-num">Pregunta #</h2>
-          <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+          <div
+            style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
             <div id="pregunta-media" class="media-container"></div>
-            <p id="pregunta-texto" style="font-size: 1.1rem; color: var(--text); font-weight: 500; margin: 0; line-height: 1.6;"></p>
+            <p id="pregunta-texto"
+              style="font-size: 1.1rem; color: var(--text); font-weight: 500; margin: 0; line-height: 1.6;"></p>
           </div>
 
           <div id="options-list" class="options-list">
@@ -594,15 +638,18 @@
     <!-- Panel de Administración -->
     <div class="admin-trigger" onclick="toggleAdmin()" style="display:none;">⚙️ Administrar Datos</div>
     <div class="admin-panel" id="admin-panel" style="width:380px;">
-      
+
       <!-- Tabs del admin -->
       <div style="display:flex; gap:0.5rem; margin-bottom:1rem;">
         <button onclick="switchAdminTab('datos')" id="atab-datos"
-          style="flex:1; padding:8px; border-radius:8px; border:none; background:#4f46e5; color:white; font-weight:700; cursor:pointer; font-size:0.8rem;">📊 Datos</button>
+          style="flex:1; padding:8px; border-radius:8px; border:none; background:#4f46e5; color:white; font-weight:700; cursor:pointer; font-size:0.8rem;">📊
+          Datos</button>
         <button onclick="switchAdminTab('usuarios')" id="atab-usuarios"
-          style="flex:1; padding:8px; border-radius:8px; border:2px solid #4f46e5; background:transparent; color:#4f46e5; font-weight:700; cursor:pointer; font-size:0.8rem;">👥 Usuar.</button>
+          style="flex:1; padding:8px; border-radius:8px; border:2px solid #4f46e5; background:transparent; color:#4f46e5; font-weight:700; cursor:pointer; font-size:0.8rem;">👥
+          Usuar.</button>
         <button onclick="switchAdminTab('imagenes')" id="atab-imagenes"
-          style="flex:1; padding:8px; border-radius:8px; border:2px solid #4f46e5; background:transparent; color:#4f46e5; font-weight:700; cursor:pointer; font-size:0.8rem;">🖼️ Imgs</button>
+          style="flex:1; padding:8px; border-radius:8px; border:2px solid #4f46e5; background:transparent; color:#4f46e5; font-weight:700; cursor:pointer; font-size:0.8rem;">🖼️
+          Imgs</button>
       </div>
 
       <!-- Tab: Datos -->
@@ -614,7 +661,8 @@
           style="font-size: 0.75rem; padding: 5px; border: 1px dashed #cbd5e1; width:100%;">
 
         <div id="admin-debug" style="margin-top: 15px; overflow-x: auto; max-width: 100%; display: none;">
-          <p style="font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 5px;">👀 Previsualización:</p>
+          <p style="font-size: 0.7rem; color: var(--primary); font-weight: bold; margin-bottom: 5px;">👀
+            Previsualización:</p>
           <table id="debug-table"
             style="font-size: 0.65rem; border-collapse: collapse; width: 100%; background: #f8fafc; border: 1px solid #e2e8f0;">
           </table>
@@ -623,7 +671,8 @@
         </div>
 
         <button id="btn-parse-debug" onclick="previsualizarDatos()"
-          style="margin-top: 10px; background: #2563eb; color: white; font-weight: bold; padding: 10px; width:100%; border:none; border-radius:8px; cursor:pointer;">🔍 ANALIZAR ARCHIVO</button>
+          style="margin-top: 10px; background: #2563eb; color: white; font-weight: bold; padding: 10px; width:100%; border:none; border-radius:8px; cursor:pointer;">🔍
+          ANALIZAR ARCHIVO</button>
         <div id="admin-status" class="status-msg"></div>
       </div>
 
@@ -645,18 +694,21 @@
             <option value="lector">Lector (solo filtros)</option>
             <option value="admin">Admin (acceso total)</option>
           </select>
-          <button onclick="crearUsuario()" 
-            style="width:100%; padding:10px; background:#4f46e5; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Crear Usuario</button>
+          <button onclick="crearUsuario()"
+            style="width:100%; padding:10px; background:#4f46e5; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Crear
+            Usuario</button>
         </div>
 
         <!-- Importación masiva CSV -->
         <div style="background:#f8fafc; border-radius:12px; padding:1rem;">
           <p style="font-size:0.8rem; font-weight:700; margin-bottom:0.5rem; color:#4f46e5;">📋 Importar desde CSV</p>
-          <p style="font-size:0.72rem; color:#64748b; margin-bottom:0.75rem;">Columnas requeridas: <code>email</code>, <code>password</code>, <code>nombre</code>, <code>rol</code></p>
+          <p style="font-size:0.72rem; color:#64748b; margin-bottom:0.75rem;">Columnas requeridas: <code>email</code>,
+            <code>password</code>, <code>nombre</code>, <code>rol</code></p>
           <input type="file" id="users-csv" accept=".csv"
             style="font-size:0.75rem; padding:5px; border:1px dashed #cbd5e1; width:100%; margin-bottom:0.5rem;">
           <button onclick="importarUsuariosCSV()"
-            style="width:100%; padding:10px; background:#10b981; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer;">📥 Importar Usuarios</button>
+            style="width:100%; padding:10px; background:#10b981; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer;">📥
+            Importar Usuarios</button>
         </div>
 
         <div id="users-status" class="status-msg" style="margin-top:0.5rem;"></div>
@@ -665,27 +717,36 @@
       <!-- Tab: Imágenes -->
       <div id="apanel-imagenes" style="display:none; max-height:450px; overflow-y:auto; padding-right:5px;">
         <h4 style="margin-bottom:1rem;">Galería Individual</h4>
-        
+
         <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem;">
-          <select id="aimg-grado" style="flex:1; padding:6px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;" onchange="cargarAsignaturasAdminImg()">
+          <select id="aimg-grado"
+            style="flex:1; padding:6px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;"
+            onchange="cargarAsignaturasAdminImg()">
             <option value="">Grado...</option>
           </select>
-          <select id="aimg-periodo" style="flex:1; padding:6px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;" onchange="cargarAsignaturasAdminImg()">
+          <select id="aimg-periodo"
+            style="flex:1; padding:6px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;"
+            onchange="cargarAsignaturasAdminImg()">
             <option value="1">Período 1</option>
             <option value="2">Período 2</option>
             <option value="3">Final</option>
           </select>
         </div>
-        <select id="aimg-asig" style="width:100%; margin-bottom:0.5rem; padding:6px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;" onchange="cargarPreguntasAdminImg()">
+        <select id="aimg-asig"
+          style="width:100%; margin-bottom:0.5rem; padding:6px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;"
+          onchange="cargarPreguntasAdminImg()">
           <option value="">Asignatura...</option>
         </select>
-        <select id="aimg-preg" style="width:100%; margin-bottom:1rem; padding:6px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;" onchange="verDetallePreguntaAdmin()">
+        <select id="aimg-preg"
+          style="width:100%; margin-bottom:1rem; padding:6px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;"
+          onchange="verDetallePreguntaAdmin()">
           <option value="">Pregunta...</option>
         </select>
 
-        <div id="aimg-detalle" style="display:none; background:#f8fafc; padding:1rem; border-radius:12px; font-size:0.8rem; border:1px solid #e2e8f0;">
-            <p style="font-weight:800; color:var(--primary); margin-bottom:10px;" id="aimg-title">Pregunta #?</p>
-            <div id="aimg-fields" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <div id="aimg-detalle"
+          style="display:none; background:#f8fafc; padding:1rem; border-radius:12px; font-size:0.8rem; border:1px solid #e2e8f0;">
+          <p style="font-weight:800; color:var(--primary); margin-bottom:10px;" id="aimg-title">Pregunta #?</p>
+          <div id="aimg-fields" style="display:flex; flex-direction:column; gap:10px;"></div>
         </div>
 
         <div id="aimg-status" class="status-msg" style="margin-top:10px; font-weight:bold;"></div>
@@ -807,7 +868,7 @@
           .eq('periodo', currentPeriodo);
 
         if (error) throw error;
-        
+
         if (!data || data.length === 0) {
           console.warn("No hay datos para el periodo:", currentPeriodo);
           $('sel-grado').innerHTML = '<option value="">Sin datos en Periodo ' + currentPeriodo + '</option>';
@@ -823,24 +884,24 @@
       }
 
       const asigSel = $('sel-asig');
-      if (asigSel) { 
-        asigSel.innerHTML = '<option value="">Seleccione asignatura...</option>'; 
-        asigSel.style.borderLeft = '5px solid #e2e8f0'; 
-        asigSel.style.background = 'white'; 
+      if (asigSel) {
+        asigSel.innerHTML = '<option value="">Seleccione asignatura...</option>';
+        asigSel.style.borderLeft = '5px solid #e2e8f0';
+        asigSel.style.background = 'white';
         asigSel.style.fontWeight = '';
       }
-      
+
       const pSel = $('sel-pregunta');
       if (pSel) pSel.innerHTML = '<option value="">Seleccione pregunta...</option>';
-      
+
       const resCont = $('resultado-container');
       if (resCont) resCont.style.display = 'none';
-      
+
       showLoading(false);
     }
 
     // Paleta de colores por asignatura (se asigna por índice)
-    const ASIG_COLORES = ['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f97316','#06b6d4'];
+    const ASIG_COLORES = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#06b6d4'];
     // Mapa de valor -> color para colorear el select al cambiar
     const asigColorMap = {};
 
@@ -877,12 +938,12 @@
         let items = [], prefix = 'MAPPING';
 
         if (mapData && mapData.length > 0) {
-          items = [...new Set(mapData.map(i => i.asignatura))].sort((a,b) => a.localeCompare(b,'es'));
+          items = [...new Set(mapData.map(i => i.asignatura))].sort((a, b) => a.localeCompare(b, 'es'));
         } else {
           const { data: resData } = await supabaseClient.from('eval_resultados')
             .select('quiz_name').eq('grado', grado).eq('periodo', currentPeriodo);
           if (resData && resData.length > 0) {
-            items = [...new Set(resData.map(i => i.quiz_name))].sort((a,b) => a.localeCompare(b,'es'));
+            items = [...new Set(resData.map(i => i.quiz_name))].sort((a, b) => a.localeCompare(b, 'es'));
             prefix = 'QUIZ';
           }
         }
@@ -1150,7 +1211,7 @@
       $('aimg-status').innerText = "Cargando grados...";
       const { data, error } = await supabaseClient.from('eval_preguntas').select('grado');
       if (data) {
-        const distinct = [...new Set(data.map(i => i.grado))].sort((a,b)=>a-b);
+        const distinct = [...new Set(data.map(i => i.grado))].sort((a, b) => a - b);
         $('aimg-grado').innerHTML = '<option value="">Grado...</option>' + distinct.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
       }
       $('aimg-status').innerText = "";
@@ -1161,9 +1222,9 @@
       const p = $('aimg-periodo').value;
       if (!g) return;
       $('aimg-status').innerText = "Cargando asignaturas...";
-      const { data } = await supabaseClient.from('eval_preguntas').select('asignatura').eq('grado',g).eq('periodo',p);
+      const { data } = await supabaseClient.from('eval_preguntas').select('asignatura').eq('grado', g).eq('periodo', p);
       if (data) {
-        const distinct = [...new Set(data.map(i => i.asignatura))].sort((a,b)=>a.localeCompare(b,'es'));
+        const distinct = [...new Set(data.map(i => i.asignatura))].sort((a, b) => a.localeCompare(b, 'es'));
         $('aimg-asig').innerHTML = '<option value="">Asignatura...</option>' + distinct.map(a => `<option value="${a}">${a}</option>`).join('');
       }
       $('aimg-preg').innerHTML = '<option value="">Pregunta...</option>';
@@ -1177,9 +1238,9 @@
       const a = $('aimg-asig').value;
       if (!a) return;
       $('aimg-status').innerText = "Cargando pregs...";
-      const { data } = await supabaseClient.from('eval_preguntas').select('pregunta_num').eq('grado',g).eq('periodo',p).eq('asignatura',a).order('pregunta_num');
+      const { data } = await supabaseClient.from('eval_preguntas').select('pregunta_num').eq('grado', g).eq('periodo', p).eq('asignatura', a).order('pregunta_num');
       if (data) {
-        const distinct = [...new Set(data.map(i => i.pregunta_num))].sort((x,y)=>x-y);
+        const distinct = [...new Set(data.map(i => i.pregunta_num))].sort((x, y) => x - y);
         $('aimg-preg').innerHTML = '<option value="">Pregunta...</option>' + distinct.map(x => `<option value="${x}">#${x}</option>`).join('');
       }
       $('aimg-detalle').style.display = 'none';
@@ -1189,10 +1250,10 @@
     async function verDetallePreguntaAdmin() {
       const g = $('aimg-grado').value, p = $('aimg-periodo').value, a = $('aimg-asig').value, num = $('aimg-preg').value;
       if (!num) { $('aimg-detalle').style.display = 'none'; return; }
-      
+
       $('aimg-status').innerText = "Cargando mapeo...";
-      const { data } = await supabaseClient.from('eval_preguntas').select('*').eq('grado',g).eq('periodo',p).eq('asignatura',a).eq('pregunta_num',num).maybeSingle();
-      
+      const { data } = await supabaseClient.from('eval_preguntas').select('*').eq('grado', g).eq('periodo', p).eq('asignatura', a).eq('pregunta_num', num).maybeSingle();
+
       if (!data) {
         $('aimg-status').innerText = "No se halló mapeo para esta pregunta.";
         $('aimg-detalle').style.display = 'none';
@@ -1305,11 +1366,11 @@
         const { data: curr } = await supabaseClient.from('eval_preguntas').select(colName).eq('id', rowId).single();
         let textPart = "";
         if (curr && curr[colName]) {
-           const str = curr[colName].toString();
-           if (str.includes(" ||| ")) textPart = str.split(" ||| ")[0];
-           else if (!str.startsWith("http")) textPart = str;
+          const str = curr[colName].toString();
+          if (str.includes(" ||| ")) textPart = str.split(" ||| ")[0];
+          else if (!str.startsWith("http")) textPart = str;
         }
-        
+
         const finalContent = textPart ? `${textPart} ||| ${publicUrl}` : publicUrl;
 
         const { error: updError } = await supabaseClient.from('eval_preguntas').update({ [colName]: finalContent }).eq('id', rowId);
@@ -1321,7 +1382,7 @@
 
         const isShowingPreg = $('sel-pregunta') && $('sel-pregunta').value == $('aimg-preg').value;
         if (isShowingPreg && $('sel-grado').value == $('aimg-grado').value) {
-           mostrarAnalisis();
+          mostrarAnalisis();
         }
 
       } catch (e) {
@@ -1372,23 +1433,23 @@
         header: true,
         skipEmptyLines: true,
         encoding: 'UTF-8',
-        complete: async function(results) {
+        complete: async function (results) {
           const rows = results.data;
           if (!rows.length) return status.innerText = '❌ El archivo está vacío o mal formateado.';
 
           let ok = 0, fail = 0;
           for (const row of rows) {
             const email = (row.email || '').trim();
-            const pass  = (row.password || row.contraseña || '').trim();
+            const pass = (row.password || row.contraseña || '').trim();
             const nombre = (row.nombre || '').trim();
-            const rol   = (row.rol || 'lector').trim().toLowerCase();
+            const rol = (row.rol || 'lector').trim().toLowerCase();
 
             if (!email || !pass) { fail++; continue; }
 
             try {
               const { data: signData, error: sErr } = await supabaseClient.auth.signUp({ email, password: pass });
               if (sErr && !sErr.message.includes('already registered')) throw sErr;
-              
+
               const userId = signData?.user?.id;
               if (userId) {
                 await supabaseClient.from('perfiles').upsert({ id: userId, email, nombre, rol }, { onConflict: 'email' });
@@ -1473,7 +1534,7 @@
       updateStatus("⏳ Resguardando imágenes existentes...");
       const { data: existingPregs } = await supabaseClient.from('eval_preguntas')
         .select('*').eq('periodo', periodoDetectado).eq('grado', gradoRef);
-      const imgBackup = {}; 
+      const imgBackup = {};
       if (existingPregs) {
         existingPregs.forEach(p => {
           const key = `${p.asignatura}-${p.pregunta_num}`;
