@@ -1499,40 +1499,43 @@
           const rows = results.data;
           if (!rows.length) return status.innerText = '❌ El archivo está vacío o mal formateado.';
 
-          let ok = 0, fail = 0;
-          for (const row of rows) {
-            const email = (row.email || '').trim();
-            const pass = (row.password || row.contraseña || '').trim();
-            const nombre = (row.nombre || '').trim();
-            const rol = (row.rol || 'lector').trim().toLowerCase();
+            let lastErrorMsg = "";
+            for (const row of rows) {
+              const email = (row.email || '').trim();
+              const pass = (row.password || row.contraseña || '').trim();
+              const nombre = (row.nombre || '').trim();
+              const rol = (row.rol || 'lector').trim().toLowerCase();
 
-            if (!email || !pass) { fail++; continue; }
+              if (!email || !pass) { fail++; continue; }
 
-            try {
-              const { data: signData, error: sErr } = await supabaseClient.auth.signUp({ 
-                email, 
-                password: pass,
-                options: { data: { nombre: nombre, name: nombre } }
-              });
-              if (sErr && !sErr.message.includes('already registered')) throw sErr;
+              try {
+                const { data: signData, error: sErr } = await supabaseClient.auth.signUp({ 
+                  email, 
+                  password: pass,
+                  options: { data: { nombre: nombre, name: nombre } }
+                });
+                
+                if (sErr && !sErr.message.includes('registered')) throw sErr;
 
-              const userId = signData?.user?.id;
-              if (userId) {
-                const { error: pErr } = await supabaseClient.from('perfiles').upsert({ id: userId, email, nombre, rol }, { onConflict: 'id' });
-                if (pErr) throw pErr;
-              } else {
-                const { error: pErr2 } = await supabaseClient.from('perfiles').update({ nombre, rol }).eq('email', email);
-                if (pErr2) throw pErr2;
+                const userId = signData?.user?.id;
+                if (userId) {
+                  const { error: pErr } = await supabaseClient.from('perfiles').upsert({ id: userId, email, nombre, rol }, { onConflict: 'id' });
+                  if (pErr) throw pErr;
+                } else {
+                  // If registered but no userId returned, update if exists, insert if missing? Without id we can't insert. We just update.
+                  const { error: pErr2 } = await supabaseClient.from('perfiles').update({ nombre, rol }).eq('email', email);
+                  if (pErr2) throw pErr2;
+                }
+                ok++;
+              } catch (e) { 
+                console.error("Fallo con", email, e);
+                lastErrorMsg = e.message || "Error desconocido";
+                fail++; 
               }
-              ok++;
-            } catch (e) { 
-              console.error("Fallo con", email, e);
-              fail++; 
-            }
 
-            status.innerText = `⏳ Procesando... ${ok + fail}/${rows.length}`;
-          }
-          status.innerText = `✅ Listo: ${ok} creados/actualizados, ${fail} fallidos de ${rows.length} filas.`;
+              status.innerText = `⏳ Procesando... ${ok + fail}/${rows.length} (Último error: ${lastErrorMsg})`;
+            }
+            status.innerText = `✅ Listo: ${ok} exitosos, ${fail} fallidos. \n${fail > 0 ? '❌ Último error: ' + lastErrorMsg : ''}`;
         }
       });
     }
