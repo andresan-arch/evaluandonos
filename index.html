@@ -1358,66 +1358,9 @@
       $('loading').style.display = show ? 'flex' : 'none';
     }
 
-    // --- Lógica de Diagnóstico ---
-    let cachedRows = null;
+    // (Limpieza de funciones duplicadas para evitar SyntaxError)
 
-    function toggleAdmin() {
-      const p = $('admin-panel');
-      if (p.style.display === 'block') {
-        p.style.display = 'none';
-      } else {
-        p.style.display = 'block';
-      }
-    }
-
-    function switchAdminTab(tab) {
-      $('apanel-datos').style.display = tab === 'datos' ? 'block' : 'none';
-      $('apanel-usuarios').style.display = tab === 'usuarios' ? 'block' : 'none';
-      $('apanel-imagenes').style.display = tab === 'imagenes' ? 'block' : 'none';
-
-      $('atab-datos').style.background = tab === 'datos' ? '#4f46e5' : 'transparent';
-      $('atab-datos').style.color = tab === 'datos' ? 'white' : '#4f46e5';
-      $('atab-datos').style.border = tab === 'datos' ? 'none' : '2px solid #4f46e5';
-
-      $('atab-usuarios').style.background = tab === 'usuarios' ? '#4f46e5' : 'transparent';
-      $('atab-usuarios').style.color = tab === 'usuarios' ? 'white' : '#4f46e5';
-      $('atab-usuarios').style.border = tab === 'usuarios' ? 'none' : '2px solid #4f46e5';
-
-      $('atab-imagenes').style.background = tab === 'imagenes' ? '#4f46e5' : 'transparent';
-      $('atab-imagenes').style.color = tab === 'imagenes' ? 'white' : '#4f46e5';
-      $('atab-imagenes').style.border = tab === 'imagenes' ? 'none' : '2px solid #4f46e5';
-
-      if (tab === 'imagenes' && $('aimg-grado').options.length === 1) {
-        cargarGradosAdminImg();
-      }
-    }
-
-    // --- LÓGICA DE SUBIDA DE IMÁGENES A PREGUNTAS ---
-    async function cargarGradosAdminImg() {
-      $('aimg-status').innerText = "Cargando grados...";
-      const { data, error } = await supabaseClient.from('eval_preguntas').select('grado');
-      if (data) {
-        const distinct = [...new Set(data.map(i => i.grado))].sort((a, b) => a - b);
-        $('aimg-grado').innerHTML = '<option value="">Grado...</option>' + distinct.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
-      }
-      $('aimg-status').innerText = "";
-    }
-
-    async function init() {
-      showLoading(true);
-      await Promise.all([cargarGrados(), cargarGradosAdminImg()]);
-      showLoading(false);
-    }
-
-    async function setPeriodo(n) {
-      currentPeriodo = n;
-      document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
-      $(`tab-${n}`).classList.add('active');
-      await cargarGrados();
-      mostrarAnalisis();
-    }
-
-    async function cargarGrados() {
+    async function cargarAsignaturas() {
       const sede = $('sel-sede').value;
       const { data, error } = await supabaseClient.from('eval_resultados')
         .select('grado').eq('periodo', currentPeriodo).eq('sede', sede);
@@ -1967,8 +1910,8 @@
         return { mat, s, p, color, label, nivel };
       });
 
-      const logoLiceo = "https://txnecdeccianklsqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png";
-      const escudoCol = "https://txnecdeccianklsqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png";
+      const logoLiceo = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png";
+      const escudoCol = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png";
 
       return `
         <div class="report-card" style="font-family:'Outfit', sans-serif; color:#1e293b; line-height:1.4;">
