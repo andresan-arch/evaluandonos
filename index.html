@@ -1710,16 +1710,21 @@
       const header = rows[0];
       rows.shift();
 
-      updateStatus("🚀 Analizando formato de archivo...");
+      updateStatus("🚀 Procesando archivo...");
       
-      // Detección de formato: ¿Es Análisis Consolidado?
-      const isConsolidated = header.some(h => h && h.includes("Texto de la Pregunta"));
+      const manualType = document.querySelector('input[name="upload-type"]:checked').value;
+      let selection = manualType;
+
+      if (selection === 'auto') {
+        const isConsolidated = header.some(h => h && h.includes("Texto de la Pregunta"));
+        selection = isConsolidated ? 'consolidado' : 'estudiantes';
+      }
       
-      if (isConsolidated) {
-        updateStatus("📊 Detectado: Formato Análisis Consolidado");
+      if (selection === 'consolidado') {
+        updateStatus("📊 Procesando: Análisis Consolidado");
         await procesarConsolidado(rows, header);
       } else {
-        updateStatus("👥 Detectado: Formato Estudiantes ZipGrade");
+        updateStatus("👥 Procesando: Reporte Estudiantes");
         await procesarEstudiantes(rows, header);
       }
     }
