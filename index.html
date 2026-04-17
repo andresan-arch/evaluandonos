@@ -1784,7 +1784,7 @@
       updateStatus("Analizando archivo...");
       Papa.parse(file, {
         header: false,
-        skipEmptyLines: true,
+        skipEmptyLines: 'greedy',
         encoding: "UTF-8",
         complete: function (results) {
           cachedRows = results.data;
