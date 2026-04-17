@@ -1780,11 +1780,11 @@
 
       try {
         updateStatus("⏳ Guardando banco de preguntas...");
-        const { error: e1 } = await supabaseClient.from('eval_preguntas').upsert(batchPreguntas, { onConflict: 'grado,periodo,pregunta_num' });
+        const { error: e1 } = await supabaseClient.from('eval_preguntas').insert(batchPreguntas);
         if (e1) throw e1;
 
         updateStatus("⏳ Guardando estadísticas generales...");
-        const { error: e2 } = await supabaseClient.from('eval_resultados').upsert(batchResultados);
+        const { error: e2 } = await supabaseClient.from('eval_resultados').insert(batchResultados);
         if (e2) throw e2;
 
         updateStatus("✅ ¡Importación consolidada exitosa!");
