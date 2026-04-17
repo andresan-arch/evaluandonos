@@ -1627,8 +1627,8 @@
           const rows = results.data;
           if (!rows.length) return status.innerText = '❌ El archivo está vacío o mal formateado.';
 
-            let lastErrorMsg = "";
-            for (const row of rows) {
+          let ok = 0, fail = 0, lastErrorMsg = "";
+          for (const row of rows) {
               const email = (row.email || '').trim();
               const pass = (row.password || row.contraseña || '').trim();
               const nombre = (row.nombre || '').trim();
