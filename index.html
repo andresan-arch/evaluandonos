@@ -1832,7 +1832,8 @@
         if (!row[1]) continue; // Salta líneas vacías
         const gradoOriginal = row[1];
         const sede = detectarSede(gradoOriginal);
-        const gradoLimpio = gradoOriginal.toString().replace(/[a-zA-Z]/g, '').replace(' ', '');
+        // Extraer solo el primer número encontrado (ej: "3-01" -> 3, "3Y" -> 3)
+        const gradoLimpio = parseInt(gradoOriginal.toString().match(/\d+/)) || 0;
         const zipId = row[2];
         const nombre = (row[4] + " " + row[5]).trim();
         const quizName = row[0];
@@ -1857,7 +1858,7 @@
           zipgrade_id: zipId,
           grado: gradoLimpio,
           sede: sede,
-          periodo: periodoDetectado,
+          periodo: parseInt(periodoDetectado),
           quiz_name: quizName,
           total_correctas: nCorrect,
           porcentaje: pCorrect,
