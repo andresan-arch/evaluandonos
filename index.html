@@ -1796,22 +1796,20 @@
           opcion_d: row[optDIdx]
         });
 
-        // 2. Resultados por sede
-        sedes.forEach(sede => {
-          batchResultados.push({
-            grado,
-            periodo: parseInt(currentPeriodo),
-            sede: sede,
-            quiz_name: quiz,
-            pregunta_num: pNum,
-            key: (row[keyIdx] || "").toUpperCase(),
-            cant_correctas: parseInt(row[okCountIdx]) || 0,
-            porc_correctas: parseFloat(row[porcIdx].toString().replace(',', '.')) || 0,
-            resp_a_count: dist['A'],
-            resp_b_count: dist['B'],
-            resp_c_count: dist['C'],
-            resp_d_count: dist['D']
-          });
+        // 2. Resultados (Un solo registro general por pregunta)
+        batchResultados.push({
+          grado,
+          periodo: parseInt(currentPeriodo),
+          sede: "GENERAL",
+          quiz_name: quiz,
+          pregunta_num: pNum,
+          key: (row[keyIdx] || "").toUpperCase(),
+          cant_correctas: parseInt(row[okCountIdx]) || 0,
+          porc_correctas: parseFloat(row[porcIdx].toString().replace(',', '.')) || 0,
+          resp_a_count: dist['A'],
+          resp_b_count: dist['B'],
+          resp_c_count: dist['C'],
+          resp_d_count: dist['D']
         });
       }
 
