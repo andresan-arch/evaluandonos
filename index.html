@@ -1726,6 +1726,7 @@
 
     async function procesarConsolidado(rows, header) {
       const gIdx = header.indexOf("grado");
+      const keyIdx = header.indexOf("Primary_Answer");
       const qNumIdx = header.indexOf("Question_Number");
       const asigIdx = header.indexOf("Asignatura");
       const txtIdx = header.indexOf("Texto de la Pregunta");
@@ -1737,6 +1738,14 @@
       const optBIdx = header.indexOf("Opción B");
       const optCIdx = header.indexOf("Opción C");
       const optDIdx = header.indexOf("Opción D");
+      const r1Idx = header.indexOf("Response 1");
+      const r1pIdx = header.indexOf("Response 1 %");
+      const r2Idx = header.indexOf("Response 2");
+      const r2pIdx = header.indexOf("Response 2 %");
+      const r3Idx = header.indexOf("Response 3");
+      const r3pIdx = header.indexOf("Response 3 %");
+      const r4Idx = header.indexOf("Response 4");
+      const r4pIdx = header.indexOf("Response 4 %");
 
       const batchPreguntas = [];
       const batchResultados = [];
@@ -1749,6 +1758,14 @@
         const asig = row[asigIdx] || "General";
         const quiz = row[quizIdx] || "Evaluación";
         const sedes = (row[classIdx] || "Consolidado").split(',').map(s => s.trim());
+
+        // Extraer distribución de respuestas para el gráfico
+        const dist = { 'A': 0, 'B': 0, 'C': 0, 'D': 0 };
+        [ [r1Idx, r1pIdx], [r2Idx, r2pIdx], [r3Idx, r3pIdx], [r4Idx, r4pIdx] ].forEach(pair => {
+            const val = (row[pair[0]] || "").toString().toUpperCase();
+            const pct = Math.round(parseFloat((row[pair[1]] || "0").toString().replace(',', '.')) || 0);
+            if (dist.hasOwnProperty(val)) dist[val] = pct;
+        });
 
         // 1. Datos de Pregunta
         batchPreguntas.push({
@@ -1771,8 +1788,13 @@
             sede: sede,
             quiz_name: quiz,
             pregunta_num: pNum,
+            key: (row[keyIdx] || "").toUpperCase(),
             cant_correctas: parseInt(row[okCountIdx]) || 0,
-            porc_correctas: parseFloat(row[porcIdx].toString().replace(',', '.')) || 0
+            porc_correctas: parseFloat(row[porcIdx].toString().replace(',', '.')) || 0,
+            resp_a_count: dist['A'],
+            resp_b_count: dist['B'],
+            resp_c_count: dist['C'],
+            resp_d_count: dist['D']
           });
         });
       }
