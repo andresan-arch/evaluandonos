@@ -855,8 +855,7 @@
       const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
 
       if (error) {
-        console.error("Error completo de Supabase Auth:", error);
-        err.innerText = "Error Auth: " + error.message;
+        err.innerText = "Usuario o contraseña incorrectos";
         err.style.display = 'block';
       } else {
         loguearExitoso(data.user);
