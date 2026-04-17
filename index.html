@@ -878,9 +878,9 @@
           <!-- CARD 4: SISTEMA -->
           <div class="admin-card">
             <h5>⚠️ Gestión de Datos y Reset</h5>
-            <p style="font-size:0.8rem; color:#64748b;">Usa estas opciones con precaución. Borrarán datos permanentemente.</p>
-            <button onclick="resetearDatosSede()" style="background:#ef4444; color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer;">BORRAR TODOS LOS RESULTADOS</button>
-            <p style="font-size:0.65rem; color:#94a3b8; text-align:center;">Versión 2.0 - Independencia de Sedes Activa</p>
+            <p style="font-size:0.8rem; color:#64748b;">Usa esta opción para LIMPIAR TODO (Resultados, Banco de Preguntas y Notas) y empezar de cero.</p>
+            <button onclick="resetearBaseDeDatos()" style="background:#ef4444; color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; width:100%;">🔥 BORRADO TOTAL (RESET)</button>
+            <p style="font-size:0.65rem; color:#94a3b8; text-align:center; margin-top:10px;">Versión 2.5 - Soporte TSV Consolidado Activo</p>
           </div>
         </div>
       </div>
@@ -1102,93 +1102,45 @@
       cargarPreguntas();
     }
 
+    // (Filtros dinámicos consolidados)
+    async function cargarGrados() {
+      showLoading(true);
+      try {
+        const { data } = await supabaseClient.from('eval_resultados').select('grado').eq('periodo', currentPeriodo);
+        const unique = data ? [...new Set(data.map(d => d.grado))].sort((a,b)=>a-b) : [];
+        const sel = $('sel-grado');
+        sel.innerHTML = '<option value="">Grado...</option>' + unique.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
+      } catch (e) { console.error(e); }
+      showLoading(false);
+    }
+
     async function cargarAsignaturas() {
       const grado = $('sel-grado').value;
       if (!grado) return;
-
       showLoading(true);
       try {
-        const { data: mapData } = await supabaseClient.from('eval_preguntas')
-          .select('asignatura').eq('grado', grado).eq('periodo', currentPeriodo);
-
+        const { data } = await supabaseClient.from('eval_resultados').select('quiz_name').eq('grado', grado).eq('periodo', currentPeriodo);
+        const unique = data ? [...new Set(data.map(d => d.quiz_name))].sort() : [];
         const sel = $('sel-asig');
-        sel.style.borderLeft = '5px solid #e2e8f0';
-        sel.style.background = 'white';
-        sel.style.fontWeight = '';
-        $('sel-pregunta').innerHTML = '<option value="">Seleccione pregunta...</option>';
-
-        let items = [], prefix = 'MAPPING';
-
-        if (mapData && mapData.length > 0) {
-          items = [...new Set(mapData.map(i => i.asignatura))].sort((a, b) => a.localeCompare(b, 'es'));
-        } else {
-          const { data: resData } = await supabaseClient.from('eval_resultados')
-            .select('quiz_name').eq('grado', grado).eq('periodo', currentPeriodo);
-          if (resData && resData.length > 0) {
-            items = [...new Set(resData.map(i => i.quiz_name))].sort((a, b) => a.localeCompare(b, 'es'));
-            prefix = 'QUIZ';
-          }
-        }
-
-        // Construir opciones y mapa de colores
-        let html = '<option value="">Seleccione asignatura...</option>';
-        items.forEach((item, i) => {
-          const color = ASIG_COLORES[i % ASIG_COLORES.length];
-          const val = `${prefix}:${item}`;
-          asigColorMap[val] = color;
-          html += `<option value="${val}">${item}</option>`;
-        });
-        sel.innerHTML = html;
-
-      } catch (e) {
-        console.error('Error Asignaturas:', e);
-      } finally {
-        showLoading(false);
-      }
+        sel.innerHTML = '<option value="">Asignatura...</option>' + unique.map(a => `<option value="${a}">${a}</option>`).join('');
+      } catch (e) { console.error(e); }
+      showLoading(false);
     }
 
-    async function cargarPreguntas() {
-      const grado = $('sel-grado').value;
-      const asigVal = $('sel-asig').value;
-      if (!grado || !asigVal) return;
-
+    async function onAsigChange(sel) {
+      const g = $('sel-grado').value;
+      const a = sel.value;
+      if (!g || !a) return;
       showLoading(true);
       try {
-        let distinctPreguntas = [];
-
-        if (asigVal.startsWith('MAPPING:')) {
-          const asignatura = asigVal.replace('MAPPING:', '');
-          const { data } = await supabaseClient.from('eval_preguntas')
-            .select('pregunta_num')
-            .eq('grado', grado)
-            .eq('asignatura', asignatura)
-            .eq('periodo', currentPeriodo)
-            .order('pregunta_num');
-
-          if (data) {
-            distinctPreguntas = [...new Set(data.map(i => i.pregunta_num))].sort((a, b) => a - b);
-          }
-        } else {
-          const quiz = asigVal.replace('QUIZ:', '');
-          const { data } = await supabaseClient.from('eval_resultados')
-            .select('pregunta_num')
-            .eq('grado', grado)
-            .eq('quiz_name', quiz)
-            .eq('periodo', currentPeriodo)
-            .order('pregunta_num');
-
-          if (data) {
-            distinctPreguntas = [...new Set(data.map(i => i.pregunta_num))].sort((a, b) => a - b);
-          }
-        }
-
-        $('sel-pregunta').innerHTML = '<option value="">Seleccione pregunta...</option>' +
-          distinctPreguntas.map(p => `<option value="${p}">Pregunta ${p}</option>`).join('');
-      } catch (e) {
-        console.error("Error Preguntas:", e);
-      } finally {
-        showLoading(false);
-      }
+        const { data } = await supabaseClient.from('eval_resultados')
+          .select('pregunta_num').eq('grado', g).eq('periodo', currentPeriodo).eq('quiz_name', a).order('pregunta_num');
+        const pSel = $('sel-pregunta');
+        const uniqueP = data ? [...new Set(data.map(d => d.pregunta_num))].sort((x,y) => x-y) : [];
+        pSel.innerHTML = uniqueP.map(p => `<option value="${p}">Pregunta ${p}</option>`).join('');
+        mostrarAnalisis();
+      } catch (e) { console.error(e); }
+      showLoading(false);
     }
 
     async function mostrarAnalisis() {
@@ -1354,68 +1306,13 @@
       $('loading').style.display = show ? 'flex' : 'none';
     }
 
-    // (Limpieza de funciones duplicadas para evitar SyntaxError)
-
-    async function cargarAsignaturas() {
-      const sede = $('sel-sede').value;
-      const { data, error } = await supabaseClient.from('eval_resultados')
-        .select('grado').eq('periodo', currentPeriodo).eq('sede', sede);
-      const sel = $('sel-grado');
-      if (data && data.length > 0) {
-        const unique = [...new Set(data.map(d => d.grado))].sort((a,b)=>a-b);
-        sel.innerHTML = '<option value="">Grado...</option>' + unique.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
-      } else {
-        sel.innerHTML = '<option value="">Sin datos</option>';
-      }
-      cargarAsignaturas();
-    }
-
-    async function cargarAsignaturas() {
-      const grado = $('sel-grado').value;
-      const sede = $('sel-sede').value;
-      if (!grado) {
-        $('sel-asig').innerHTML = '<option value="">Asignatura...</option>';
-        return;
-      }
-      const { data } = await supabaseClient.from('eval_resultados')
-        .select('quiz_name').eq('grado', grado).eq('periodo', currentPeriodo).eq('sede', sede);
-      
-      const sel = $('sel-asig');
-      if (data) {
-        const unique = [...new Set(data.map(d => d.quiz_name))].sort();
-        sel.innerHTML = '<option value="">Asignatura...</option>' + unique.map(a => `<option value="${a}">${a}</option>`).join('');
-      }
-    }
-
-    async function onAsigChange(sel) {
-      const g = $('sel-grado').value;
-      const a = sel.value;
-      const p = currentPeriodo;
-      const s = $('sel-sede').value;
-
-      const { data } = await supabaseClient.from('eval_resultados')
-        .select('pregunta_num').eq('grado', g).eq('periodo', p).eq('quiz_name', a).eq('sede', s).order('pregunta_num');
-      const pSel = $('sel-pregunta');
-      pSel.innerHTML = data.map(d => `<option value="${d.pregunta_num}">#${d.pregunta_num}</option>`).join('');
-      mostrarAnalisis();
-    }
-
     async function cargarGrados() {
       showLoading(true);
       try {
-        const { data, error } = await supabaseClient.from('eval_resultados')
-          .select('grado')
-          .eq('periodo', currentPeriodo);
-
-        if (error) throw error;
-
-        if (!data || data.length === 0) {
-          $('sel-grado').innerHTML = '<option value="">Sin datos en Periodo ' + currentPeriodo + '</option>';
-        } else {
-          const distinct = [...new Set(data.map(i => i.grado))].sort((a, b) => a - b);
-          $('sel-grado').innerHTML = '<option value="">Seleccione grado...</option>' +
-            distinct.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
-        }
+        const { data } = await supabaseClient.from('eval_resultados').select('grado').eq('periodo', currentPeriodo);
+        const unique = data ? [...new Set(data.map(d => d.grado))].sort((a,b)=>a-b) : [];
+        const sel = $('sel-grado');
+        sel.innerHTML = '<option value="">Grado...</option>' + unique.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
       } catch (e) { console.error(e); }
       showLoading(false);
     }
@@ -1424,31 +1321,29 @@
       const grado = $('sel-grado').value;
       if (!grado) return;
       showLoading(true);
-      const { data } = await supabaseClient.from('eval_resultados')
-        .select('quiz_name').eq('grado', grado).eq('periodo', currentPeriodo);
-      
-      const sel = $('sel-asig');
-      if (data) {
-        const unique = [...new Set(data.map(d => d.quiz_name))].sort();
+      try {
+        const { data } = await supabaseClient.from('eval_resultados').select('quiz_name').eq('grado', grado).eq('periodo', currentPeriodo);
+        const unique = data ? [...new Set(data.map(d => d.quiz_name))].sort() : [];
+        const sel = $('sel-asig');
         sel.innerHTML = '<option value="">Asignatura...</option>' + unique.map(a => `<option value="${a}">${a}</option>`).join('');
-      }
+      } catch (e) { console.error(e); }
       showLoading(false);
     }
 
     async function onAsigChange(sel) {
       const g = $('sel-grado').value;
       const a = sel.value;
-      const p = currentPeriodo;
-
-      const { data } = await supabaseClient.from('eval_resultados')
-        .select('pregunta_num').eq('grado', g).eq('periodo', p).eq('quiz_name', a).order('pregunta_num');
-      
-      const pSel = $('sel-pregunta');
-      if (data) {
-        const uniqueP = [...new Set(data.map(d => d.pregunta_num))].sort((x,y) => x-y);
+      if (!g || !a) return;
+      showLoading(true);
+      try {
+        const { data } = await supabaseClient.from('eval_resultados')
+          .select('pregunta_num').eq('grado', g).eq('periodo', currentPeriodo).eq('quiz_name', a).order('pregunta_num');
+        const pSel = $('sel-pregunta');
+        const uniqueP = data ? [...new Set(data.map(d => d.pregunta_num))].sort((x,y) => x-y) : [];
         pSel.innerHTML = uniqueP.map(p => `<option value="${p}">#${p}</option>`).join('');
-      }
-      mostrarAnalisis();
+        mostrarAnalisis();
+      } catch (e) { console.error(e); }
+      showLoading(false);
     }
 
     async function mostrarAnalisis() {
@@ -1814,81 +1709,86 @@
       const header = rows[0];
       rows.shift();
 
-      updateStatus("🚀 Iniciando procesamiento dinámico...");
+      updateStatus("🚀 Analizando formato de archivo...");
       
-      const resultadosEstudiantes = [];
-      const statsAgregadas = {}; // Para reconstruir eval_resultados
-      let periodoDetectado = currentPeriodo;
+      // Detección de formato: ¿Es Análisis Consolidado?
+      const isConsolidated = header.some(h => h && h.includes("Texto de la Pregunta"));
+      
+      if (isConsolidated) {
+        updateStatus("📊 Detectado: Formato Análisis Consolidado");
+        await procesarConsolidado(rows, header);
+      } else {
+        updateStatus("👥 Detectado: Formato Estudiantes ZipGrade");
+        await procesarEstudiantes(rows, header);
+      }
+    }
 
-      // Detección de columnas de respuestas (Q1, Q2...)
-      const qCols = [];
-      header.forEach((h, i) => {
-        if (h && h.toString().trim().toUpperCase().startsWith('Q')) {
-          qCols.push(i);
-        }
-      });
+    async function procesarConsolidado(rows, header) {
+      const gIdx = header.indexOf("grado");
+      const qNumIdx = header.indexOf("Question_Number");
+      const asigIdx = header.indexOf("Asignatura");
+      const txtIdx = header.indexOf("Texto de la Pregunta");
+      const quizIdx = header.indexOf("Quiz_Name");
+      const classIdx = header.indexOf("Class");
+      const okCountIdx = header.indexOf("# Correct");
+      const porcIdx = header.indexOf("% Correct");
+      const optAIdx = header.indexOf("Opción A");
+      const optBIdx = header.indexOf("Opción B");
+      const optCIdx = header.indexOf("Opción C");
+      const optDIdx = header.indexOf("Opción D");
+
+      const batchPreguntas = [];
+      const batchResultados = [];
 
       for (const row of rows) {
-        if (!row[1]) continue; // Salta líneas vacías
-        const gradoOriginal = row[1];
-        const sede = detectarSede(gradoOriginal);
-        // Extraer solo el primer número encontrado (ej: "3-01" -> 3, "3Y" -> 3)
-        const gradoLimpio = parseInt(gradoOriginal.toString().match(/\d+/)) || 0;
-        const zipId = row[2];
-        const nombre = (row[4] + " " + row[5]).trim();
-        const quizName = row[0];
-        const nCorrect = parseInt(row[7]) || 0;
-        const pCorrect = parseFloat(row[8]) || 0;
+        if (!row[qNumIdx]) continue;
 
-        const respuestas = {};
-        qCols.forEach((colIdx, i) => {
-          const qNum = i + 1;
-          const isCorrect = parseInt(row[colIdx]) || 0;
-          respuestas[qNum] = isCorrect;
+        const grado = parseInt(row[gIdx]) || 0;
+        const pNum = parseInt(row[qNumIdx]) || 0;
+        const asig = row[asigIdx] || "General";
+        const quiz = row[quizIdx] || "Evaluación";
+        const sedes = (row[classIdx] || "Consolidado").split(',').map(s => s.trim());
 
-          // Acumular para estadísticas generales
-          const key = `${gradoLimpio}-${periodoDetectado}-${qNum}`;
-          if (!statsAgregadas[key]) statsAgregadas[key] = { grado: gradoLimpio, pNum: qNum, total: 0, ok: 0, sede: sede };
-          statsAgregadas[key].total++;
-          if (isCorrect) statsAgregadas[key].ok++;
+        // 1. Datos de Pregunta
+        batchPreguntas.push({
+          grado,
+          periodo: parseInt(currentPeriodo),
+          asignatura: asig,
+          pregunta_num: pNum,
+          texto_pregunta: row[txtIdx],
+          opc_a: row[optAIdx],
+          opc_b: row[optBIdx],
+          opc_c: row[optCIdx],
+          opc_d: row[optDIdx]
         });
 
-        resultadosEstudiantes.push({
-          estudiante_nombre: nombre,
-          zipgrade_id: zipId,
-          grado: gradoLimpio,
-          sede: sede,
-          periodo: parseInt(periodoDetectado),
-          quiz_name: quizName,
-          total_correctas: nCorrect,
-          porcentaje: pCorrect,
-          respuestas: respuestas
+        // 2. Resultados por sede
+        sedes.forEach(sede => {
+          batchResultados.push({
+            grado,
+            periodo: parseInt(currentPeriodo),
+            sede: sede,
+            quiz_name: quiz,
+            pregunta_num: pNum,
+            cant_correctas: parseInt(row[okCountIdx]) || 0,
+            porc_correctas: parseFloat(row[porcIdx]) || 0
+          });
         });
       }
 
-      if (!confirm(`¿Subir ${resultadosEstudiantes.length} resultados individuales?`)) return;
+      if (!confirm(`¿Cargar ${batchPreguntas.length} preguntas y ${batchResultados.length} registros de análisis?`)) return;
 
       try {
-        updateStatus("⏳ Paso 1: Guardando notas individuales...");
-        const { error: err1 } = await supabaseClient.from('eval_estudiantes_notas').insert(resultadosEstudiantes);
-        if (err1) throw err1;
+        updateStatus("⏳ Guardando banco de preguntas...");
+        const { error: e1 } = await supabaseClient.from('eval_preguntas').upsert(batchPreguntas, { onConflict: 'grado,periodo,pregunta_num' });
+        if (e1) throw e1;
 
-        updateStatus("⏳ Paso 2: Generando estadísticas generales...");
-        const resultadosGenerales = Object.values(statsAgregadas).map(s => ({
-          grado: s.grado,
-          pregunta_num: s.pNum,
-          cant_correctas: s.ok,
-          porc_correctas: Math.round((s.ok / s.total) * 100),
-          periodo: periodoDetectado,
-          sede: s.sede,
-          quiz_name: rows[0][0]
-        }));
-        
-        const { error: err2 } = await supabaseClient.from('eval_resultados').insert(resultadosGenerales);
-        if (err2) throw err2;
+        updateStatus("⏳ Guardando estadísticas generales...");
+        const { error: e2 } = await supabaseClient.from('eval_resultados').upsert(batchResultados);
+        if (e2) throw e2;
 
-        updateStatus("✅ ¡Importación Exitosa!");
-        alert("¡Datos cargados correctamente!");
+        updateStatus("✅ ¡Importación consolidada exitosa!");
+        alert("¡Datos del análisis cargados correctamente!");
         location.reload();
       } catch (e) {
         console.error(e);
@@ -1896,20 +1796,81 @@
       }
     }
 
-    async function resetearDatosSede() {
-      if (!confirm("⚠️ ¿ESTÁS SEGURO? Esto borrará TODOS los datos (Resultados, Notas e Imágenes) de la base de datos.")) return;
+    async function procesarEstudiantes(rows, header) {
+      const qCols = [];
+      header.forEach((h, i) => {
+        if (h && h.toString().trim().toUpperCase().startsWith('Q')) qCols.push(i);
+      });
+
+      const resultadosEstudiantes = [];
+      for (const row of rows) {
+        if (!row[1]) continue;
+        const gradoOriginal = row[1];
+        const sede = detectarSede(gradoOriginal);
+        const gradoLimpio = parseInt(gradoOriginal.toString().match(/\d+/)) || 0;
+        const zipId = row[2];
+        const nombre = (row[4] + " " + row[5]).trim();
+        const quizName = row[0];
+
+        const respuestas = {};
+        qCols.forEach((colIdx, i) => {
+          respuestas[i + 1] = parseInt(row[colIdx]) || 0;
+        });
+
+        resultadosEstudiantes.push({
+          estudiante_nombre: nombre,
+          zipgrade_id: zipId,
+          grado: gradoLimpio,
+          sede: sede,
+          periodo: parseInt(currentPeriodo),
+          quiz_name: quizName,
+          total_correctas: parseInt(row[7]) || 0,
+          porcentaje: parseFloat(row[8]) || 0,
+          respuestas: respuestas
+        });
+      }
+
+      if (!confirm(`¿Subir ${resultadosEstudiantes.length} resultados individuales?`)) return;
+
       try {
-        await supabaseClient.from('eval_resultados').delete().neq('grado', '0');
-        await supabaseClient.from('eval_estudiantes_notas').delete().neq('grado', '0');
-        alert("Base de datos reseteada.");
+        updateStatus("⏳ Guardando notas individuales...");
+        const { error: err } = await supabaseClient.from('eval_estudiantes_notas').insert(resultadosEstudiantes);
+        if (err) throw err;
+        updateStatus("✅ ¡Importación de estudiantes exitosa!");
+        alert("¡Datos de alumnos cargados correctamente!");
         location.reload();
-      } catch (e) { alert("Error: " + e.message); }
+      } catch (e) {
+        console.error(e);
+        alert("Fallo en la subida: " + e.message);
+      }
+    }
+
+    async function resetearBaseDeDatos() {
+      if (!confirm("⚠️ ¿ESTÁS SEGURO? Esto borrará TOTALMENTE:\n- Análisis General\n1- Notas de Estudiantes\n- Banco de Preguntas\nEsto NO se puede deshacer.")) return;
+      
+      showLoading(true);
+      try {
+        // Borramos todas las filas de las 3 tablas principales
+        const tables = ['eval_resultados', 'eval_estudiantes_notas', 'eval_preguntas'];
+        for (const table of tables) {
+          const { error } = await supabaseClient.from(table).delete().neq('grado', -1); // Truco para borrar todo
+          if (error) throw error;
+        }
+        
+        alert("✅ Base de datos reseteada correctamente.");
+        location.reload();
+      } catch (e) {
+        console.error(e);
+        alert("Error al resetear: " + e.message);
+      } finally {
+        showLoading(false);
+      }
     }
 
     // --- REPORTES INDIVIDUALES ---
     async function cargarGradosReporte() {
       const { data } = await supabaseClient.from('eval_estudiantes_notas').select('grado').order('grado');
-      const unique = [...new Set(data.map(d => d.grado))];
+      const unique = data ? [...new Set(data.map(d => d.grado))] : [];
       const sel = $('rep-grado');
       sel.innerHTML = unique.map(g => `<option value="${g}">${g}</option>`).join('');
       cargarEstudiantesReporte();
@@ -1918,13 +1879,19 @@
     async function cargarEstudiantesReporte() {
       const sede = $('rep-sede').value;
       const grado = $('rep-grado').value;
+      if (!sede || !grado) return;
+
       const { data } = await supabaseClient.from('eval_estudiantes_notas')
         .select('estudiante_nombre, zipgrade_id')
         .eq('sede', sede).eq('grado', grado).eq('periodo', currentPeriodo);
       
+      // Filtrar duplicados (por si un alumno se subió dos veces por error)
+      const uniqueMap = new Map();
+      if (data) data.forEach(e => uniqueMap.set(e.zipgrade_id, e.estudiante_nombre));
+      
       const sel = $('rep-estudiante');
       sel.innerHTML = '<option value="">Seleccione estudiante...</option>' + 
-        data.map(e => `<option value="${e.zipgrade_id}">${e.estudiante_nombre}</option>`).join('');
+        Array.from(uniqueMap.entries()).map(([id, name]) => `<option value="${id}">${name}</option>`).join('');
     }
 
     // --- GENERACIÓN DE REPORTES Y PUESTOS ---
