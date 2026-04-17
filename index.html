@@ -1681,6 +1681,7 @@
         header: false,
         skipEmptyLines: 'greedy',
         encoding: "UTF-8",
+        delimiter: "", // Auto-detectar (importante para TSV)
         complete: function (results) {
           cachedRows = results.data;
           const table = $('debug-table');
@@ -1771,7 +1772,7 @@
             quiz_name: quiz,
             pregunta_num: pNum,
             cant_correctas: parseInt(row[okCountIdx]) || 0,
-            porc_correctas: parseFloat(row[porcIdx]) || 0
+            porc_correctas: Math.round(parseFloat(row[porcIdx]) || 0)
           });
         });
       }
@@ -1825,7 +1826,7 @@
           periodo: parseInt(currentPeriodo),
           quiz_name: quizName,
           total_correctas: parseInt(row[7]) || 0,
-          porcentaje: parseFloat(row[8]) || 0,
+          porcentaje: Math.round(parseFloat(row[8]) || 0),
           respuestas: respuestas
         });
       }
