@@ -684,14 +684,10 @@
             <div id="tab-3" class="period-tab" onclick="setPeriodo(3)">Evaluándonos Final</div>
           </div>
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:1rem;">
-          <div class="control-group">
-            <label>Sede</label>
-            <select id="sel-sede" onchange="cargarGrados()">
-              <option value="Central">Central</option>
-              <option value="Yanacona">Yanacona</option>
-              <option value="Pisoje Bajo">Pisoje Bajo</option>
-              <option value="Pueblillo">Pueblillo</option>
-              <option value="Sendero">Sendero</option>
+          <div class="control-group" style="display:none;" id="group-sede-general">
+            <label>Sede (Consolidado)</label>
+            <select id="sel-sede" disabled>
+              <option value="Consolidado">Consolidado Institucional</option>
             </select>
           </div>
           <div class="control-group">
@@ -1404,39 +1400,109 @@
       mostrarAnalisis();
     }
 
+    async function cargarGrados() {
+      showLoading(true);
+      try {
+        const { data, error } = await supabaseClient.from('eval_resultados')
+          .select('grado')
+          .eq('periodo', currentPeriodo);
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          $('sel-grado').innerHTML = '<option value="">Sin datos en Periodo ' + currentPeriodo + '</option>';
+        } else {
+          const distinct = [...new Set(data.map(i => i.grado))].sort((a, b) => a - b);
+          $('sel-grado').innerHTML = '<option value="">Seleccione grado...</option>' +
+            distinct.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
+        }
+      } catch (e) { console.error(e); }
+      showLoading(false);
+    }
+
+    async function cargarAsignaturas() {
+      const grado = $('sel-grado').value;
+      if (!grado) return;
+      showLoading(true);
+      const { data } = await supabaseClient.from('eval_resultados')
+        .select('quiz_name').eq('grado', grado).eq('periodo', currentPeriodo);
+      
+      const sel = $('sel-asig');
+      if (data) {
+        const unique = [...new Set(data.map(d => d.quiz_name))].sort();
+        sel.innerHTML = '<option value="">Asignatura...</option>' + unique.map(a => `<option value="${a}">${a}</option>`).join('');
+      }
+      showLoading(false);
+    }
+
+    async function onAsigChange(sel) {
+      const g = $('sel-grado').value;
+      const a = sel.value;
+      const p = currentPeriodo;
+
+      const { data } = await supabaseClient.from('eval_resultados')
+        .select('pregunta_num').eq('grado', g).eq('periodo', p).eq('quiz_name', a).order('pregunta_num');
+      
+      const pSel = $('sel-pregunta');
+      if (data) {
+        const uniqueP = [...new Set(data.map(d => d.pregunta_num))].sort((x,y) => x-y);
+        pSel.innerHTML = uniqueP.map(p => `<option value="${p}">#${p}</option>`).join('');
+      }
+      mostrarAnalisis();
+    }
+
     async function mostrarAnalisis() {
       const g = $('sel-grado').value;
       const a = $('sel-asig').value;
       const n = $('sel-pregunta').value;
-      const s = $('sel-sede').value;
       if (!g || !a || !n) return $('resultado-container').style.display = 'none';
 
       showLoading(true);
-      const { data: res } = await supabaseClient.from('eval_resultados')
-        .select('*').eq('grado', g).eq('periodo', currentPeriodo).eq('quiz_name', a).eq('pregunta_num', n).eq('sede', s).single();
+      // Traemos todos los registros de todas las sedes para consolidar
+      const { data: sedesRes } = await supabaseClient.from('eval_resultados')
+        .select('*').eq('grado', g).eq('periodo', currentPeriodo).eq('quiz_name', a).eq('pregunta_num', n);
       
       const { data: preg } = await supabaseClient.from('eval_preguntas')
         .select('*').eq('grado', g).eq('periodo', currentPeriodo).eq('pregunta_num', n).maybeSingle();
 
-      if (res) {
+      if (sedesRes && sedesRes.length > 0) {
         $('resultado-container').style.display = 'block';
-        $('stat-total').innerText = res.cant_correctas + Math.round((res.cant_correctas * (100 - res.porc_correctas)) / res.porc_correctas) || 0;
-        $('stat-correctas').innerText = res.cant_correctas;
-        $('stat-porcentaje').innerText = res.porc_correctas + "%";
         
-        updateChart([res.resp_a_count, res.resp_b_count, res.resp_c_count, res.resp_d_count], res.key);
+        // Consolidar datos de todas las sedes
+        let totalCorrectas = 0;
+        let rA = 0, rB = 0, rC = 0, rD = 0;
+        sedesRes.forEach(r => {
+           totalCorrectas += r.cant_correctas;
+           rA += (r.resp_a_count || 0);
+           rB += (r.resp_b_count || 0);
+           rC += (r.resp_c_count || 0);
+           rD += (r.resp_d_count || 0);
+        });
+
+        const totalRespuestas = rA + rB + rC + rD;
+        const porcGlobal = totalRespuestas > 0 ? Math.round((totalCorrectas / totalRespuestas) * 100) : 0;
+        
+        $('stat-total').innerText = totalRespuestas;
+        $('stat-correctas').innerText = totalCorrectas;
+        $('stat-porcentaje').innerText = porcGlobal + "%";
+        
+        updateChart([rA, rB, rC, rD], sedesRes[0].key);
         
         if (preg) {
-          $('pregunta-display-num').innerText = `Pregunta #${n} - ${preg.asignatura}`;
-          renderContent($('pregunta-texto'), $('pregunta-media'), preg.texto_pregunta);
-          renderContent($('txt-a'), document.createElement('div'), preg.opcion_a);
-          renderContent($('txt-b'), document.createElement('div'), preg.opcion_b);
-          renderContent($('txt-c'), document.createElement('div'), preg.opcion_c);
-          renderContent($('txt-d'), document.createElement('div'), preg.opcion_d);
+          $('pregunta-display-num').innerText = `Pregunta #${n} - Global`;
+          renderMedia('pregunta-texto', 'pregunta-media', preg.texto_pregunta);
           
-          document.querySelectorAll('.option').forEach(o => o.classList.remove('correct'));
-          const correctOpt = $(`opt-${res.key.toLowerCase()}`);
-          if (correctOpt) correctOpt.classList.add('correct');
+          const labels = ["opcion_a", "opcion_b", "opcion_c", "opcion_d"];
+          const opts = ["A", "B", "C", "D"];
+          
+          opts.forEach((o, i) => {
+             const isCorrect = (o === sedesRes[0].key);
+             const optDiv = $(`opt-${o.toLowerCase()}`);
+             if (optDiv) {
+                optDiv.classList.toggle('correct', isCorrect);
+                renderMedia(`txt-${o.toLowerCase()}`, document.createElement('div'), preg[labels[i]]);
+             }
+          });
         }
       }
       showLoading(false);
