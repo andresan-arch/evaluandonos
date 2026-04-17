@@ -822,15 +822,26 @@
         <div class="admin-grid">
           <!-- CARD 1: ZIPGRADE -->
           <div class="admin-card">
-            <h5>📥 Importar Resultados (ZipGrade)</h5>
-            <p style="font-size:0.8rem; color:#64748b;">Sube el archivo CSV "Standard" para cargar notas individuales y estadísticas generales.</p>
-            <input type="file" id="csv-file" accept=".csv" style="font-size:0.8rem;">
+            <h5>📊 Carga de Datos ZipGrade (TSV/CSV)</h5>
+            <div style="background:#f1f5f9; padding:10px; border-radius:8px; margin-bottom:10px; font-size:0.75rem;">
+              <p style="margin-bottom:5px; font-weight:600;">Selecciona el tipo de archivo:</p>
+              <label style="display:flex; align-items:center; gap:5px; cursor:pointer; margin-bottom:3px;">
+                <input type="radio" name="upload-type" value="auto" checked> 🤖 Detección Automática
+              </label>
+              <label style="display:flex; align-items:center; gap:5px; cursor:pointer; margin-bottom:3px;">
+                <input type="radio" name="upload-type" value="consolidado"> 📋 Análisis Consolidado (TSV)
+              </label>
+              <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                <input type="radio" name="upload-type" value="estudiantes"> 👥 Reporte Estudiantes (CSV/TSV)
+              </label>
+            </div>
+            <input type="file" id="csv-file" accept=".csv,.tsv" style="margin-bottom:10px; font-size:0.8rem; width:100%;">
             <div id="admin-debug" style="display:none; background:#f8fafc; padding:10px; border-radius:8px; font-size:0.7rem;">
                <table id="debug-table" style="width:100%; border-collapse:collapse;"></table>
                <button id="btn-confirm-upload" onclick="finalizarSubida()" style="width:100%; margin-top:10px; background:var(--success); color:white; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">¡SUBIR DATOS!</button>
             </div>
-            <button onclick="previsualizarDatos()" style="background:var(--primary); color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer;">ANALIZAR ARCHIVO</button>
-            <div id="admin-status" style="font-size:0.75rem; color:#64748b;"></div>
+            <button onclick="previsualizarDatos()" style="background:var(--primary); color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer;">1. ANALIZAR ARCHIVO</button>
+            <div id="admin-status" style="margin-top:10px; font-size:0.75rem; color:#64748b; font-weight:bold;"></div>
           </div>
 
           <!-- CARD 2: MAPEO -->
