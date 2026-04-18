@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4f46e5">
   <link rel="apple-touch-icon"
-    href="https://txnecdeccianklsqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png">
+    href="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
@@ -627,7 +627,7 @@
 
   <div id="login-mask">
     <div class="login-card">
-      <img src="https://txnecdeccianklsqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png"
+      <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png"
         style="width: 120px; margin-bottom: 1rem;">
       <h2>Evaluándonos</h2>
       <input type="text" id="li-user" placeholder="Usuario">
@@ -639,7 +639,7 @@
 
   <header>
     <div class="header-banner">
-      <img src="https://txnecdeccianklsqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png"
+      <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png"
         alt="Evaluándonos Banner">
       <div class="header-sub">
         Evaluándonos — Análisis Estadístico
@@ -664,58 +664,52 @@
   </div>
 
   <main class="container">
-    <!-- Selectores y Periodo -->
-    <div class="controls" style="display:flex; gap:2rem; align-items:stretch;">
-      <!-- Columna izquierda: botones + filtros -->
-      <div style="flex:1; display:flex; flex-direction:column; gap:1.2rem;">
-        <div style="display:flex; justify-content:center;">
-          <div class="tabs" style="display:inline-flex; background:#e2e8f0; padding:4px; border-radius:12px; margin-bottom:1rem;">
-            <button onclick="switchMainTab('analisis')" id="tab-analisis" class="tab-btn active" 
-              style="padding:8px 20px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.85rem; transition:0.3s;">Análisis General</button>
-            <button onclick="switchMainTab('individual')" id="tab-individual" class="tab-btn" 
-              style="padding:8px 20px; border:none; border-radius:10px; background:transparent; cursor:pointer; font-weight:700; font-size:0.85rem; transition:0.3s;">Reporte Individual</button>
+    <!-- Contenedor Principal de Filtros y Navegación -->
+    <div style="background: white; border-bottom: 2px solid #f1f5f9; padding: 1.5rem 0; margin-bottom: 2rem;">
+      <div class="container" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        
+        <!-- Navegación Superior y Logo -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png" 
+                 style="height: 50px; width: auto;" alt="Logo Mini">
+            <div class="tabs" style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px;">
+              <button onclick="switchMainTab('analisis')" id="tab-analisis" class="tab-btn active" 
+                style="padding: 8px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: 0.3s;">Análisis General</button>
+              <button onclick="switchMainTab('individual')" id="tab-individual" class="tab-btn" 
+                style="padding: 8px 20px; border: none; border-radius: 10px; background: transparent; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: 0.3s;">Reporte Individual</button>
+            </div>
           </div>
-        </div>
-
-        <div id="filtros-container" class="card" style="margin-top:0;">
-          <div class="period-tabs">
+          
+          <div class="period-tabs" style="margin: 0;">
             <div id="tab-1" class="period-tab active" onclick="setPeriodo(1)">Evaluándonos 1</div>
             <div id="tab-2" class="period-tab" onclick="setPeriodo(2)">Evaluándonos 2</div>
             <div id="tab-3" class="period-tab" onclick="setPeriodo(3)">Evaluándonos Final</div>
           </div>
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:1rem;">
-          <div class="control-group" style="display:none;" id="group-sede-general">
-            <label>Sede (Consolidado)</label>
-            <select id="sel-sede" disabled>
-              <option value="Consolidado">Consolidado Institucional</option>
-            </select>
-          </div>
-          <div class="control-group">
-            <label>Grado</label>
-            <select id="sel-grado" onchange="cargarAsignaturas()">
+        </div>
+
+        <!-- Barra de Filtros Horizontal (Análisis General) -->
+        <div id="filtros-container" style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-end; background: #f8fafc; padding: 1.5rem; border-radius: 16px; border: 1px solid #e2e8f0;">
+          <div class="control-group" style="flex: 1; min-width: 150px;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 6px; text-transform: uppercase;">Grado</label>
+            <select id="sel-grado" onchange="cargarAsignaturas()" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1; background: white;">
               <option value="">Seleccione grado...</option>
             </select>
           </div>
-          <div class="control-group">
-            <label>Asignatura</label>
-            <select id="sel-asig" onchange="onAsigChange(this)"
-              style="border-left:5px solid #e2e8f0; transition:border-color 0.3s, background 0.3s;">
+          <div class="control-group" style="flex: 2; min-width: 250px;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 6px; text-transform: uppercase;">Asignatura</label>
+            <select id="sel-asig" onchange="onAsigChange(this)" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1; background: white;">
               <option value="">Seleccione asignatura...</option>
             </select>
           </div>
-          <div class="control-group">
-            <label>Pregunta</label>
-            <select id="sel-pregunta" onchange="mostrarAnalisis()">
-              <option value="">Seleccione pregunta...</option>
+          <div class="control-group" style="flex: 1; min-width: 120px;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 6px; text-transform: uppercase;">Pregunta</label>
+            <select id="sel-pregunta" onchange="mostrarAnalisis()" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1; background: white;">
+              <option value=""># Pregunta</option>
             </select>
           </div>
         </div>
-      </div>
-      <!-- Columna derecha: logo -->
-      <div
-        style="display:flex; align-items:center; justify-content:center; border-left:2px solid #f1f5f9; padding-left:2rem; flex-shrink:0;">
-        <img src="https://txnecdeccianklsqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png"
-          style="height:120px; width:auto; object-fit:contain;" alt="Logo Evaluándonos">
+
       </div>
     </div>
 
@@ -834,8 +828,12 @@
               <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
                 <input type="radio" name="upload-type" value="estudiantes"> 👥 Reporte Estudiantes (CSV/TSV)
               </label>
+              <hr style="border:0; border-top:1px solid #e2e8f0; margin:10px 0;">
+              <label style="display:flex; align-items:center; gap:5px; cursor:pointer; color:#ef4444; font-weight:700;">
+                <input type="checkbox" id="auto-reset-all"> 🔥 Limpiar TODO antes de cargar
+              </label>
             </div>
-            <input type="file" id="csv-file" accept=".csv,.tsv" style="margin-bottom:10px; font-size:0.8rem; width:100%;">
+            <input type="file" id="csv-file" accept=".csv,.tsv" multiple style="margin-bottom:10px; font-size:0.8rem; width:100%;">
             <div id="admin-debug" style="display:none; background:#f8fafc; padding:10px; border-radius:8px; font-size:0.7rem;">
                <table id="debug-table" style="width:100%; border-collapse:collapse;"></table>
                <button id="btn-confirm-upload" onclick="finalizarSubida()" style="width:100%; margin-top:10px; background:var(--success); color:white; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">¡SUBIR DATOS!</button>
@@ -881,7 +879,7 @@
             </div>
             <hr style="border:0; border-top:1px solid #e2e8f0; margin:5px 0;">
             <p style="font-size:0.75rem; color:#64748b;">O importa masivamente:</p>
-            <input type="file" id="users-csv" accept=".csv" style="font-size:0.75rem;">
+            <input type="file" id="users-csv" accept=".csv" multiple style="font-size:0.75rem;">
             <button onclick="importarUsuariosCSV()" style="background:#10b981; color:white; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">IMPORTAR XLS</button>
             <div id="users-status" style="font-size:0.7rem;"></div>
           </div>
@@ -901,7 +899,7 @@
 
   <footer>
     <div class="container">
-      <img src="https://txnecdeccianklsqyrav.supabase.co/storage/v1/object/public/assets/andresanbordessinfondo.png"
+      <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/andresanbordessinfondo.png"
         class="footer-logo" alt="AndréSán Footer">
       <p class="footer-copy">© 2026 AndréSán - Sistema Gestión Académica</p>
     </div>
@@ -913,7 +911,7 @@
     const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
     let currentPeriodo = 1;
-    let cachedRows = null;
+    let pendingFiles = []; // Cola de archivos para procesar
 
     // --- LOGICA DE SEDES ---
     const SEDES_MAP = {
@@ -923,6 +921,41 @@
       'S': 'Sendero'
     };
 
+    const MATRIZ_RANGOS = {
+      '3-4': [
+        { start: 1, end: 10, label: 'Matemáticas' },
+        { start: 11, end: 20, label: 'Ciencias Sociales' },
+        { start: 21, end: 30, label: 'Lenguaje' },
+        { start: 31, end: 40, label: 'Ciencias Naturales' },
+        { start: 41, end: 45, label: 'Inglés' }
+      ],
+      '5': [
+        { start: 1, end: 20, label: 'Matemáticas' },
+        { start: 21, end: 40, label: 'Ciencias Sociales' },
+        { start: 41, end: 60, label: 'Lenguaje' },
+        { start: 61, end: 80, label: 'Ciencias Naturales' },
+        { start: 81, end: 90, label: 'Inglés' }
+      ],
+      '6-9': [
+        { start: 1, end: 20, label: 'Matemáticas' },
+        { start: 21, end: 40, label: 'Competencias Ciudadanas' },
+        { start: 41, end: 60, label: 'Ciencias Sociales' },
+        { start: 61, end: 80, label: 'Lenguaje' },
+        { start: 81, end: 100, label: 'Ciencias Naturales' },
+        { start: 101, end: 120, label: 'Inglés' }
+      ],
+      '10-11': [
+        { start: 1, end: 20, label: 'Matemáticas' },
+        { start: 21, end: 30, label: 'Competencias Ciudadanas' },
+        { start: 31, end: 50, label: 'Ciencias Sociales' },
+        { start: 51, end: 70, label: 'Lenguaje' },
+        { start: 71, end: 80, label: 'Biología' },
+        { start: 81, end: 90, label: 'Física' },
+        { start: 91, end: 100, label: 'Química' },
+        { start: 101, end: 120, label: 'Inglés' }
+      ]
+    };
+
     function detectarSede(gradoStr) {
       if (!gradoStr) return 'Central';
       const clean = gradoStr.toString().trim().toUpperCase();
@@ -930,6 +963,25 @@
         if (clean.endsWith(key)) return val;
       }
       return 'Central';
+    }
+
+    function detectarPeriodo(quizName) {
+      if (!quizName) return parseInt(currentPeriodo) || 1;
+      const name = quizName.toString().toUpperCase();
+      
+      // Prioridad 1: Patrones claros como 1P, P1, Periodo 1
+      if (/(?:1P|P1|PERIODO\s*1|[ _\-]1(?!\d))/i.test(name)) return 1;
+      if (/(?:2P|P2|PERIODO\s*2|[ _\-]2(?!\d))/i.test(name)) return 2;
+      if (/(?:3P|P3|PERIODO\s*3|[ _\-]3(?!\d)|FINAL|FIN)/i.test(name)) return 3;
+
+      // Prioridad 2: Si tiene "Evaluandonos" y un número solo
+      if (name.includes("EVALUANDONOS")) {
+        if (/\b1\b/.test(name)) return 1;
+        if (/\b2\b/.test(name)) return 2;
+        if (/\b3\b/.test(name)) return 3;
+      }
+
+      return parseInt(currentPeriodo) || 1;
     }
 
     function switchMainTab(tab) {
@@ -959,7 +1011,23 @@
 
     function toggleAdmin() {
       const modal = $('admin-modal');
-      modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+      const isOpening = modal.style.display !== 'flex';
+      modal.style.display = isOpening ? 'flex' : 'none';
+      if (isOpening) {
+        cargarGradosAdminSelects();
+      }
+    }
+
+    async function cargarGradosAdminSelects() {
+       // Poblar el selector de grados del panel de imágenes
+       try {
+         const { data } = await supabaseClient.from('eval_preguntas').select('grado');
+         const unique = data ? [...new Set(data.map(d => d.grado))].sort((a,b)=>a-b) : [];
+         const sel = $('aimg-grado');
+         if (sel) {
+            sel.innerHTML = '<option value="">Grado...</option>' + unique.map(g => `<option value="${g}">${g}°</option>`).join('');
+         }
+       } catch (e) { console.error("Error cargando grados admin:", e); }
     }
 
     let myChart = null;
@@ -1049,79 +1117,33 @@
     }
 
     async function init() {
-      // Sin auto-detección: el usuario elige el periodo libremente con los botones
       await cargarGrados();
     }
 
     async function cargarGrados() {
       showLoading(true);
       try {
-        const { data, error } = await supabaseClient.from('eval_resultados')
-          .select('grado')
-          .eq('periodo', currentPeriodo);
+        // Consultamos en ambas tablas para que el grado aparezca si hay resultados O si hay mapeo de preguntas
+        const [resResults, resPreguntas] = await Promise.all([
+          supabaseClient.from('eval_resultados').select('grado').eq('periodo', currentPeriodo),
+          supabaseClient.from('eval_preguntas').select('grado').eq('periodo', currentPeriodo)
+        ]);
 
-        if (error) throw error;
-
-        if (!data || data.length === 0) {
-          console.warn("No hay datos para el periodo:", currentPeriodo);
-          $('sel-grado').innerHTML = '<option value="">Sin datos en Periodo ' + currentPeriodo + '</option>';
-        } else {
-          const distinct = [...new Set(data.map(i => i.grado))].sort((a, b) => a - b);
-          $('sel-grado').innerHTML = '<option value="">Seleccione grado...</option>' +
-            distinct.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
-        }
-
-      } catch (e) {
-        console.error("Error grados:", e);
-        alert("Error al cargar grados: Verifica los permisos (RLS) en Supabase.");
-      }
-
-      const asigSel = $('sel-asig');
-      if (asigSel) {
-        asigSel.innerHTML = '<option value="">Seleccione asignatura...</option>';
-        asigSel.style.borderLeft = '5px solid #e2e8f0';
-        asigSel.style.background = 'white';
-        asigSel.style.fontWeight = '';
-      }
-
-      const pSel = $('sel-pregunta');
-      if (pSel) pSel.innerHTML = '<option value="">Seleccione pregunta...</option>';
-
-      const resCont = $('resultado-container');
-      if (resCont) resCont.style.display = 'none';
-
-      showLoading(false);
-    }
-
-    // Paleta de colores por asignatura (se asigna por índice)
-    const ASIG_COLORES = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#06b6d4'];
-    // Mapa de valor -> color para colorear el select al cambiar
-    const asigColorMap = {};
-
-    function onAsigChange(sel) {
-      const color = asigColorMap[sel.value] || '#e2e8f0';
-      if (sel.value) {
-        sel.style.borderLeft = '5px solid ' + color;
-        sel.style.background = color; // Solid vibrant background
-        sel.style.color = 'white';
-        sel.style.fontWeight = '700';
-      } else {
-        sel.style.borderLeft = '5px solid #e2e8f0';
-        sel.style.background = 'white';
-        sel.style.fontWeight = '';
-      }
-      cargarPreguntas();
-    }
-
-    // (Filtros dinámicos consolidados)
-    async function cargarGrados() {
-      showLoading(true);
-      try {
-        const { data } = await supabaseClient.from('eval_resultados').select('grado').eq('periodo', currentPeriodo);
-        const unique = data ? [...new Set(data.map(d => d.grado))].sort((a,b)=>a-b) : [];
+        const data1 = resResults.data || [];
+        const data2 = resPreguntas.data || [];
+        
+        const merged = [...data1, ...data2];
+        const unique = [...new Set(merged.map(d => d.grado))].sort((a,b)=>a-b);
+        
         const sel = $('sel-grado');
-        sel.innerHTML = '<option value="">Grado...</option>' + unique.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
-      } catch (e) { console.error(e); }
+        if (unique.length === 0) {
+          sel.innerHTML = '<option value="">Sin datos...</option>';
+        } else {
+          sel.innerHTML = '<option value="">Grado...</option>' + unique.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
+        }
+      } catch (e) { 
+        console.error("Error al cargar grados:", e); 
+      }
       showLoading(false);
     }
 
@@ -1130,11 +1152,13 @@
       if (!grado) return;
       showLoading(true);
       try {
-        const { data } = await supabaseClient.from('eval_resultados').select('quiz_name').eq('grado', grado).eq('periodo', currentPeriodo);
-        const unique = data ? [...new Set(data.map(d => d.quiz_name))].sort() : [];
+        const { data } = await supabaseClient.from('eval_preguntas').select('asignatura').eq('grado', grado).eq('periodo', currentPeriodo);
+        const unique = data ? [...new Set(data.map(d => d.asignatura))].sort() : [];
         const sel = $('sel-asig');
         sel.innerHTML = '<option value="">Asignatura...</option>' + unique.map(a => `<option value="${a}">${a}</option>`).join('');
-      } catch (e) { console.error(e); }
+      } catch (e) { 
+        console.error("Error al cargar asignaturas:", e); 
+      }
       showLoading(false);
     }
 
@@ -1142,93 +1166,113 @@
       const g = $('sel-grado').value;
       const a = sel.value;
       if (!g || !a) return;
+      
       showLoading(true);
       try {
-        const { data } = await supabaseClient.from('eval_resultados')
-          .select('pregunta_num').eq('grado', g).eq('periodo', currentPeriodo).eq('quiz_name', a).order('pregunta_num');
+        const { data } = await supabaseClient.from('eval_preguntas')
+          .select('pregunta_num').eq('grado', g).eq('periodo', currentPeriodo).eq('asignatura', a).order('pregunta_num');
+        
         const pSel = $('sel-pregunta');
         const uniqueP = data ? [...new Set(data.map(d => d.pregunta_num))].sort((x,y) => x-y) : [];
-        pSel.innerHTML = uniqueP.map(p => `<option value="${p}">Pregunta ${p}</option>`).join('');
-        mostrarAnalisis();
-      } catch (e) { console.error(e); }
+        
+        if (uniqueP.length === 0) {
+          pSel.innerHTML = '<option value="">Sin preguntas</option>';
+        } else {
+          pSel.innerHTML = uniqueP.map(p => `<option value="${p}">#${p}</option>`).join('');
+          mostrarAnalisis();
+        }
+      } catch (e) { 
+        console.error("Error al cargar preguntas:", e); 
+      }
       showLoading(false);
     }
 
     async function mostrarAnalisis() {
-      const grado = $('sel-grado').value;
-      const num = $('sel-pregunta').value;
-      if (!grado || !num) return;
+      const g = $('sel-grado').value;
+      const a = $('sel-asig').value;
+      const n = $('sel-pregunta').value;
+      
+      if (!g || !a || !n) {
+        $('resultado-container').style.display = 'none';
+        return;
+      }
 
       showLoading(true);
-
       try {
-        // Buscamos resultados y mapeo de forma robusta (limit(1) previene crasheos si por accidente se subieron datos duplicados)
-        const [mapRes, dataRes] = await Promise.all([
-          supabaseClient.from('eval_preguntas').select('*').eq('grado', grado).eq('pregunta_num', num).eq('periodo', currentPeriodo).limit(1),
-          supabaseClient.from('eval_resultados').select('*').eq('grado', grado).eq('pregunta_num', num).eq('periodo', currentPeriodo).limit(1)
-        ]);
+        // Encontrar quiz_name asociado (opcional, pero útil si hay múltiples exámenes)
+        const { data: qNameRes } = await supabaseClient.from('eval_resultados')
+          .select('quiz_name').eq('grado', g).eq('periodo', currentPeriodo).limit(1).maybeSingle();
 
-        if (dataRes.data && dataRes.data.length > 0) {
-          let mapping = mapRes.data && mapRes.data.length > 0 ? mapRes.data[0] : null;
-          const stats = dataRes.data[0];
+        // 1. Banco de preguntas (Protección contra duplicados con limit 1)
+        const { data: pregData } = await supabaseClient.from('eval_preguntas')
+          .select('*').eq('grado', g).eq('periodo', currentPeriodo).eq('asignatura', a).eq('pregunta_num', n).limit(1);
+        const preg = (pregData && pregData.length > 0) ? pregData[0] : null;
 
-          // MODO RESILIENCIA: Si no se subió cuestionario, creamos uno virtual para mostrar los datos.
-          if (!mapping) {
-            mapping = {
-              pregunta_num: num,
-              texto_pregunta: `Pregunta #${num} (Evaluación sin archivo de mapeo detallado)`,
-              opcion_a: "Opción A",
-              opcion_b: "Opción B",
-              opcion_c: "Opción C",
-              opcion_d: "Opción D"
-            };
-          }
-          renderUI(mapping, stats);
-        } else {
-          alert("No se encontraron resultados completos para esta pregunta en Resultados. ¿Seguro que subiste el CSV de Zipgrade para este grado?");
+        // 2. Resultados detallados (consolidados por todas las sedes)
+        const { data: sedesRes } = await supabaseClient.from('eval_resultados')
+          .select('*').eq('grado', g).eq('periodo', currentPeriodo).eq('pregunta_num', n);
+
+        if (!sedesRes || sedesRes.length === 0) {
+          showLoading(false);
+          alert(`🔔 No se han cargado resultados de ZipGrade para la Pregunta #${n} (Grado ${g}, Periodo ${currentPeriodo}).`);
+          $('resultado-container').style.display = 'none';
+          return;
         }
+
+        const stats = sedesRes[0]; // Referencia para key principal
+        let totalCorrectas = 0, rA = 0, rB = 0, rC = 0, rD = 0;
+        
+        sedesRes.forEach(r => {
+           totalCorrectas += (r.cant_correctas || 0);
+           rA += (r.resp_a_count || 0);
+           rB += (r.resp_b_count || 0);
+           rC += (r.resp_c_count || 0);
+           rD += (r.resp_d_count || 0);
+        });
+
+        const totalRespuestas = rA + rB + rC + rD;
+        const porcGlobal = totalRespuestas > 0 ? Math.round((totalCorrectas / totalRespuestas) * 100) : 0;
+
+        $('resultado-container').style.display = 'block';
+        $('stat-total').innerText = totalRespuestas;
+        $('stat-correctas').innerText = totalCorrectas;
+        $('stat-porcentaje').innerText = porcGlobal + "%";
+        
+        updateChart([rA, rB, rC, rD], stats.key);
+
+        const mapping = preg || {
+          pregunta_num: n, texto_pregunta: `Pregunta #${n} (Sin texto en banco)`,
+          opcion_a: "A", opcion_b: "B", opcion_c: "C", opcion_d: "D"
+        };
+
+        $('pregunta-display-num').innerText = `Pregunta #${n} - ${a}`;
+        renderMedia('pregunta-texto', 'pregunta-media', mapping.texto_pregunta);
+        
+        const labels = ["opcion_a", "opcion_b", "opcion_c", "opcion_d"];
+        const opts = ["A", "B", "C", "D"];
+        
+        const optionsHtml = opts.map((o, i) => {
+          const isCorrect = (o === (stats.key || "").trim().toUpperCase());
+          return `
+            <div class="option ${isCorrect ? 'correct' : ''}">
+              <div class="option-letter">${o}</div>
+              <div class="option-content">
+                 <div id="txt-${o.toLowerCase()}">${mapping[labels[i]] || ''}</div>
+                 <div id="media-${o.toLowerCase()}"></div>
+              </div>
+            </div>`;
+        }).join('');
+        $('options-list').innerHTML = optionsHtml;
+
+        opts.forEach(o => {
+          const content = mapping[labels[opts.indexOf(o)]];
+          if (content) renderMedia(`txt-${o.toLowerCase()}`, `media-${o.toLowerCase()}`, content);
+        });
+
       } catch (e) {
         console.error("Error en mostrarAnalisis:", e);
-      } finally {
-        showLoading(false);
       }
-    }
-
-    function renderUI(mapping, stats) {
-      $('resultado-container').style.display = 'block';
-      $('pregunta-display-num').innerText = `Pregunta #${mapping.pregunta_num}`;
-
-      renderMedia('pregunta-texto', 'pregunta-media', mapping.texto_pregunta);
-
-      const key = (stats.key || "").trim().toUpperCase();
-      const counts = [stats.resp_a_count, stats.resp_b_count, stats.resp_c_count, stats.resp_d_count];
-      const opts = ["A", "B", "C", "D"];
-      const labels = ["opcion_a", "opcion_b", "opcion_c", "opcion_d"];
-
-      const optionsHtml = opts.map((o, i) => {
-        const isCorrect = (o === key);
-        return `
-          <div class="option ${isCorrect ? 'correct' : ''}">
-            <div class="option-letter">${o}</div>
-            <div class="option-content" id="opt-text-${o}">${mapping[labels[i]] || 'N/A'}</div>
-            <div id="opt-media-${o}"></div>
-          </div>
-        `;
-      }).join('');
-
-      $('options-list').innerHTML = optionsHtml;
-
-      // Render media individualmente
-      opts.forEach(o => renderMedia(`opt-text-${o}`, `opt-media-${o}`, mapping[`opcion_${o.toLowerCase()}`]));
-
-      $('stat-correctas').innerText = stats.cant_correctas;
-      $('stat-porcentaje').innerText = stats.porc_correctas + "%";
-
-      const totalPersonas = stats.porc_correctas > 0 ? Math.round((stats.cant_correctas * 100) / stats.porc_correctas) : (counts.reduce((a, b) => a + b, 0));
-      const elTotal = document.getElementById('stat-total');
-      if (elTotal) elTotal.innerText = totalPersonas;
-
-      updateChart(counts, key);
+      showLoading(false);
     }
 
     function renderMedia(textId, mediaId, content) {
@@ -1236,13 +1280,13 @@
       const mediaElem = $(mediaId);
       if (!textElem || !mediaElem) return;
 
-      textElem.innerText = "";
-      mediaElem.innerHTML = "";
-      if (!content) return;
+      if (!content) {
+        textElem.innerText = "";
+        mediaElem.innerHTML = "";
+        return;
+      }
 
-      let textPart = "";
-      let imgPart = "";
-
+      let textPart = "", imgPart = "";
       const str = content.toString();
       if (str.includes(" ||| ")) {
         const parts = str.split(" ||| ");
@@ -1254,11 +1298,11 @@
         textPart = str;
       }
 
-      if (textPart && textPart.trim() !== "") {
-        textElem.innerText = textPart;
-      }
+      textElem.innerText = textPart;
       if (imgPart && imgPart.trim().startsWith("http")) {
         mediaElem.innerHTML = `<img src="${imgPart}" style="max-width:100%; border-radius:10px; margin-top:10px;">`;
+      } else {
+        mediaElem.innerHTML = "";
       }
     }
 
@@ -1267,9 +1311,6 @@
       const ctx = $('barChart').getContext('2d');
       const labels = ['A', 'B', 'C', 'D'];
       const colors = labels.map(o => o === key ? '#10b981' : '#6366f1');
-
-      // Add a slight top padding so labels don't get clipped
-      Chart.register(ChartDataLabels);
 
       myChart = new Chart(ctx, {
         type: 'bar',
@@ -1289,24 +1330,14 @@
           plugins: {
             legend: { display: false },
             datalabels: {
-              color: '#1e293b',
-              font: { weight: 'bold', size: 16 },
-              anchor: 'end',
-              align: 'top',
-              formatter: function (value) {
-                return value > 0 ? value : '';
-              }
+              color: '#1e293b', font: { weight: 'bold', size: 16 },
+              anchor: 'end', align: 'top',
+              formatter: (v) => v > 0 ? v : ''
             }
           },
-          layout: {
-            padding: { top: 25 }
-          },
+          layout: { padding: { top: 25 } },
           scales: {
-            y: {
-              beginAtZero: true,
-              ticks: { precision: 0 },
-              grid: { display: false }
-            },
+            y: { beginAtZero: true, ticks: { precision: 0 }, grid: { display: false } },
             x: { grid: { display: false } }
           }
         }
@@ -1317,102 +1348,6 @@
       $('loading').style.display = show ? 'flex' : 'none';
     }
 
-    async function cargarGrados() {
-      showLoading(true);
-      try {
-        const { data } = await supabaseClient.from('eval_resultados').select('grado').eq('periodo', currentPeriodo);
-        const unique = data ? [...new Set(data.map(d => d.grado))].sort((a,b)=>a-b) : [];
-        const sel = $('sel-grado');
-        sel.innerHTML = '<option value="">Grado...</option>' + unique.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
-      } catch (e) { console.error(e); }
-      showLoading(false);
-    }
-
-    async function cargarAsignaturas() {
-      const grado = $('sel-grado').value;
-      if (!grado) return;
-      showLoading(true);
-      try {
-        const { data } = await supabaseClient.from('eval_resultados').select('quiz_name').eq('grado', grado).eq('periodo', currentPeriodo);
-        const unique = data ? [...new Set(data.map(d => d.quiz_name))].sort() : [];
-        const sel = $('sel-asig');
-        sel.innerHTML = '<option value="">Asignatura...</option>' + unique.map(a => `<option value="${a}">${a}</option>`).join('');
-      } catch (e) { console.error(e); }
-      showLoading(false);
-    }
-
-    async function onAsigChange(sel) {
-      const g = $('sel-grado').value;
-      const a = sel.value;
-      if (!g || !a) return;
-      showLoading(true);
-      try {
-        const { data } = await supabaseClient.from('eval_resultados')
-          .select('pregunta_num').eq('grado', g).eq('periodo', currentPeriodo).eq('quiz_name', a).order('pregunta_num');
-        const pSel = $('sel-pregunta');
-        const uniqueP = data ? [...new Set(data.map(d => d.pregunta_num))].sort((x,y) => x-y) : [];
-        pSel.innerHTML = uniqueP.map(p => `<option value="${p}">#${p}</option>`).join('');
-        mostrarAnalisis();
-      } catch (e) { console.error(e); }
-      showLoading(false);
-    }
-
-    async function mostrarAnalisis() {
-      const g = $('sel-grado').value;
-      const a = $('sel-asig').value;
-      const n = $('sel-pregunta').value;
-      if (!g || !a || !n) return $('resultado-container').style.display = 'none';
-
-      showLoading(true);
-      // Traemos todos los registros de todas las sedes para consolidar
-      const { data: sedesRes } = await supabaseClient.from('eval_resultados')
-        .select('*').eq('grado', g).eq('periodo', currentPeriodo).eq('quiz_name', a).eq('pregunta_num', n);
-      
-      const { data: preg } = await supabaseClient.from('eval_preguntas')
-        .select('*').eq('grado', g).eq('periodo', currentPeriodo).eq('pregunta_num', n).maybeSingle();
-
-      if (sedesRes && sedesRes.length > 0) {
-        $('resultado-container').style.display = 'block';
-        
-        // Consolidar datos de todas las sedes
-        let totalCorrectas = 0;
-        let rA = 0, rB = 0, rC = 0, rD = 0;
-        sedesRes.forEach(r => {
-           totalCorrectas += r.cant_correctas;
-           rA += (r.resp_a_count || 0);
-           rB += (r.resp_b_count || 0);
-           rC += (r.resp_c_count || 0);
-           rD += (r.resp_d_count || 0);
-        });
-
-        const totalRespuestas = rA + rB + rC + rD;
-        const porcGlobal = totalRespuestas > 0 ? Math.round((totalCorrectas / totalRespuestas) * 100) : 0;
-        
-        $('stat-total').innerText = totalRespuestas;
-        $('stat-correctas').innerText = totalCorrectas;
-        $('stat-porcentaje').innerText = porcGlobal + "%";
-        
-        updateChart([rA, rB, rC, rD], sedesRes[0].key);
-        
-        if (preg) {
-          $('pregunta-display-num').innerText = `Pregunta #${n} - Global`;
-          renderMedia('pregunta-texto', 'pregunta-media', preg.texto_pregunta);
-          
-          const labels = ["opcion_a", "opcion_b", "opcion_c", "opcion_d"];
-          const opts = ["A", "B", "C", "D"];
-          
-          opts.forEach((o, i) => {
-             const isCorrect = (o === sedesRes[0].key);
-             const optDiv = $(`opt-${o.toLowerCase()}`);
-             if (optDiv) {
-                optDiv.classList.toggle('correct', isCorrect);
-                renderMedia(`txt-${o.toLowerCase()}`, document.createElement('div'), preg[labels[i]]);
-             }
-          });
-        }
-      }
-      showLoading(false);
-    }
 
     async function cargarAsignaturasAdminImg() {
       const g = $('aimg-grado').value;
@@ -1625,58 +1560,68 @@
     }
 
     async function importarUsuariosCSV() {
-      const file = $('users-csv').files[0];
-      if (!file) return alert('Selecciona primero un archivo CSV.');
+      const files = Array.from($('users-csv').files);
+      if (files.length === 0) return alert('Selecciona primero uno o más archivos CSV.');
       const status = $('users-status');
-      status.innerText = '⏳ Procesando archivo...';
+      
+      status.innerText = `⏳ Iniciando carga de ${files.length} archivos...`;
 
-      Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        encoding: 'UTF-8',
-        complete: async function (results) {
-          const rows = results.data;
-          if (!rows.length) return status.innerText = '❌ El archivo está vacío o mal formateado.';
-
-          let ok = 0, fail = 0, lastErrorMsg = "";
-          for (const row of rows) {
-              const email = (row.email || '').trim();
-              const pass = (row.password || row.contraseña || '').trim();
-              const nombre = (row.nombre || '').trim();
-              const rol = (row.rol || 'lector').trim().toLowerCase();
-
-              if (!email || !pass) { fail++; continue; }
-
-              try {
-                const { data: signData, error: sErr } = await supabaseClient.auth.signUp({ 
-                  email, 
-                  password: pass,
-                  options: { data: { nombre: nombre, name: nombre } }
-                });
-                
-                if (sErr && !sErr.message.includes('registered')) throw sErr;
-
-                const userId = signData?.user?.id;
-                if (userId) {
-                  const { error: pErr } = await supabaseClient.from('perfiles').upsert({ id: userId, email, nombre, rol }, { onConflict: 'id' });
-                  if (pErr) throw pErr;
-                } else {
-                  // If registered but no userId returned, update if exists, insert if missing? Without id we can't insert. We just update.
-                  const { error: pErr2 } = await supabaseClient.from('perfiles').update({ nombre, rol }).eq('email', email);
-                  if (pErr2) throw pErr2;
-                }
-                ok++;
-              } catch (e) { 
-                console.error("Fallo con", email, e);
-                lastErrorMsg = e.message || "Error desconocido";
-                fail++; 
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        status.innerText = `⏳ Procesando [${i + 1}/${files.length}]: ${file.name}...`;
+        
+        await new Promise((resolve) => {
+          Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            encoding: 'UTF-8',
+            complete: async function (results) {
+              const rows = results.data;
+              if (!rows.length) {
+                status.innerText += `\n❌ ${file.name} está vacío.`;
+                return resolve();
               }
 
-              status.innerText = `⏳ Procesando... ${ok + fail}/${rows.length} (Último error: ${lastErrorMsg})`;
+              let ok = 0, fail = 0, lastErrorMsg = "";
+              for (const row of rows) {
+                const email = (row.email || '').trim();
+                const pass = (row.password || row.contraseña || '').trim();
+                const nombre = (row.nombre || '').trim();
+                const rol = (row.rol || 'lector').trim().toLowerCase();
+
+                if (!email || !pass) { fail++; continue; }
+
+                try {
+                  const { data: signData, error: sErr } = await supabaseClient.auth.signUp({ 
+                    email, 
+                    password: pass,
+                    options: { data: { nombre: nombre, name: nombre } }
+                  });
+                  
+                  if (sErr && !sErr.message.includes('registered')) throw sErr;
+
+                  const userId = signData?.user?.id;
+                  if (userId) {
+                    const { error: pErr } = await supabaseClient.from('perfiles').upsert({ id: userId, email, nombre, rol }, { onConflict: 'id' });
+                    if (pErr) throw pErr;
+                  } else {
+                    const { error: pErr2 } = await supabaseClient.from('perfiles').update({ nombre, rol }).eq('email', email);
+                    if (pErr2) throw pErr2;
+                  }
+                  ok++;
+                } catch (e) { 
+                  console.error("Fallo con", email, e);
+                  lastErrorMsg = e.message || "Error desconocido";
+                  fail++; 
+                }
+              }
+              status.innerText += `\n✅ ${file.name}: ${ok} OK, ${fail} Fallos.`;
+              resolve();
             }
-            status.innerText = `✅ Listo: ${ok} exitosos, ${fail} fallidos. \n${fail > 0 ? '❌ Último error: ' + lastErrorMsg : ''}`;
-        }
-      });
+          });
+        });
+      }
+      status.innerText += "\n✨ Proceso de usuarios finalizado.";
     }
 
     function updateStatus(msg) {
@@ -1684,128 +1629,262 @@
     }
 
     function previsualizarDatos() {
-      const file = $('csv-file').files[0];
-      if (!file) return alert("Seleccion primero un archivo");
+      const files = Array.from($('csv-file').files);
+      if (files.length === 0) return alert("Selecciona primero uno o más archivos");
 
-      updateStatus("Analizando archivo...");
-      Papa.parse(file, {
-        header: false,
-        skipEmptyLines: 'greedy',
-        encoding: "UTF-8",
-        delimiter: "", // Auto-detectar (importante para TSV)
-        complete: function (results) {
-          cachedRows = results.data;
-          const table = $('debug-table');
-          table.innerHTML = "";
+      updateStatus(`🧐 Analizando ${files.length} archivos...`);
+      pendingFiles = [];
+      const table = $('debug-table');
+      table.innerHTML = "";
 
-          // Crear Cabecera con Indices
-          let headerHtml = "<tr>" + cachedRows[0].map((_, i) => `<th style='border:1px solid #ddd; background:#eee;'>COL ${i}</th>`).join('') + "</tr>";
-          table.innerHTML += headerHtml;
+      let loadedCount = 0;
 
-          // Mostrar primeras 4 filas
-          const preview = cachedRows.slice(0, 4);
-          preview.forEach(row => {
-            let rowHtml = "<tr>" + row.map(cell => `<td style='border:1px solid #ddd; padding:4px;'>${cell}</td>`).join('') + "</tr>";
+      files.forEach((file, idx) => {
+        Papa.parse(file, {
+          header: false,
+          skipEmptyLines: 'greedy',
+          encoding: "UTF-8",
+          delimiter: "",
+          complete: function (results) {
+            const rows = results.data;
+            pendingFiles.push({ name: file.name, rows: rows });
+            
+            // Añadir fila decorativa a la tabla de preview (solo para el primer archivo o resumen)
+            let rowHtml = `<tr><td colspan="5" style="background:#f1f5f9; font-weight:bold; font-size:0.7rem; padding:8px;">📄 ${file.name} (${rows.length} filas)</td></tr>`;
             table.innerHTML += rowHtml;
-          });
 
-          $('admin-debug').style.display = 'block';
-          updateStatus("Análisis completado. Revisa la tabla arriba 👆");
-        }
+            loadedCount++;
+            if (loadedCount === files.length) {
+              $('admin-debug').style.display = 'block';
+              updateStatus(`✅ ${files.length} archivos listos para subir. Revisa el resumen arriba.`);
+            }
+          }
+        });
       });
     }
 
-    async function finalizarSubida() {
-      if (!cachedRows) return;
-      const rows = [...cachedRows];
-      const header = rows[0];
-      rows.shift();
-
-      updateStatus("🚀 Procesando archivo...");
-      
-      const manualType = document.querySelector('input[name="upload-type"]:checked').value;
-      let selection = manualType;
-
-      if (selection === 'auto') {
-        const isConsolidated = header.some(h => h && h.includes("Texto de la Pregunta"));
-        selection = isConsolidated ? 'consolidado' : 'estudiantes';
+    // Helper para encontrar índice de columna por múltiples posibles nombres
+    function getColIdx(header, names) {
+      if (!header || !names) return -1;
+      const h = header.map(v => (v || "").toString().trim().toLowerCase());
+      for (let name of names) {
+        const found = h.indexOf(name.toLowerCase());
+        if (found !== -1) return found;
       }
-      
-      if (selection === 'consolidado') {
-        updateStatus("📊 Procesando: Análisis Consolidado");
-        await procesarConsolidado(rows, header);
-      } else {
-        updateStatus("👥 Procesando: Reporte Estudiantes");
-        await procesarEstudiantes(rows, header);
-      }
+      return -1;
     }
 
-    async function procesarConsolidado(rows, header) {
-      const gIdx = header.indexOf("grado");
-      const keyIdx = header.indexOf("Primary_Answer");
-      const qNumIdx = header.indexOf("Question_Number");
-      const asigIdx = header.indexOf("Asignatura");
-      const txtIdx = header.indexOf("Texto de la Pregunta");
-      const quizIdx = header.indexOf("Quiz_Name");
-      const classIdx = header.indexOf("Class");
-      const okCountIdx = header.indexOf("# Correct");
-      const porcIdx = header.indexOf("% Correct");
-      const optAIdx = header.indexOf("Opción A");
-      const optBIdx = header.indexOf("Opción B");
-      const optCIdx = header.indexOf("Opción C");
-      const optDIdx = header.indexOf("Opción D");
-      const r1Idx = header.indexOf("Response 1");
-      const r1pIdx = header.indexOf("Response 1 %");
-      const r2Idx = header.indexOf("Response 2");
-      const r2pIdx = header.indexOf("Response 2 %");
-      const r3Idx = header.indexOf("Response 3");
-      const r3pIdx = header.indexOf("Response 3 %");
-      const r4Idx = header.indexOf("Response 4");
-      const r4pIdx = header.indexOf("Response 4 %");
+    async function finalizarSubida() {
+      if (!pendingFiles || pendingFiles.length === 0) return;
+      
+      const confirmMsg = `¿Deseas subir ${pendingFiles.length} archivos a la base de datos?\n` + 
+                        pendingFiles.map(f => `• ${f.name}`).join('\n');
+      if (!confirm(confirmMsg)) return;
 
+      // Opción de borrado total antes de empezar
+      if ($('auto-reset-all').checked) {
+         updateStatus("🔥 Ejecutando LIMPIEZA TOTAL antes de cargar...");
+         await Promise.all([
+           supabaseClient.from('eval_resultados').delete().neq('grado', -1),
+           supabaseClient.from('eval_preguntas').delete().neq('grado', -1),
+           supabaseClient.from('eval_estudiantes_notas').delete().neq('grado', -1)
+         ]);
+      }
+
+      const manualType = document.querySelector('input[name="upload-type"]:checked').value;
+      
+      for (let i = 0; i < pendingFiles.length; i++) {
+        const fileObj = pendingFiles[i];
+        const rows = [...fileObj.rows];
+        const header = rows[0];
+        rows.shift();
+
+        updateStatus(`🚀 [${i+1}/${pendingFiles.length}] Procesando: ${fileObj.name}...`);
+        
+        let type = manualType;
+        if (type === 'auto') {
+          const headerStr = header.join(',').toLowerCase();
+          // Lógica de detección 3-archivos (más flexible)
+          if (headerStr.includes("pregunta") || headerStr.includes("asignatura") || headerStr.includes("materia") || headerStr.includes("texto")) {
+            type = 'banco';
+          } else if (headerStr.includes("zipgrade id") || headerStr.includes("external id") || headerStr.includes("first name") || headerStr.includes("last name")) {
+            type = 'estudiantes';
+          } else if (headerStr.includes("primary_answer") || headerStr.includes("question_number") || headerStr.includes("discriminant") || headerStr.includes("correct")) {
+            type = 'item_analysis';
+          } else {
+            type = 'item_analysis'; // Fallback
+          }
+        }
+
+        try {
+          if (type === 'banco') {
+            await procesarBancoPreguntas(rows, header, true, fileObj.name);
+          } else if (type === 'item_analysis' || type === 'consolidado') {
+            await procesarConsolidado(rows, header, true, fileObj.name);
+          } else if (type === 'estudiantes') {
+            await procesarEstudiantes(rows, header, true, fileObj.name);
+          }
+          updateStatus(`✅ Completado: ${fileObj.name}`);
+        } catch (e) {
+          console.error(`Error procesando ${fileObj.name}:`, e);
+          const errorMsg = e.message || e.details || JSON.stringify(e);
+          updateStatus(`❌ Error en ${fileObj.name}: ${errorMsg}`);
+          if (!confirm(`Hubo un error en ${fileObj.name}:\n\n"${errorMsg}"\n\n¿Deseas continuar con los demás archivos?`)) break;
+        }
+      }
+      
+      updateStatus("✨ ¡Proceso de carga masiva finalizado!");
+      
+      // Limpiar formulario para permitir nuevas subidas sin bloqueos
+      pendingFiles = [];
+      $('csv-file').value = "";
+      $('debug-table').innerHTML = "";
+      $('admin-debug').style.display = 'none';
+
+      setTimeout(() => alert("Carga masiva finalizada correctamente."), 500);
+      
+      // Actualizar selectores principales para reflejar los nuevos datos
+      init();
+    }
+
+    async function procesarBancoPreguntas(rows, header, silent = false, fileName = "") {
+      const gIdx = getColIdx(header, ["Grado", "Grade", "Nivel"]);
+      const qNumIdx = getColIdx(header, ["Pregunta", "Question_Number", "No.", "Num"]);
+      const asigIdx = getColIdx(header, ["Asignatura", "Subject", "Materia", "Area"]);
+      const txtIdx = getColIdx(header, ["Texto de la Pregunta", "Question Text", "Texto", "Enunciado"]);
+      const optAIdx = getColIdx(header, ["Opción A", "Option A", "A"]);
+      const optBIdx = getColIdx(header, ["Opción B", "Option B", "B"]);
+      const optCIdx = getColIdx(header, ["Opción C", "Option C", "C"]);
+      const optDIdx = getColIdx(header, ["Opción D", "Option D", "D"]);
+
+      const periodoDetectado = detectarPeriodo(fileName);
       const batchPreguntas = [];
-      const batchResultados = [];
+      let lastGrado = 0;
 
       for (const row of rows) {
-        if (!row[qNumIdx]) continue;
-
-        const grado = parseInt(row[gIdx]) || 0;
+        // En algunos CSVs de plantilla, la fila puede estar vacía o tener saltos
         const pNum = parseInt(row[qNumIdx]) || 0;
-        const asig = row[asigIdx] || "General";
-        const quiz = row[quizIdx] || "Evaluación";
-        const sedes = (row[classIdx] || "Consolidado").split(',').map(s => s.trim());
+        if (!pNum && !row[txtIdx]) continue;
 
-        // Extraer distribución de respuestas para el gráfico
-        const dist = { 'A': 0, 'B': 0, 'C': 0, 'D': 0 };
-        [ [r1Idx, r1pIdx], [r2Idx, r2pIdx], [r3Idx, r3pIdx], [r4Idx, r4pIdx] ].forEach(pair => {
-            const val = (row[pair[0]] || "").toString().toUpperCase();
-            const pct = Math.round(parseFloat((row[pair[1]] || "0").toString().replace(',', '.')) || 0);
-            if (dist.hasOwnProperty(val)) dist[val] = pct;
-        });
+        const grado = parseInt(row[gIdx]) || lastGrado;
+        if (grado) lastGrado = grado;
 
-        // 1. Datos de Pregunta
+        const asig = (row[asigIdx] || "General").trim();
+        
         batchPreguntas.push({
           grado,
-          periodo: parseInt(currentPeriodo),
+          periodo: periodoDetectado,
           asignatura: asig,
           pregunta_num: pNum,
-          texto_pregunta: row[txtIdx],
-          opcion_a: row[optAIdx],
-          opcion_b: row[optBIdx],
-          opcion_c: row[optCIdx],
-          opcion_d: row[optDIdx]
+          texto_pregunta: (row[txtIdx] || "").trim(),
+          opcion_a: (row[optAIdx] || "").trim(),
+          opcion_b: (row[optBIdx] || "").trim(),
+          opcion_c: (row[optCIdx] || "").trim(),
+          opcion_d: (row[optDIdx] || "").trim()
+        });
+      }
+
+      if (batchPreguntas.length === 0) {
+        throw new Error("No se detectaron preguntas válidas. Verifica que los nombres de las columnas sean correctos (Grado, Pregunta, Asignatura, Texto, A, B, C, D).");
+      }
+
+      if (!silent) {
+        if (!confirm(`¿Cargar ${batchPreguntas.length} preguntas del periodo ${periodoDetectado} al banco?`)) return;
+      }
+
+      updateStatus(`⏳ Guardando ${batchPreguntas.length} preguntas -> Detectado: Periodo ${periodoDetectado}...`);
+      
+      // Borrado granular: por cada combinación única de (grado, asignatura, periodo) presente en el archivo
+      const uniqueCombs = [...new Set(batchPreguntas.map(p => `${p.grado}|${p.asignatura}|${p.periodo}`))];
+      
+      for (const comb of uniqueCombs) {
+         const [g, asig, p] = comb.split('|');
+         await supabaseClient.from('eval_preguntas')
+          .delete()
+          .eq('grado', g)
+          .eq('periodo', p)
+          .eq('asignatura', asig);
+      }
+
+      const { error } = await supabaseClient.from('eval_preguntas').insert(batchPreguntas);
+      if (error) throw error;
+      updateStatus("✅ Banco de preguntas actualizado.");
+    }
+
+    async function procesarConsolidado(rows, header, silent = false, fileName = "") {
+      // Mapeo dinámico
+      const quizIdx = getColIdx(header, ["Quiz_Name", "Quiz Name"]);
+      const classIdx = getColIdx(header, ["Class"]);
+      const qNumIdx = getColIdx(header, ["Question_Number", "Pregunta"]);
+      const keyIdx = getColIdx(header, ["Primary_Answer", "Key"]);
+      const okCountIdx = getColIdx(header, ["# Correct", "Num Correct"]);
+      const porcIdx = getColIdx(header, ["% Correct", "Percent Correct"]);
+      // Distractores
+      const r1Idx = getColIdx(header, ["Response 1"]);
+      const r1pIdx = getColIdx(header, ["Response 1 %"]);
+      const r2Idx = getColIdx(header, ["Response 2"]);
+      const r2pIdx = getColIdx(header, ["Response 2 %"]);
+      const r3Idx = getColIdx(header, ["Response 3"]);
+      const r3pIdx = getColIdx(header, ["Response 3 %"]);
+      const r4Idx = getColIdx(header, ["Response 4"]);
+      const r4pIdx = getColIdx(header, ["Response 4 %"]);
+
+      const batchResultados = [];
+      const periodosDetectados = new Set();
+
+      for (const row of rows) {
+        const pNum = parseInt(row[qNumIdx]) || 0;
+        if (!pNum) continue;
+
+        const quizRaw = row[quizIdx] || "Evaluación";
+        const quiz = quizRaw.toString().trim(); // Limpieza de espacios accidentales
+        
+        // Intentar detectar periodo del nombre del quiz, si falla, intentar del nombre del archivo
+        let periodoDetectado = detectarPeriodo(quiz);
+        if (fileName && (periodoDetectado === currentPeriodo || periodoDetectado === 1)) {
+           const pFile = detectarPeriodo(fileName);
+           if (pFile !== currentPeriodo) periodoDetectado = pFile;
+        }
+        
+        periodosDetectados.add(periodoDetectado);
+        
+        // Detectar grado del nombre del quiz si no hay columna
+        let grado = 0;
+        const matchG = quiz.match(/(\d+)/);
+        if (matchG) grado = parseInt(matchG[1]);
+
+        // Limpiar para cálculo
+        const p_corr = parseFloat((row[porcIdx] || "0").toString().replace(',', '.')) || 0;
+        const c_corr = parseInt(row[okCountIdx]) || 0;
+        const totalEst = p_corr > 0 ? Math.round((c_corr * 100) / p_corr) : 0;
+        const correctKey = (row[keyIdx] || "").toUpperCase();
+
+        // Extraer distribución de respuestas (ZipGrade da porcentajes, convertimos a cantidad de alumnos)
+        const dist = { 'A': 0, 'B': 0, 'C': 0, 'D': 0 };
+        const mapping = [ [r1Idx, r1pIdx], [r2Idx, r2pIdx], [r3Idx, r3pIdx], [r4Idx, r4pIdx] ];
+        mapping.forEach(pair => {
+            if (pair[0] === -1 || pair[1] === -1) return;
+            const val = (row[pair[0]] || "").toString().toUpperCase();
+            const pct = parseFloat((row[pair[1]] || "0").toString().replace(',', '.')) || 0;
+            if (dist.hasOwnProperty(val)) {
+                // Si es la respuesta correcta, usamos la cantidad real de aciertos
+                if (val === correctKey) {
+                   dist[val] = c_corr;
+                } else {
+                   dist[val] = Math.round((totalEst * pct) / 100);
+                }
+            }
         });
 
-        // 2. Resultados (Un solo registro general por pregunta)
         batchResultados.push({
           grado,
-          periodo: parseInt(currentPeriodo),
+          periodo: periodoDetectado,
           sede: "GENERAL",
           quiz_name: quiz,
           pregunta_num: pNum,
-          key: (row[keyIdx] || "").toUpperCase(),
-          cant_correctas: parseInt(row[okCountIdx]) || 0,
-          porc_correctas: parseFloat(row[porcIdx].toString().replace(',', '.')) || 0,
+          key: correctKey,
+          cant_correctas: c_corr,
+          porc_correctas: p_corr,
           resp_a_count: dist['A'],
           resp_b_count: dist['B'],
           resp_c_count: dist['C'],
@@ -1813,88 +1892,135 @@
         });
       }
 
-      if (!confirm(`¿Cargar ${batchPreguntas.length} preguntas y ${batchResultados.length} registros de análisis?`)) return;
+      if (batchResultados.length === 0) return;
 
-      try {
-        updateStatus("⏳ Guardando banco de preguntas...");
-        const { error: e1 } = await supabaseClient.from('eval_preguntas').insert(batchPreguntas);
-        if (e1) throw e1;
-
-        updateStatus("⏳ Guardando estadísticas generales...");
-        const { error: e2 } = await supabaseClient.from('eval_resultados').insert(batchResultados);
-        if (e2) throw e2;
-
-        updateStatus("✅ ¡Importación consolidada exitosa!");
-        alert("¡Datos del análisis cargados correctamente!");
-        location.reload();
-      } catch (e) {
-        console.error(e);
-        alert("Fallo en la subida: " + e.message);
+      if (!silent) {
+        if (!confirm(`Se detectaron ${batchResultados.length} registros de análisis para: ${Array.from(periodosDetectados).join(', ')}. ¿Proceder?`)) return;
       }
+
+      updateStatus("⏳ Guardando estadísticas generales...");
+      
+      // Borrado granular: por cada combinación única de (grado, periodo, quiz_name)
+      const uniqueCombs = [...new Set(batchResultados.map(r => `${r.grado}|${r.periodo}|${r.quiz_name}`))];
+      
+      for (const comb of uniqueCombs) {
+         const [g, p, q] = comb.split('|');
+         await supabaseClient.from('eval_resultados')
+          .delete()
+          .eq('grado', g)
+          .eq('periodo', p)
+          .eq('quiz_name', q);
+      }
+
+      const { error } = await supabaseClient.from('eval_resultados').insert(batchResultados);
+      if (error) throw error;
+      updateStatus("✅ Análisis consolidado guardado.");
     }
 
-    async function procesarEstudiantes(rows, header) {
+    async function procesarEstudiantes(rows, header, silent = false, fileName = "") {
       const qCols = [];
       header.forEach((h, i) => {
         if (h && h.toString().trim().toUpperCase().startsWith('Q')) qCols.push(i);
       });
 
+      const quizIdx = getColIdx(header, ["Quiz Name", "Quiz_Name"]);
+      const classIdx = getColIdx(header, ["Class"]);
+      const zipIdIdx = getColIdx(header, ["ZipGrade ID", "ZipGrade_ID"]);
+      const fNameIdx = getColIdx(header, ["First Name", "First_Name"]);
+      const lNameIdx = getColIdx(header, ["Last Name", "Last_Name"]);
+      const okIdx = getColIdx(header, ["Num Correct", "# Correct"]);
+      const porcIdx = getColIdx(header, ["Percent Correct", "% Correct"]);
+
       const resultadosEstudiantes = [];
       for (const row of rows) {
-        if (!row[1]) continue;
-        const gradoOriginal = row[1];
+        const zipId = (row[zipIdIdx] || "").toString().trim();
+        if (!zipId || zipId.toLowerCase() === "primary key") continue;
+
+        const gradoOriginal = row[classIdx] || "";
         const sede = detectarSede(gradoOriginal);
         const gradoLimpio = parseInt(gradoOriginal.toString().match(/\d+/)) || 0;
-        const zipId = row[2];
-        const nombre = (row[4] + " " + row[5]).trim();
-        const quizName = row[0];
+        const nombre = ((row[fNameIdx] || "") + " " + (row[lNameIdx] || "")).trim();
+        const quizRaw = row[quizIdx] || "";
+        const quizName = quizRaw.toString().trim();
+        
+        let periodoDetectado = detectarPeriodo(quizName);
+        if (fileName && (periodoDetectado === currentPeriodo || periodoDetectado === 1)) {
+           const pFile = detectarPeriodo(fileName);
+           if (pFile !== currentPeriodo) periodoDetectado = pFile;
+        }
 
         const respuestas = {};
         qCols.forEach((colIdx, i) => {
           respuestas[i + 1] = parseInt(row[colIdx]) || 0;
         });
 
+        if (!nombre) continue;
+
+        const p_total = parseFloat((row[porcIdx] || "0").toString().replace(',', '.')) || 0;
+
         resultadosEstudiantes.push({
           estudiante_nombre: nombre,
           zipgrade_id: zipId,
           grado: gradoLimpio,
           sede: sede,
-          periodo: parseInt(currentPeriodo),
+          periodo: periodoDetectado,
           quiz_name: quizName,
-          total_correctas: parseInt(row[7]) || 0,
-          porcentaje: parseFloat(row[8].toString().replace(',', '.')) || 0,
+          total_correctas: parseInt(row[okIdx]) || 0,
+          porcentaje: p_total,
           respuestas: respuestas
         });
       }
 
-      if (!confirm(`¿Subir ${resultadosEstudiantes.length} resultados individuales?`)) return;
+      if (resultadosEstudiantes.length === 0) return;
+
+      if (!silent) {
+        if (!confirm(`Se detectaron ${resultadosEstudiantes.length} resultados individuales. ¿Subir?`)) return;
+      }
 
       try {
         updateStatus("⏳ Guardando notas individuales...");
+        
+        // Borrado granular: por cada combinación única de (quiz_name, grado, periodo)
+        const uniqueCombs = [...new Set(resultadosEstudiantes.map(e => `${e.quiz_name}|${e.grado}|${e.periodo}`))];
+        
+        for (const comb of uniqueCombs) {
+           const [q, g, p] = comb.split('|');
+           await supabaseClient.from('eval_estudiantes_notas')
+            .delete()
+            .eq('quiz_name', q)
+            .eq('grado', g)
+            .eq('periodo', p);
+        }
+
         const { error: err } = await supabaseClient.from('eval_estudiantes_notas').insert(resultadosEstudiantes);
         if (err) throw err;
-        updateStatus("✅ ¡Importación de estudiantes exitosa!");
-        alert("¡Datos de alumnos cargados correctamente!");
-        location.reload();
+        updateStatus("✅ Notas individuales guardadas.");
       } catch (e) {
         console.error(e);
-        alert("Fallo en la subida: " + e.message);
+        const errorMsg = e.message || e.details || JSON.stringify(e);
+        if (!silent) alert("Fallo en la subida: " + errorMsg);
+        else throw e;
       }
     }
 
     async function resetearBaseDeDatos() {
-      if (!confirm("⚠️ ¿ESTÁS SEGURO? Esto borrará TOTALMENTE:\n- Análisis General\n1- Notas de Estudiantes\n- Banco de Preguntas\nEsto NO se puede deshacer.")) return;
+      const resp = confirm("⚠️ ¿ESTÁS SEGURO?\n\nEsto borrará TOTALMENTE los datos de:\n- Análisis General\n- Notas de Estudiantes\n- Banco de Preguntas\n\nEsta acción NO se puede deshacer.");
+      if (!resp) return;
       
+      const confirm2 = confirm("¿REALMENTE SEGURO? Estás a punto de vaciar TODA la aplicación.");
+      if (!confirm2) return;
+
       showLoading(true);
       try {
         // Borramos todas las filas de las 3 tablas principales
-        const tables = ['eval_resultados', 'eval_estudiantes_notas', 'eval_preguntas'];
-        for (const table of tables) {
-          const { error } = await supabaseClient.from(table).delete().neq('grado', -1); // Truco para borrar todo
-          if (error) throw error;
-        }
+        // Usamos .neq('id', -1) que es una forma segura de borrar todo en Supabase si no hay filtros
+        await Promise.all([
+          supabaseClient.from('eval_resultados').delete().neq('grado', -1),
+          supabaseClient.from('eval_estudiantes_notas').delete().neq('grado', -1),
+          supabaseClient.from('eval_preguntas').delete().neq('grado', -1)
+        ]);
         
-        alert("✅ Base de datos reseteada correctamente.");
+        alert("✅ Base de datos reseteada correctamente. La página se recargará.");
         location.reload();
       } catch (e) {
         console.error(e);
@@ -1939,165 +2065,267 @@
       if (!zipId) return;
 
       showLoading(true);
-      
-      // 1. Obtener datos de todos para calcular puesto
-      const { data: todos } = await supabaseClient.from('eval_estudiantes_notas')
-        .select('zipgrade_id, porcentaje')
-        .eq('sede', sede).eq('grado', grado).eq('periodo', currentPeriodo)
-        .order('porcentaje', { ascending: false });
-      
-      const puesto = todos.findIndex(t => t.zipgrade_id === zipId) + 1;
-      const totalAlumnos = todos.length;
+      try {
+        // 1. Obtener datos de TODOS para calcular puestos (Global y por Asignatura)
+        const { data: todos, error: errTodos } = await supabaseClient.from('eval_estudiantes_notas')
+          .select('*')
+          .eq('grado', grado)
+          .eq('periodo', currentPeriodo);
+        
+        if (errTodos) throw errTodos;
+        if (!todos || todos.length === 0) throw new Error("No se encontraron datos para este grado.");
 
-      // 2. Datos del alumno actual
-      const { data: est } = await supabaseClient.from('eval_estudiantes_notas').select('*').eq('zipgrade_id', zipId).single();
-      const { data: pregs } = await supabaseClient.from('eval_preguntas').select('*').eq('grado', est.grado).eq('periodo', currentPeriodo);
-      
-      const html = construirHTMLBoletin(est, pregs, puesto, totalAlumnos);
-      $('reporte-content').innerHTML = `
-        <div class="no-print" style="margin-bottom:1rem; display:flex; gap:10px; justify-content: flex-end;">
-          <button onclick="window.print()" style="background:#4f46e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">🖨️ IMPRIMIR ESTE REPORTE</button>
-          <button onclick="imprimirTodoElGrado()" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">📋 IMPRIMIR TODO EL GRADO</button>
-        </div>
-        <div id="report-print-area">${html}</div>
-      `;
-      showLoading(false);
+        // Encontrar al estudiante actual (usamos find para evitar bloqueos por .single() si hay duplicados)
+        const est = todos.find(t => t.zipgrade_id === zipId);
+        if (!est) throw new Error("No se encontró el registro del estudiante.");
+
+        // Ordenar globalmente para puesto global
+        const sortedGlobal = [...todos].sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
+        const puestoGlobal = sortedGlobal.findIndex(t => t.zipgrade_id === zipId) + 1;
+        
+        // Determinar matriz de rangos según grado
+        const gNum = parseInt(grado);
+        let mKey = '6-9';
+        if (gNum <= 4) mKey = '3-4';
+        else if (gNum === 5) mKey = '5';
+        else if (gNum >= 10) mKey = '10-11';
+        const config = MATRIZ_RANGOS[mKey];
+
+        // Calcular puestos por cada asignatura
+        const puestosMaterias = {};
+        config.forEach(subj => {
+          const rankings = todos.map(student => {
+            let ok = 0;
+            for (let i = subj.start; i <= subj.end; i++) {
+              if (student.respuestas && student.respuestas[i] === 1) ok++;
+            }
+            return { id: student.zipgrade_id, ok };
+          }).sort((a,b) => b.ok - a.ok);
+          
+          puestosMaterias[subj.label] = rankings.findIndex(r => r.id === zipId) + 1;
+        });
+
+        const html = construirHTMLBoletin(est, puestoGlobal, todos.length, puestosMaterias, config);
+        
+        $('reporte-content').innerHTML = `
+          <div class="no-print" style="margin-bottom:1rem; display:flex; gap:10px; justify-content: flex-end;">
+            <button onclick="window.print()" style="background:#4f46e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">🖨️ IMPRIMIR ESTE REPORTE</button>
+            <button onclick="imprimirTodoElGrado()" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">📋 IMPRIMIR TODO EL GRADO</button>
+          </div>
+          <div id="report-print-area">${html}</div>
+        `;
+      } catch (e) {
+        console.error("Error generando reporte:", e);
+        alert("Hubo un problema al generar el reporte: " + e.message);
+        $('reporte-content').innerHTML = `<p style="text-align:center; color:#ef4444; padding:2rem;">❌ Error: ${e.message}</p>`;
+      } finally {
+        showLoading(false);
+      }
     }
 
-    function construirHTMLBoletin(est, pregs, puesto, total) {
-      const materias = {};
-      pregs.forEach(p => {
-        if (!materias[p.asignatura]) materias[p.asignatura] = { ok: 0, total: 0 };
-        materias[p.asignatura].total++;
-        if (est.respuestas[p.pregunta_num]) materias[p.asignatura].ok++;
+    function construirHTMLBoletin(est, puesto, total, puestosMaterias, config) {
+      const getValoration = (p) => {
+        if (p >= 91) return { label: 'Superior', nivel: 'N4', color: '#16a34a', icon: '🟢' };
+        if (p >= 71) return { label: 'Alto', nivel: 'N3', color: '#eab308', icon: '🟡' };
+        if (p >= 51) return { label: 'Básico', nivel: 'N2', color: '#f97316', icon: '🟠' };
+        return { label: 'Bajo', nivel: 'N1', color: '#ef4444', icon: '🔴' };
+      };
+
+      const general = getValoration(est.porcentaje);
+      const materias = config.map(subj => {
+        let ok = 0, totalSub = 0;
+        for (let i = subj.start; i <= subj.end; i++) {
+          totalSub++;
+          if (est.respuestas && est.respuestas[i] == 1) ok++;
+        }
+        const pct = Math.round((ok / totalSub) * 100);
+        const val = getValoration(pct);
+        
+        let iconSubject = '📝';
+        const labelLower = subj.label.toLowerCase();
+        if (labelLower.includes('mat')) iconSubject = '🧮';
+        else if (labelLower.includes('leng') || labelLower.includes('cast')) iconSubject = '📖';
+        else if (labelLower.includes('soc') || labelLower.includes('ciud') || labelLower.includes('hist')) iconSubject = '🌍';
+        else if (labelLower.includes('nat') || labelLower.includes('biol') || labelLower.includes(' fís') || labelLower.includes('quí')) iconSubject = '🔬';
+        else if (labelLower.includes('ing') || labelLower.includes('eng')) iconSubject = '🇬🇧';
+        
+        return { name: subj.label, ok, total: totalSub, pct, val, icon: iconSubject, puesto: puestosMaterias[subj.label] };
       });
 
-      const items = Object.entries(materias).map(([mat, s]) => {
-        const p = Math.round((s.ok / s.total) * 100);
-        let color = '#ef4444', label = 'Bajo', nivel = 'N1';
-        if (p >= 60) { color = '#d97706'; label = 'Básico'; nivel = 'N2'; }
-        if (p >= 75) { color = '#16a34a'; label = 'Alto'; nivel = 'N3'; }
-        if (p >= 90) { color = '#4338ca'; label = 'Superior'; nivel = 'N4'; }
-        return { mat, s, p, color, label, nivel };
-      });
-
-      const logoLiceo = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png";
-      const escudoCol = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png";
+      const logoEvaluandonos = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png";
+      const logoEscudo = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/Escudo%20liceo.png";
+      const logoTIC = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/creoentic%20transparente.png";
 
       return `
-        <div class="report-card" style="font-family:'Outfit', sans-serif; color:#1e293b; line-height:1.4;">
-          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:4px solid #4f46e5; padding-bottom:15px; margin-bottom:20px;">
-            <img src="${logoLiceo}" style="height:70px;">
-            <div style="text-align:center;">
-              <h1 style="margin:0; font-size:1.4rem; color:#4f46e5; font-weight:900;">INFORME INDIVIDUAL DE DESEMPEÑO</h1>
-              <p style="margin:0; font-size:0.9rem; font-weight:700;">PROYECTO EVALUÁNDONOS — PERÍODO ${est.periodo}</p>
+        <div class="report-card" style="font-family:'Outfit', sans-serif; color:#1e293b; line-height:1.2; padding:10px 30px; border:1px solid #e2e8f0; border-radius:10px; background:white; max-width:850px; margin: 0 auto; position:relative; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: all 0.3s; overflow: hidden;">
+          <div class="watermark" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('./fondo.png'); background-size: 70% auto; background-position: center; background-repeat: no-repeat; opacity: 0.07; z-index: -1; pointer-events: none;"></div>
+          
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-top:5px;">
+            <img src="${logoTIC}" style="height:65px; object-fit:contain;">
+            <div style="text-align:center; flex:1;">
+               <h1 style="margin:0; font-size:1.3rem; color:#16a34a; font-weight:900; text-transform:uppercase;">I.E. Liceo Alejandro de Humboldt</h1>
+               <div style="display:flex; align-items:center; justify-content:center; gap:5px; margin-top:2px;">
+                  <img src="${logoEvaluandonos}" style="height:32px;">
+               </div>
             </div>
             <div style="text-align:right;">
-               <div style="background:#4f46e5; color:white; padding:5px 15px; border-radius:10px; font-weight:900; font-size:1.2rem;">${est.porcentaje}%</div>
-               <div style="font-size:0.7rem; font-weight:700;">PUNTAJE GLOBAL</div>
+               <img src="${logoEscudo}" style="height:70px;">
             </div>
           </div>
 
-          <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px; margin-bottom:20px;">
-            <div style="background:#f8fafc; padding:15px; border-radius:12px; border:1px solid #e2e8f0;">
-              <p style="margin:0; font-size:0.8rem; color:#64748b;">Estudiante:</p>
-              <h2 style="margin:0; font-size:1.2rem; color:#1e293b;">${est.estudiante_nombre}</h2>
-              <p style="margin:5px 0 0 0; font-size:0.85rem; font-weight:700;">GRADO ${est.grado} — SEDE ${est.sede}</p>
-            </div>
-            <div style="background:#4f46e5; color:white; padding:15px; border-radius:12px; text-align:center;">
-              <p style="margin:0; font-size:0.8rem; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px;">PUESTO EN EL GRADO</p>
-              <h2 style="margin:10px 0 0 0; font-size:2rem;">${puesto} <small style="font-size:0.9rem;">de ${total}</small></h2>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div style="background:#f1f5f9; border:1px solid #2563eb; padding:2px 20px; border-radius:8px; color:#16a34a; font-weight:900; font-size:0.9rem; text-transform:uppercase;">Reporte de resultados</div>
+            <div style="text-align:right; font-size:0.8rem; font-weight:800; color:#2563eb;">
+               PRUEBA N.${est.periodo} | AÑO LECTIVO 2025
             </div>
           </div>
 
-          <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
-            <thead>
-              <tr style="background:#f1f5f9; text-align:left;">
-                <th style="padding:10px; border-bottom:2px solid #e2e8f0;">Asignatura</th>
-                <th style="padding:10px; border-bottom:2px solid #e2e8f0; text-align:center;">Aciertos</th>
-                <th style="padding:10px; border-bottom:2px solid #e2e8f0; text-align:center;">Eficiencia</th>
-                <th style="padding:10px; border-bottom:2px solid #e2e8f0; text-align:center;">Valoración</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${items.map(it => `
-                <tr style="border-bottom:1px solid #f1f5f9;">
-                  <td style="padding:10px; font-weight:700;">${it.mat}</td>
-                  <td style="padding:10px; text-align:center;">${it.s.ok} de ${it.s.total}</td>
-                  <td style="padding:10px; text-align:center; font-weight:900; color:${it.color}; font-size:1.1rem;">${it.p}%</td>
-                  <td style="padding:10px; text-align:center;">
-                    <span style="background:${it.color}22; color:${it.color}; padding:4px 10px; border-radius:50px; font-weight:800; font-size:0.75rem;">${it.label}</span>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+          <div style="border:1px solid #cbd5e1; border-radius:12px; padding:10px 20px; margin-bottom:12px; background:#f8fafc; border-left:5px solid #16a34a;">
+             <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; font-size:0.9rem;">
+                <div><span style="font-weight:700; color:#64748b; text-transform:uppercase; font-size:0.75rem;">Estudiante:</span> <span style="font-weight:900; color:#0f172a;">${est.estudiante_nombre}</span></div>
+                <div style="text-align:center;"><span style="font-weight:700; color:#64748b; text-transform:uppercase; font-size:0.75rem;">Grado:</span> <span style="font-weight:900;">${est.grado}°</span></div>
+                <div style="text-align:right;"><span style="font-weight:700; color:#64748b; text-transform:uppercase; font-size:0.75rem;">Código:</span> <span style="font-weight:900;">${est.zipgrade_id}</span></div>
+             </div>
+          </div>
 
-          <div style="border:1px solid #e2e8f0; border-radius:12px; padding:15px; background:#fdfdfd;">
-             <h4 style="margin:0 0 15px 0; color:#4f46e5; border-bottom:2px solid #f1f5f9; padding-bottom:5px;">ESCALA DE DESEMPEÑO</h4>
-             <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;">
-                <div style="text-align:center; padding:10px; border-radius:10px; background:${est.porcentaje < 60 ? '#fecaca' : '#f1f5f9'};">
-                   <strong style="display:block; font-size:0.7rem;">BAJO</strong>
-                   <span style="font-size:0.6rem;">(0% - 59%)</span>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:15px;">
+             <div style="border:1px solid #2563eb; border-radius:12px; padding:10px; display:flex; justify-content:space-between; align-items:center; background:#fff;">
+                <div>
+                   <h4 style="margin:0 0 5px 0; color:#2563eb; font-size:0.8rem; text-transform:uppercase; font-weight:800;">Resultado general</h4>
+                   <div style="font-size:1rem;"><span style="font-weight:700;">Promedio:</span> <span style="font-weight:900; color:#2563eb; font-size:1.3rem;">${est.porcentaje}</span><span style="color:#94a3b8; font-weight:700;">/100</span></div>
+                   <div style="margin-top:2px;"><span style="font-weight:700;">Nivel:</span> <span style="font-weight:900; color:#f97316;">${general.nivel}</span></div>
                 </div>
-                <div style="text-align:center; padding:10px; border-radius:10px; background:${est.porcentaje >= 60 && est.porcentaje < 75 ? '#fde68a' : '#f1f5f9'};">
-                   <strong style="display:block; font-size:0.7rem;">BÁSICO</strong>
-                   <span style="font-size:0.6rem;">(60% - 74%)</span>
+                <div style="text-align:center; border-left:1px solid #e2e8f0; padding-left:15px;">
+                   <div style="font-size:0.65rem; font-weight:800; color:#f97316; text-transform:uppercase; margin-bottom:3px;">Desempeño</div>
+                   <div style="border:2px solid #2563eb; padding:5px 12px; border-radius:10px; background:#fff; min-width:100px;">
+                      <div style="font-size:0.6rem; font-weight:700; color:#64748b; margin-bottom:2px;">PUESTO GRADO</div>
+                      <div style="font-size:0.8rem; font-weight:900; color:#2563eb;">${est.grado}° <span style="color:#ef4444; font-size:1.1rem; vertical-align:middle; margin:0 3px;">→</span> <span style="color:#ef4444; font-size:1.5rem;">${puesto}</span></div>
+                   </div>
                 </div>
-                <div style="text-align:center; padding:10px; border-radius:10px; background:${est.porcentaje >= 75 && est.porcentaje < 90 ? '#bbf7d0' : '#f1f5f9'};">
-                   <strong style="display:block; font-size:0.7rem;">ALTO</strong>
-                   <span style="font-size:0.6rem;">(75% - 89%)</span>
-                </div>
-                <div style="text-align:center; padding:10px; border-radius:10px; background:${est.porcentaje >= 90 ? '#c7d2fe' : '#f1f5f9'};">
-                   <strong style="display:block; font-size:0.7rem;">SUPERIOR</strong>
-                   <span style="font-size:0.6rem;">(90% - 100%)</span>
+             </div>
+
+             <div style="border:1px solid #cbd5e1; border-radius:12px; padding:10px; background:#fafafa;">
+                <div style="display:flex; align-items:flex-end; justify-content:center; gap:6px; height:65px; position:relative;">
+                   <div style="display:flex; flex-direction:column; align-items:center; opacity: ${general.nivel==='N1' ? '1' : '0.35'}; filter: ${general.nivel==='N1' ? 'grayscale(0)' : 'grayscale(0.4)'};">
+                      <span style="font-size:0.45rem; font-weight:800; color:#94a3b8;">0-50</span>
+                      <div style="width:32px; height:18px; background:#ef4444; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel==='N1' ? 'box-shadow: 0 0 15px #ef4444; border:2px solid white; transform:scale(1.15); z-index:2;' : ''}">1</div>
+                   </div>
+                   <div style="display:flex; flex-direction:column; align-items:center; opacity: ${general.nivel==='N2' ? '1' : '0.35'}; filter: ${general.nivel==='N2' ? 'grayscale(0)' : 'grayscale(0.4)'};">
+                      <span style="font-size:0.45rem; font-weight:800; color:#94a3b8;">51-70</span>
+                      <div style="width:32px; height:32px; background:#f97316; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel==='N2' ? 'box-shadow: 0 0 15px #f97316; border:2px solid white; transform:scale(1.15); z-index:2;' : ''}">2</div>
+                   </div>
+                   <div style="display:flex; flex-direction:column; align-items:center; opacity: ${general.nivel==='N3' ? '1' : '0.35'}; filter: ${general.nivel==='N3' ? 'grayscale(0)' : 'grayscale(0.4)'};">
+                      <span style="font-size:0.45rem; font-weight:800; color:#94a3b8;">71-90</span>
+                      <div style="width:32px; height:46px; background:#eab308; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel==='N3' ? 'box-shadow: 0 0 15px #eab308; border:2px solid white; transform:scale(1.15); z-index:2;' : ''}">3</div>
+                   </div>
+                   <div style="display:flex; flex-direction:column; align-items:center; opacity: ${general.nivel==='N4' ? '1' : '0.35'}; filter: ${general.nivel==='N4' ? 'grayscale(0)' : 'grayscale(0.4)'};">
+                      <span style="font-size:0.45rem; font-weight:800; color:#94a3b8;">91-100</span>
+                      <div style="width:32px; height:60px; background:#16a34a; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel==='N4' ? 'box-shadow: 0 0 18px #16a34a; border:2px solid white; transform:scale(1.15); z-index:2;' : ''}">4</div>
+                   </div>
+                   <div style="position:absolute; right:10px; bottom:25px; width:30px; height:30px; border-radius:50%; border:3px solid #2563eb; display:flex; align-items:center; justify-content:center; opacity:0.8;">
+                      <div style="width:2px; height:12px; background:#ef4444; border-radius:1px; transform-origin:bottom; transform:rotate(${est.porcentaje*1.8-90}deg);"></div>
+                   </div>
                 </div>
              </div>
           </div>
 
-          <div style="margin-top:20px; text-align:center; font-size:0.65rem; color:#94a3b8;">
-            Generado automáticamente por el Sistema "Evaluándonos" — Institución Educativa Los Andes
+          <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+             <thead>
+                <tr style="background:#f8fafc; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.5px;">
+                   <th style="padding:10px; border-bottom:1.5px solid #cbd5e1; text-align:center; color:#16a34a; width:45px;"></th>
+                   <th style="padding:10px; border-bottom:1.5px solid #cbd5e1; text-align:left; color:#16a34a;">Asignatura / Componente</th>
+                   <th style="padding:10px; border-bottom:1.5px solid #cbd5e1; text-align:center; color:#16a34a;">Puntaje</th>
+                   <th style="padding:10px; border-bottom:1.5px solid #cbd5e1; text-align:center; color:#16a34a;">Nivel</th>
+                   <th style="padding:10px; border-bottom:1.5px solid #cbd5e1; text-align:center; color:#16a34a;">Puesto</th>
+                   <th style="padding:10px; border-bottom:1.5px solid #cbd5e1; text-align:center; color:#16a34a;">Valoración</th>
+                </tr>
+             </thead>
+             <tbody>
+                ${materias.map(m => `
+                <tr style="border-bottom:1px solid #f1f5f9;">
+                   <td style="padding:7px; font-size:1.1rem; text-align:center; opacity:0.8;">${m.icon}</td>
+                   <td style="padding:7px; font-weight:800; color:#1e293b;">${m.name}</td>
+                   <td style="padding:7px; text-align:center;"><span style="font-weight:900; color:#2563eb;">${m.pct}</span><small style="color:#94a3b8;">/100</small></td>
+                   <td style="padding:7px; text-align:center; font-weight:900; color:#2563eb;">${m.val.nivel}</td>
+                   <td style="padding:7px; text-align:center; font-weight:900; color:#475569;">${m.puesto}</td>
+                   <td style="padding:7px; text-align:center;"><div style="color:${m.val.color}; font-weight:900; font-size:0.75rem; text-transform:uppercase;">${m.val.label}</div></td>
+                </tr>
+                `).join('')}
+             </tbody>
+          </table>
+
+          <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center; opacity:0.7; font-size:0.6rem; border-top:1px solid #f1f5f9; padding-top:8px;">
+             <b>I.E. LICEO ALEJANDRO DE HUMBOLDT — PROYECTO CREOEN TIC — 2025</b>
+             <div style="font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">EVALUÁNDONOS SYSTEM © ANDRÉSÁN</div>
           </div>
-        </div>
-      `;
+        </div>`;
     }
 
     async function imprimirTodoElGrado() {
       const sede = $('rep-sede').value;
       const grado = $('rep-grado').value;
-      
       showLoading(true);
+
       const { data: alumnos } = await supabaseClient.from('eval_estudiantes_notas')
         .select('*').eq('sede', sede).eq('grado', grado).eq('periodo', currentPeriodo)
         .order('porcentaje', { ascending: false });
-      
-      const { data: pregs } = await supabaseClient.from('eval_preguntas').select('*').eq('grado', grado).eq('periodo', currentPeriodo);
-      
-      let allHTML = "";
-      alumnos.forEach((est, idx) => {
-        allHTML += `<div class="${idx > 0 ? 'page-break' : ''}">${construirHTMLBoletin(est, pregs, idx + 1, alumnos.length)}</div>`;
-      });
+
+      const gNum = parseInt(grado);
+      let mKey = '6-9';
+      if (gNum <= 4) mKey = '3-4';
+      else if (gNum === 5) mKey = '5';
+      else if (gNum >= 10) mKey = '10-11';
+      const config = MATRIZ_RANGOS[mKey];
+
+      let recordsHTML = "";
+      for (let idx = 0; idx < alumnos.length; idx++) {
+        const est = alumnos[idx];
+        const puestosMaterias = {};
+        config.forEach(subj => {
+          const rankings = alumnos.map(student => {
+            let ok = 0;
+            for (let i = subj.start; i <= subj.end; i++) {
+              if (student.respuestas && student.respuestas[i] == 1) ok++;
+            }
+            return { id: student.zipgrade_id, ok };
+          }).sort((a,b) => b.ok - a.ok);
+          puestosMaterias[subj.label] = rankings.findIndex(r => r.id === est.zipgrade_id) + 1;
+        });
+
+        recordsHTML += `
+          <div style="height:49.5vh; width:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; page-break-inside:avoid;">
+            <div style="transform:scale(0.85); transform-origin:center center; width:100%;">
+              ${construirHTMLBoletin(est, idx + 1, alumnos.length, puestosMaterias, config)}
+            </div>
+            ${(idx + 1) % 2 !== 0 ? '<div style="position:absolute; bottom:0; left:0; width:100%; border-bottom:2px dashed #cbd5e1;"></div>' : ''}
+            ${(idx + 1) % 2 === 0 ? '<div style="page-break-after:always;"></div>' : ''}
+          </div>
+        `;
+      }
 
       const printWindow = window.open('', '_blank');
       printWindow.document.write(`
         <html>
           <head>
-            <title>Reportes Grado ${grado} - ${sede}</title>
+            <title>Impresión Masiva - Grado ${grado}</title>
             <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
             <style>
-              body { margin: 0; padding: 20px; }
-              .page-break { page-break-before: always; }
-              .report-card { border: none !important; }
+              body, html { margin:0; padding:0; background:#fff; font-family:'Outfit', sans-serif; }
+              @page { size:auto; margin:0; }
             </style>
           </head>
-          <body onload="window.print()">
-            ${allHTML}
+          <body onload="setTimeout(() => { window.print(); window.close(); }, 800)">
+            <div style="width:100%;">
+              ${recordsHTML}
+            </div>
           </body>
         </html>
       `);
       printWindow.document.close();
       showLoading(false);
     }
+
+
 
 
     checkSession();
