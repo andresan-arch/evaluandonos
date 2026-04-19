@@ -2124,6 +2124,7 @@
     }
 
     function construirHTMLBoletin(est, puesto, total, puestosMaterias, config) {
+      const isCompact = config.length > 6;
       const getValoration = (p) => {
         if (p >= 91) return { label: 'Superior', nivel: 'N4', color: '#16a34a', icon: '🟢' };
         if (p >= 71) return { label: 'Alto', nivel: 'N3', color: '#eab308', icon: '🟡' };
@@ -2157,102 +2158,108 @@
       const logoTIC = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/creoentic%20transparente.png";
 
       return `
-        <div class="report-card" style="font-family:'Outfit', sans-serif; color:#1e293b; line-height:1.2; padding:10px 30px; border:1px solid #e2e8f0; border-radius:10px; background:white; max-width:850px; margin: 0 auto; position:relative; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: all 0.3s; overflow: hidden;">
+        <div class="report-card" style="font-family:'Outfit', sans-serif; color:#1e293b; line-height:1.2; padding:${isCompact ? '8px 25px' : '10px 30px'}; border:1px solid #e2e8f0; border-radius:10px; background:white; max-width:850px; margin: 0 auto; position:relative; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: all 0.3s; overflow: hidden;">
           <div class="watermark" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('./fondo.png'); background-size: 70% auto; background-position: center; background-repeat: no-repeat; opacity: 0.07; z-index: -1; pointer-events: none;"></div>
           
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-top:5px;">
-            <img src="${logoTIC}" style="height:65px; object-fit:contain;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:${isCompact ? '8px' : '12px'}; padding-top:5px;">
+            <img src="${logoTIC}" style="height:${isCompact ? '55px' : '65px'}; object-fit:contain;">
             <div style="text-align:center; flex:1;">
-               <h1 style="margin:0; font-size:1.3rem; color:#16a34a; font-weight:900; text-transform:uppercase;">I.E. Liceo Alejandro de Humboldt</h1>
+               <h1 style="margin:0; font-size:${isCompact ? '1.1rem' : '1.3rem'}; color:#16a34a; font-weight:900; text-transform:uppercase;">I.E. Liceo Alejandro de Humboldt</h1>
                <div style="display:flex; align-items:center; justify-content:center; gap:5px; margin-top:2px;">
-                  <img src="${logoEvaluandonos}" style="height:32px;">
+                  <img src="${logoEvaluandonos}" style="height:${isCompact ? '28px' : '32px'};">
                </div>
             </div>
             <div style="text-align:right;">
-               <img src="${logoEscudo}" style="height:70px;">
+               <img src="${logoEscudo}" style="height:${isCompact ? '60px' : '70px'};">
             </div>
           </div>
 
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <div style="background:#f1f5f9; border:1px solid #2563eb; padding:2px 20px; border-radius:8px; color:#16a34a; font-weight:900; font-size:0.9rem; text-transform:uppercase;">Reporte de resultados</div>
-            <div style="text-align:right; font-size:0.8rem; font-weight:800; color:#2563eb;">
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:${isCompact ? '5px' : '8px'};">
+            <div style="background:#f1f5f9; border:1px solid #2563eb; padding:2px 20px; border-radius:8px; color:#16a34a; font-weight:900; font-size:${isCompact ? '0.8rem' : '0.9rem'}; text-transform:uppercase;">Reporte de resultados</div>
+            <div style="text-align:right; font-size:${isCompact ? '0.7rem' : '0.8rem'}; font-weight:800; color:#2563eb;">
                PRUEBA N.${est.periodo} | AÑO LECTIVO 2025
             </div>
           </div>
 
-          <div style="border:1px solid #cbd5e1; border-radius:12px; padding:10px 20px; margin-bottom:12px; background:#f8fafc; border-left:5px solid #16a34a;">
-             <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; font-size:0.9rem;">
+
+          <div style="border:1px solid #cbd5e1; border-radius:12px; padding:${isCompact ? '6px 15px' : '10px 20px'}; margin-bottom:${isCompact ? '8px' : '12px'}; background:#f8fafc; border-left:5px solid #16a34a;">
+             <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; font-size:${isCompact ? '0.8rem' : '0.9rem'};">
                 <div><span style="font-weight:700; color:#64748b; text-transform:uppercase; font-size:0.75rem;">Estudiante:</span> <span style="font-weight:900; color:#0f172a;">${est.estudiante_nombre}</span></div>
                 <div style="text-align:center;"><span style="font-weight:700; color:#64748b; text-transform:uppercase; font-size:0.75rem;">Grado:</span> <span style="font-weight:900;">${est.grado}°</span></div>
                 <div style="text-align:right;"><span style="font-weight:700; color:#64748b; text-transform:uppercase; font-size:0.75rem;">Código:</span> <span style="font-weight:900;">${est.zipgrade_id}</span></div>
              </div>
           </div>
 
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:15px;">
-             <div style="border:1px solid #2563eb; border-radius:12px; padding:10px; display:flex; justify-content:space-between; align-items:center; background:#fff;">
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:${isCompact ? '10px' : '15px'};">
+             <div style="border:1px solid #2563eb; border-radius:12px; padding:${isCompact ? '6px' : '10px'}; display:flex; justify-content:space-between; align-items:center; background:#fff;">
                 <div>
                    <h4 style="margin:0 0 5px 0; color:#2563eb; font-size:0.8rem; text-transform:uppercase; font-weight:800;">Resultado general</h4>
-                   <div style="font-size:1rem;"><span style="font-weight:700;">Promedio:</span> <span style="font-weight:900; color:#2563eb; font-size:1.3rem;">${est.porcentaje}</span><span style="color:#94a3b8; font-weight:700;">/100</span></div>
-                   <div style="margin-top:2px;"><span style="font-weight:700;">Nivel:</span> <span style="font-weight:900; color:#f97316;">${general.nivel}</span></div>
+                   <div style="font-size:${isCompact ? '0.9rem' : '1rem'};"><span style="font-weight:700;">Promedio:</span> <span style="font-weight:900; color:#2563eb; font-size:${isCompact ? '1.1rem' : '1.3rem'};">${est.porcentaje}</span><span style="color:#94a3b8; font-weight:700;">/100</span></div>
+                   <div style="margin-top:2px;"><span style="font-weight:700; font-size:0.8rem;">Nivel:</span> <span style="font-weight:900; color:#f97316; font-size:0.8rem;">${general.nivel}</span></div>
                 </div>
                 <div style="text-align:center; border-left:1px solid #e2e8f0; padding-left:15px;">
                    <div style="font-size:0.65rem; font-weight:800; color:#f97316; text-transform:uppercase; margin-bottom:3px;">Desempeño</div>
-                   <div style="border:2px solid #2563eb; padding:5px 12px; border-radius:10px; background:#fff; min-width:100px;">
-                      <div style="font-size:0.6rem; font-weight:700; color:#64748b; margin-bottom:2px;">PUESTO GRADO</div>
-                      <div style="font-size:0.8rem; font-weight:900; color:#2563eb;">${est.grado}° <span style="color:#ef4444; font-size:1.1rem; vertical-align:middle; margin:0 3px;">→</span> <span style="color:#ef4444; font-size:1.5rem;">${puesto}</span></div>
+                   <div style="border:2px solid #2563eb; padding:${isCompact ? '3px 8px' : '5px 12px'}; border-radius:10px; background:#fff; min-width:${isCompact ? '80px' : '100px'};">
+                      <div style="font-size:0.55rem; font-weight:700; color:#64748b; margin-bottom:2px;">PUESTO GRADO</div>
+                      <div style="font-size:${isCompact ? '0.7rem' : '0.8rem'}; font-weight:900; color:#2563eb;">${est.grado}° <span style="color:#ef4444; font-size:${isCompact ? '0.9rem' : '1.1rem'}; vertical-align:middle; margin:0 3px;">→</span> <span style="color:#ef4444; font-size:${isCompact ? '1.2rem' : '1.5rem'};">${puesto}</span></div>
                    </div>
                 </div>
              </div>
 
-             <div style="border:1px solid #cbd5e1; border-radius:12px; padding:10px; background:#fafafa;">
-                <div style="display:flex; align-items:flex-end; justify-content:center; gap:6px; height:65px; position:relative;">
+
+             <div style="border:1px solid #cbd5e1; border-radius:12px; padding:${isCompact ? '5px' : '10px'}; background:#fafafa;">
+                <div style="display:flex; align-items:flex-end; justify-content:center; gap:6px; height:${isCompact ? '55px' : '65px'}; position:relative;">
                    <div style="display:flex; flex-direction:column; align-items:center; opacity: ${general.nivel==='N1' ? '1' : '0.35'}; filter: ${general.nivel==='N1' ? 'grayscale(0)' : 'grayscale(0.4)'};">
                       <span style="font-size:0.45rem; font-weight:800; color:#94a3b8;">0-50</span>
-                      <div style="width:32px; height:18px; background:#ef4444; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel==='N1' ? 'box-shadow: 0 0 15px #ef4444; border:2px solid white; transform:scale(1.15); z-index:2;' : ''}">1</div>
+                      <div style="width:${isCompact ? '28px' : '32px'}; height:18px; background:#ef4444; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel==='N1' ? 'box-shadow: 0 0 15px #ef4444; border:2px solid white; transform:scale(1.1); z-index:2;' : ''}">1</div>
                    </div>
                    <div style="display:flex; flex-direction:column; align-items:center; opacity: ${general.nivel==='N2' ? '1' : '0.35'}; filter: ${general.nivel==='N2' ? 'grayscale(0)' : 'grayscale(0.4)'};">
                       <span style="font-size:0.45rem; font-weight:800; color:#94a3b8;">51-70</span>
-                      <div style="width:32px; height:32px; background:#f97316; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel==='N2' ? 'box-shadow: 0 0 15px #f97316; border:2px solid white; transform:scale(1.15); z-index:2;' : ''}">2</div>
+                      <div style="width:${isCompact ? '28px' : '32px'}; height:${isCompact ? '28px' : '32px'}; background:#f97316; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel==='N2' ? 'box-shadow: 0 0 15px #f97316; border:2px solid white; transform:scale(1.1); z-index:2;' : ''}">2</div>
                    </div>
                    <div style="display:flex; flex-direction:column; align-items:center; opacity: ${general.nivel==='N3' ? '1' : '0.35'}; filter: ${general.nivel==='N3' ? 'grayscale(0)' : 'grayscale(0.4)'};">
                       <span style="font-size:0.45rem; font-weight:800; color:#94a3b8;">71-90</span>
-                      <div style="width:32px; height:46px; background:#eab308; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel==='N3' ? 'box-shadow: 0 0 15px #eab308; border:2px solid white; transform:scale(1.15); z-index:2;' : ''}">3</div>
+                      <div style="width:${isCompact ? '28px' : '32px'}; height:${isCompact ? '40px' : '46px'}; background:#eab308; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel==='N3' ? 'box-shadow: 0 0 15px #eab308; border:2px solid white; transform:scale(1.1); z-index:2;' : ''}">3</div>
                    </div>
                    <div style="display:flex; flex-direction:column; align-items:center; opacity: ${general.nivel==='N4' ? '1' : '0.35'}; filter: ${general.nivel==='N4' ? 'grayscale(0)' : 'grayscale(0.4)'};">
                       <span style="font-size:0.45rem; font-weight:800; color:#94a3b8;">91-100</span>
-                      <div style="width:32px; height:60px; background:#16a34a; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel==='N4' ? 'box-shadow: 0 0 18px #16a34a; border:2px solid white; transform:scale(1.15); z-index:2;' : ''}">4</div>
+                      <div style="width:${isCompact ? '28px' : '32px'}; height:${isCompact ? '52px' : '60px'}; background:#16a34a; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel==='N4' ? 'box-shadow: 0 0 18px #16a34a; border:2px solid white; transform:scale(1.1); z-index:2;' : ''}">4</div>
                    </div>
-                   <div style="position:absolute; right:10px; bottom:25px; width:30px; height:30px; border-radius:50%; border:3px solid #2563eb; display:flex; align-items:center; justify-content:center; opacity:0.8;">
-                      <div style="width:2px; height:12px; background:#ef4444; border-radius:1px; transform-origin:bottom; transform:rotate(${est.porcentaje*1.8-90}deg);"></div>
+                   <div style="position:absolute; right:10px; bottom:25px; width:25px; height:25px; border-radius:50%; border:2px solid #2563eb; display:flex; align-items:center; justify-content:center; opacity:0.8;">
+                      <div style="width:2px; height:10px; background:#ef4444; border-radius:1px; transform-origin:bottom; transform:rotate(${est.porcentaje*1.8-90}deg);"></div>
                    </div>
                 </div>
              </div>
+
           </div>
 
-          <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+          <table style="width:100%; border-collapse:collapse; font-size:${isCompact ? '0.75rem' : '0.85rem'};">
              <thead>
-                <tr style="background:#f8fafc; text-transform:uppercase; font-size:0.75rem; letter-spacing:0.5px;">
-                   <th style="padding:10px; border-bottom:1.5px solid #cbd5e1; text-align:center; color:#16a34a; width:45px;"></th>
-                   <th style="padding:10px; border-bottom:1.5px solid #cbd5e1; text-align:left; color:#16a34a;">Asignatura / Componente</th>
-                   <th style="padding:10px; border-bottom:1.5px solid #cbd5e1; text-align:center; color:#16a34a;">Puntaje</th>
-                   <th style="padding:10px; border-bottom:1.5px solid #cbd5e1; text-align:center; color:#16a34a;">Nivel</th>
-                   <th style="padding:10px; border-bottom:1.5px solid #cbd5e1; text-align:center; color:#16a34a;">Puesto</th>
-                   <th style="padding:10px; border-bottom:1.5px solid #cbd5e1; text-align:center; color:#16a34a;">Valoración</th>
+                <tr style="background:#f8fafc; text-transform:uppercase; font-size:0.7rem; letter-spacing:0.5px;">
+                   <th style="padding:${isCompact ? '6px' : '10px'}; border-bottom:1.5px solid #cbd5e1; text-align:center; color:#16a34a; width:45px;"></th>
+                   <th style="padding:${isCompact ? '6px' : '10px'}; border-bottom:1.5px solid #cbd5e1; text-align:left; color:#16a34a;">Asignatura / Componente</th>
+                   <th style="padding:${isCompact ? '6px' : '10px'}; border-bottom:1.5px solid #cbd5e1; text-align:center; color:#16a34a;">Puntaje</th>
+                   <th style="padding:${isCompact ? '6px' : '10px'}; border-bottom:1.5px solid #cbd5e1; text-align:center; color:#16a34a;">Nivel</th>
+                   <th style="padding:${isCompact ? '6px' : '10px'}; border-bottom:1.5px solid #cbd5e1; text-align:center; color:#16a34a;">Puesto</th>
+                   <th style="padding:${isCompact ? '6px' : '10px'}; border-bottom:1.5px solid #cbd5e1; text-align:center; color:#16a34a;">Valoración</th>
                 </tr>
              </thead>
              <tbody>
                 ${materias.map(m => `
                 <tr style="border-bottom:1px solid #f1f5f9;">
-                   <td style="padding:7px; font-size:1.1rem; text-align:center; opacity:0.8;">${m.icon}</td>
-                   <td style="padding:7px; font-weight:800; color:#1e293b;">${m.name}</td>
-                   <td style="padding:7px; text-align:center;"><span style="font-weight:900; color:#2563eb;">${m.pct}</span><small style="color:#94a3b8;">/100</small></td>
-                   <td style="padding:7px; text-align:center; font-weight:900; color:#2563eb;">${m.val.nivel}</td>
-                   <td style="padding:7px; text-align:center; font-weight:900; color:#475569;">${m.puesto}</td>
-                   <td style="padding:7px; text-align:center;"><div style="color:${m.val.color}; font-weight:900; font-size:0.75rem; text-transform:uppercase;">${m.val.label}</div></td>
+                   <td style="padding:${isCompact ? '4.5px' : '7px'}; font-size:${isCompact ? '1rem' : '1.1rem'}; text-align:center; opacity:0.8;">${m.icon}</td>
+                   <td style="padding:${isCompact ? '4.5px' : '7px'}; font-weight:800; color:#1e293b;">${m.name}</td>
+                   <td style="padding:${isCompact ? '4.5px' : '7px'}; text-align:center;"><span style="font-weight:900; color:#2563eb;">${m.pct}</span><small style="color:#94a3b8;">/100</small></td>
+                   <td style="padding:${isCompact ? '4.5px' : '7px'}; text-align:center; font-weight:900; color:#2563eb;">${m.val.nivel}</td>
+                   <td style="padding:${isCompact ? '4.5px' : '7px'}; text-align:center; font-weight:900; color:#475569;">${m.puesto}</td>
+                   <td style="padding:${isCompact ? '4.5px' : '7px'}; text-align:center;"><div style="color:${m.val.color}; font-weight:900; font-size:0.7rem; text-transform:uppercase;">${m.val.label}</div></td>
                 </tr>
                 `).join('')}
              </tbody>
           </table>
+
 
           <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center; opacity:0.7; font-size:0.6rem; border-top:1px solid #f1f5f9; padding-top:8px;">
              <b>I.E. LICEO ALEJANDRO DE HUMBOLDT — PROYECTO CREOEN TIC — 2025</b>
@@ -2292,15 +2299,18 @@
           puestosMaterias[subj.label] = rankings.findIndex(r => r.id === est.zipgrade_id) + 1;
         });
 
+        const printScale = config.length > 6 ? 0.81 : 0.85;
+
         recordsHTML += `
           <div style="height:49.5vh; width:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; page-break-inside:avoid;">
-            <div style="transform:scale(0.85); transform-origin:center center; width:100%;">
+            <div style="transform:scale(${printScale}); transform-origin:center center; width:100%;">
               ${construirHTMLBoletin(est, idx + 1, alumnos.length, puestosMaterias, config)}
             </div>
             ${(idx + 1) % 2 !== 0 ? '<div style="position:absolute; bottom:0; left:0; width:100%; border-bottom:2px dashed #cbd5e1;"></div>' : ''}
             ${(idx + 1) % 2 === 0 ? '<div style="page-break-after:always;"></div>' : ''}
           </div>
         `;
+
       }
 
       const printWindow = window.open('', '_blank');
