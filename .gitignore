@@ -1,0 +1,12 @@
+*.pdf
+*.xlsx
+*.csv
+*.jpeg
+*.jpg
+*.png
+!fondo.png
+!fondo1.png
+.xlsx
+evaluandonos.sg
+backticks.txt
+csv/
