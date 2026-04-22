@@ -42,6 +42,27 @@
       color: var(--text);
       line-height: 1.6;
       padding-bottom: 40px;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    /* Efecto de desenfoque de fondo dinámico */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: inherit;
+      background-attachment: fixed;
+      background-size: cover;
+      filter: blur(20px) contrast(90%) brightness(95%);
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    body.blurred-bg::before {
+      opacity: 1;
     }
 
     header {
@@ -140,6 +161,40 @@
       border-color: var(--primary);
     }
 
+    /* Chips Selection System */
+    .chip-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 5px;
+    }
+
+    .chip {
+      padding: 8px 16px;
+      border-radius: 50px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.8rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      color: #64748b;
+      white-space: nowrap;
+    }
+
+    .chip:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .chip.active {
+      background: var(--chip-color, var(--primary));
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 8px 15px -4px rgba(0, 0, 0, 0.2);
+    }
+
     option {
       background: white;
       color: #1e293b;
@@ -217,13 +272,13 @@
     }
 
     .card {
-      background: rgba(255, 255, 255, 0.5); /* Mucho más transparente */
-      backdrop-filter: blur(20px);
+      background: rgba(255, 255, 255, 0.4); /* Más tenue y transparente */
+      backdrop-filter: blur(25px) saturate(180%);
       border-radius: 24px;
       padding: 2.5rem;
-      box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .card:hover {
@@ -399,6 +454,64 @@
       text-align: center;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
       border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* Dropdown Informes */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      min-width: 230px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      border-radius: 16px;
+      z-index: 5000;
+      top: 100%;
+      left: 0;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      animation: fadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dropdown.open .dropdown-content {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 12px 16px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #1e293b;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .dropdown-item:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateX(4px);
+    }
+
+    .tab-btn.active, .dropdown.active .tab-btn {
+      background: var(--primary) !important;
+      color: white !important;
+      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
     }
 
     .login-card h2 {
@@ -773,13 +886,21 @@
               style="height: 50px; width: auto;" alt="Logo Mini">
             <div class="tabs" style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px;">
               <button onclick="switchMainTab('analisis')" id="tab-analisis" class="tab-btn active"
-                style="padding: 8px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: 0.3s;">Análisis
-                General</button>
-              <button onclick="switchMainTab('individual')" id="tab-individual" class="tab-btn"
-                style="padding: 8px 20px; border: none; border-radius: 10px; background: transparent; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: 0.3s;">Reporte
-                Individual</button>
+                style="padding: 8px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: 0.3s;">Análisis General</button>
               <button onclick="switchMainTab('estadisticas')" id="tab-estadisticas" class="tab-btn"
                 style="padding: 8px 20px; border: none; border-radius: 10px; background: transparent; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: 0.3s;">Estadísticas</button>
+              
+              <div class="dropdown" id="tab-informes-parent">
+                <button class="tab-btn" id="tab-informes-btn" onclick="toggleInformesDropdown(event)"
+                  style="padding: 8px 20px; border: none; border-radius: 10px; background: transparent; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: 0.3s;">
+                  📁 Informes ▾
+                </button>
+                <div class="dropdown-content">
+                  <div class="dropdown-item" onclick="selectInforme('individual')">👤 Reporte Individual</div>
+                  <div class="dropdown-item" onclick="selectInforme('grupal')">👥 Reporte Grupal</div>
+                  <div class="dropdown-item" onclick="selectInforme('asignatura')">📚 Reporte Asignatura</div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -808,7 +929,6 @@
           </div>
           <div class="control-group" id="card-asig" style="border-left: 4px solid #e2e8f0; padding-left: 15px; transition: all 0.3s ease;">
             <label id="label-asig" style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 8px; text-transform: uppercase;">
-              <span id="asig-color-box" style="width: 12px; height: 12px; border-radius: 3px; background: #cbd5e1; display: inline-block; transition: background 0.3s;"></span>
               Asignatura
             </label>
             <select id="sel-asig" onchange="onAsigChange(this)" style="width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #cbd5e1; background: white; font-weight: 700; transition: all 0.3s ease;">
@@ -830,6 +950,8 @@
           <div
             style="background: rgba(255, 255, 255, 0.3); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(5px);">
             <div id="pregunta-media" class="media-container"></div>
+            <!-- Contenedor para imagen automática si existe -->
+            <div id="pregunta-media-auto" class="media-container" style="display:none;"></div>
             <p id="pregunta-texto"
               style="font-size: 1.1rem; color: var(--text); font-weight: 500; margin: 0; line-height: 1.6;"></p>
           </div>
@@ -963,6 +1085,60 @@
         </div>
       </div>
     </div>
+    
+    <!-- Informe Grupal (Contenedor) -->
+    <div id="grupal-container" style="display:none; margin-top:2rem;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <h2 style="color:var(--primary); margin:0;">Informe General por Grupo</h2>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <label style="font-weight: 700; font-size: 0.85rem;">GRUPO:</label>
+            <select id="gru-sel-grado" onchange="generarInformeGrupal()" style="width: auto; padding: 8px 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
+              <option value="">Seleccione grupo...</option>
+            </select>
+            <button onclick="imprimirInformeGrupal()" class="admin-only" style="display:none; background:#4036e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer; align-items:center; gap:8px;">
+              🖨️ Imprimir
+            </button>
+          </div>
+        </div>
+        
+        <div id="grupal-content" style="overflow-x: auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un grupo para generar el informe detallado.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informe por Asignatura (Contenedor) -->
+    <div id="asignatura-container" style="display:none; margin-top:2rem;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <h2 style="color:var(--primary); margin:0;">Análisis por Asignatura</h2>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <label style="font-weight: 700; font-size: 0.85rem;">GRUPO:</label>
+            <select id="asig-sel-grado" onchange="generarInformeAsignatura()" style="width: auto; padding: 8px 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
+              <option value="">Seleccione grupo...</option>
+            </select>
+            <label style="font-weight: 700; font-size: 0.85rem; margin-left:10px;">ASIGNATURA:</label>
+            <select id="asig-sel-materia" onchange="generarInformeAsignatura()" style="width: auto; padding: 8px 15px; border-radius: 10px; border: 1px solid #e2e8f0; font-weight:700;">
+              <option value="">Seleccione asignatura...</option>
+              <option value="Matemáticas">Matemáticas</option>
+              <option value="Lenguaje">Lenguaje</option>
+              <option value="Sociales">Sociales</option>
+              <option value="Ciudadanas">Ciudadanas</option>
+              <option value="Inglés">Inglés</option>
+              <option value="Naturales">Naturales (Ciencias)</option>
+            </select>
+            <button onclick="imprimirInformeAsignatura()" class="admin-only" style="display:none; background:#4036e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">
+              🖨️ Imprimir
+            </button>
+          </div>
+        </div>
+        
+        <div id="asignatura-content" style="overflow-x: auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un grupo y una asignatura para ver el detalle.</p>
+        </div>
+      </div>
+    </div>
 
     <!-- Panel de Administración (Modal con Cards) -->
     <div class="admin-trigger" onclick="toggleAdmin()"
@@ -1014,9 +1190,16 @@
 
           <!-- CARD 2: MAPEO -->
           <div class="admin-card">
-            <h5>🖼️ Gestión de Imágenes y Mapeo</h5>
-            <p style="font-size:0.8rem; color:#64748b;">Asocia imágenes a las preguntas y configura las asignaturas por
-              número.</p>
+            <h5>🖼️ Gestión de Imágenes</h5>
+            <div style="background:#f1f5f9; padding:10px; border-radius:8px; margin-bottom:10px; font-size:0.7rem; color:#475569;">
+              <p style="margin:0 0 5px 0; font-weight:bold;">Nomenclatura Específica:</p>
+              <ul style="margin:0; padding-left:15px;">
+                <li>Preguntas: <code>[Num][CodMat][Grado].png</code> (Ej: 15M9.png)</li>
+                <li>Opciones: <code>[Num][CodMat][Grado][Letra].png</code> (Ej: 15M9A.png)</li>
+              </ul>
+              <p style="margin:5px 0 0 0;"><b>Códigos Materia:</b> M(Mat), S(Soc), L(Len), N(Nat), I(Ing), C(Ciu), B(Bio), F(Fis), Q(Qui), E(Eti), P(Fil).</p>
+            </div>
+            <p style="font-size:0.8rem; color:#64748b;">Asocia imágenes a las preguntas y configura las asignaturas por número.</p>
             <div style="display:flex; gap:5px;">
               <select id="aimg-grado" onchange="cargarAsignaturasAdminImg()"
                 style="flex:1; padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
@@ -1146,6 +1329,13 @@
       ]
     };
 
+    const getValoration = (p) => {
+      if (p >= 91) return { label: 'Superior', nivel: 'N4', initial: 'S', color: '#a855f7', icon: '🟣' };
+      if (p >= 71) return { label: 'Alto', nivel: 'N3', initial: 'A', color: '#22c55e', icon: '🟢' };
+      if (p >= 51) return { label: 'Básico', nivel: 'N2', initial: 'B', color: '#facc15', icon: '🟡' };
+      return { label: 'Bajo', nivel: 'N1', initial: 'Bj', color: '#ef4444', icon: '🔴' };
+    };
+
     function detectarSede(gradoStr) {
       if (!gradoStr) return 'Central';
       const clean = gradoStr.toString().trim().toUpperCase();
@@ -1174,33 +1364,70 @@
       return parseInt(currentPeriodo) || 1;
     }
 
-    function switchMainTab(tab) {
-      // Resetear estilos de todos los botones
-      ['analisis', 'individual', 'estadisticas'].forEach(t => {
-        const btn = $('tab-' + t);
-        if (btn) {
-          btn.classList.remove('active');
-          btn.style.background = 'transparent';
-          btn.style.color = '#1e293b';
-        }
-      });
+    async function switchMainTab(tab) {
+      // 1. Re-frescar datos de Supabase para que los cambios externos se vean (Auto-refresco)
+      // Solo si no es el tab de "analisis" inicial (para optimizar carga inicial) o si se desea total
+      showLoading(true);
+      try {
+          const [resG, resD] = await Promise.all([
+              supabaseClient.from('eval_resultados').select('grado').eq('periodo', currentPeriodo),
+              supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo)
+          ]);
+          dataPeriodoActual = resD.data || [];
+          // Cargar grados silenciosamente para los selectores
+          await cargarGrados(true); 
+      } catch (e) { console.error("Error en auto-refresco:", e); }
+      showLoading(false);
 
-      // Activar el seleccionado
-      const activeBtn = $('tab-' + tab);
-      if (activeBtn) {
-        activeBtn.classList.add('active');
-        activeBtn.style.background = '#4f46e5';
-        activeBtn.style.color = 'white';
+      // Remover clase active de todos los botones y del contenedor dropdown
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      const informesParent = $('tab-informes-parent');
+      if (informesParent) informesParent.classList.remove('active');
+
+      // Activar el tab correspondiente
+      if (['individual', 'grupal', 'asignatura'].includes(tab)) {
+          if (informesParent) informesParent.classList.add('active');
+      } else {
+          const activeBtn = $(`tab-${tab}`);
+          if (activeBtn) activeBtn.classList.add('active');
       }
 
-      // Alternar contenedores
-      $('resultado-container').style.display = (tab === 'analisis' ? 'block' : 'none');
-      $('individual-container').style.display = (tab === 'individual' ? 'block' : 'none');
-      $('estadisticas-container').style.display = (tab === 'estadisticas' ? 'block' : 'none');
-      $('filtros-container').style.display = (tab === 'analisis' ? 'block' : 'none');
+      // Alternar visibilidad de los contenedores
+      const tabs = {
+        'analisis': ['resultado-container', 'filtros-container'],
+        'individual': ['individual-container'],
+        'estadisticas': ['estadisticas-container'],
+        'grupal': ['grupal-container'],
+        'asignatura': ['asignatura-container']
+      };
 
+      // Ocultar todos primero
+      ['resultado-container', 'filtros-container', 'individual-container', 'estadisticas-container', 'grupal-container', 'asignatura-container'].forEach(id => {
+        const el = $(id);
+        if (el) el.style.display = 'none';
+      });
+
+      // Mostrar los del tab activo
+      if (tabs[tab]) {
+        tabs[tab].forEach(id => {
+          const el = $(id);
+          if (el) el.style.display = 'block';
+        });
+      }
+
+      // Efecto de atenuación de fondo si se está viendo un reporte
+      if (['individual', 'grupal', 'asignatura'].includes(tab)) {
+          document.body.classList.add('blurred-bg');
+      } else {
+          document.body.classList.remove('blurred-bg');
+      }
+
+      // Cargar/Refrescar vistas específicas
       if (tab === 'individual') cargarGradosReporte();
       if (tab === 'estadisticas') cargarEstadisticas();
+      if (tab === 'grupal') cargarGruposInformeGrupal();
+      if (tab === 'asignatura') cargarGruposInformeAsignatura();
+      if (tab === 'analisis' && $('sel-grado').value && $('sel-pregunta').value) mostrarAnalisis();
     }
 
     function toggleAdmin() {
@@ -1354,12 +1581,16 @@
         if ($('user-avatar')) $('user-avatar').innerText = nombre.charAt(0).toUpperCase();
 
         adminBtn = document.querySelector('.admin-trigger');
+        const adminElements = document.querySelectorAll('.admin-only');
+
         if (perfil && perfil.rol === 'admin') {
           currentRole = 'admin';
           if (adminBtn) adminBtn.style.display = 'flex';
+          adminElements.forEach(el => el.style.display = (el.tagName === 'BUTTON' && el.style.gap ? 'flex' : 'inline-block'));
         } else {
           currentRole = 'lector';
           if (adminBtn) adminBtn.style.display = 'none';
+          adminElements.forEach(el => el.style.display = 'none');
         }
       } catch (e) {
         currentRole = 'lector';
@@ -1404,8 +1635,33 @@
       await cargarGrados();
     }
 
-    async function cargarGrados() {
-      showLoading(true);
+    // --- CONFIGURACIÓN DE CARGA AUTOMÁTICA DE IMÁGENES ---
+    const AUTO_IMG_BASE_URL = "https://raw.githubusercontent.com/andresan-arch/evaluandonos/main/assets/preguntas/";
+    const MATERIA_ADIVINAR = {
+      "MATEMATICAS": "M",
+      "LENGUAJE": "L",
+      "LECTURA CRITICA": "L",
+      "BIOLOGIA": "B",
+      "CIENCIAS NATURALES": "B",
+      "FISICA": "F",
+      "QUIMICA": "Q",
+      "CIENCIAS SOCIALES": "S",
+      "COMPETENCIAS CIUDADANAS": "C",
+      "INGLES": "I",
+      "FILOSOFIA": "P",
+      "ETICA": "E"
+    };
+
+    function obtenerUrlPredictiva(grado, materia, num, opcion = "") {
+      const cod = MATERIA_ADIVINAR[materia.toUpperCase()] || "X";
+      const gNum = parseInt(grado) || 0;
+      // Formato: [Num][Cod][Grado][Opcion].png
+      const fileName = `${num}${cod}${gNum}${opcion.toUpperCase()}.png`;
+      return AUTO_IMG_BASE_URL + fileName;
+    }
+
+    async function cargarGrados(silent = false) {
+      if (!silent) showLoading(true);
       try {
         // Consultamos en ambas tablas para que el grado aparezca si hay resultados O si hay mapeo de preguntas
         const [resResults, resPreguntas] = await Promise.all([
@@ -1440,21 +1696,34 @@
         const unique = data ? [...new Set(data.map(d => d.asignatura))].sort() : [];
         const sel = $('sel-asig');
         
-        const opts = unique.map(a => {
-           const color = obtenerColorAsignatura(a);
-           return `<option value="${a}" style="background-color: ${color}; color: white; font-weight: bold;">■ ${a}</option>`;
-        }).join('');
+        sel.innerHTML = '<option value="">Seleccione asignatura...</option>' + unique.map(a => `<option value="${a}">${a}</option>`).join('');
         
-        sel.innerHTML = '<option value="">Seleccione asignatura...</option>' + opts;
-        
-        // Reset card color
-        $('card-asig').style.backgroundColor = 'transparent';
-        $('label-asig').style.color = '#64748b';
+        // Reset styles
+        sel.style.borderColor = '#cbd5e1';
+        sel.style.backgroundColor = 'white';
+        sel.style.color = '#1e293b';
+        $('card-asig').style.borderLeftColor = '#e2e8f0';
       } catch (e) {
         console.error("Error al cargar asignaturas:", e);
       }
       showLoading(false);
     }
+
+    function toggleInformesDropdown(e) {
+      e.stopPropagation();
+      $('tab-informes-parent').classList.toggle('open');
+    }
+
+    function selectInforme(tab) {
+      $('tab-informes-parent').classList.remove('open');
+      switchMainTab(tab);
+    }
+
+    // Cerrar dropdown al hacer clic fuera
+    window.addEventListener('click', () => {
+      const dropdown = $('tab-informes-parent');
+      if (dropdown) dropdown.classList.remove('open');
+    });
 
     async function onAsigChange(sel) {
       const g = $('sel-grado').value;
@@ -1560,7 +1829,7 @@
         };
 
         $('pregunta-display-num').innerText = `Pregunta #${n} - ${a}`;
-        renderMedia('pregunta-texto', 'pregunta-media', mapping.texto_pregunta);
+        renderMedia('pregunta-texto', 'pregunta-media', mapping.texto_pregunta, g, a, n);
 
         const labels = ["opcion_a", "opcion_b", "opcion_c", "opcion_d"];
         const opts = ["A", "B", "C", "D"];
@@ -1580,7 +1849,7 @@
 
         opts.forEach(o => {
           const content = mapping[labels[opts.indexOf(o)]];
-          if (content) renderMedia(`txt-${o.toLowerCase()}`, `media-${o.toLowerCase()}`, content);
+          if (content) renderMedia(`txt-${o.toLowerCase()}`, `media-${o.toLowerCase()}`, content, g, a, n, o);
         });
 
       } catch (e) {
@@ -1589,7 +1858,7 @@
       showLoading(false);
     }
 
-    function renderMedia(textId, mediaId, content) {
+    function renderMedia(textId, mediaId, content, grado, asig, num, opcion = "") {
       const textElem = $(textId);
       const mediaElem = $(mediaId);
       if (!textElem || !mediaElem) return;
@@ -1616,7 +1885,8 @@
       if (imgPart && imgPart.trim().startsWith("http")) {
         mediaElem.innerHTML = `<img src="${imgPart}" style="max-width:100%; border-radius:10px; margin-top:10px;">`;
       } else {
-        mediaElem.innerHTML = "";
+        const imgAuto = obtenerUrlPredictiva(grado, asig, num, opcion);
+        mediaElem.innerHTML = `<img src="${imgAuto}" style="max-width:100%; border-radius:12px; margin-top:10px; border:2px dashed #6366f1; opacity:0.9;" onerror="this.style.display='none'">`;
       }
     }
 
@@ -1742,6 +2012,11 @@
         } else {
           previewHtml = `<span style="color:#64748b; font-size:0.65rem;">(Sin Imagen)</span>`;
         }
+        
+        // Sugerencia Automática GitHub
+        const opcLetra = (f.key.length === 8 && f.key.startsWith('opcion_')) ? f.key.slice(-1).toUpperCase() : '';
+        const sugerenciaNombre = `${num}${MATERIA_ADIVINAR[a.toUpperCase()] || 'X'}${g}${opcLetra}.png`;
+        const urlSugerida = obtenerUrlPredictiva(g, a, num, opcLetra);
 
         html += `
           <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:8px;">
@@ -1749,13 +2024,27 @@
               <div style="display:flex; flex-direction:column;">
                 <span style="font-weight:bold; color:#1e293b; font-size:0.75rem;">${f.label}</span>
                 <span style="color:#64748b; font-size:0.65rem; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">📝 ${textDisplay || 'Sin texto'}</span>
+                
+                <div style="margin-top:4px; padding:2px 5px; background:#f5f3ff; border-radius:4px; border:1px dashed #6366f1;">
+                   <span style="font-size:0.6rem; color:#6366f1; font-weight:bold;">🔍 GitHub: <code>${sugerenciaNombre}</code></span>
+                </div>
               </div>
-              ${previewHtml}
+              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:5px;">
+                ${previewHtml}
+                <img src="${urlSugerida}" style="height:30px; border-radius:4px; opacity:0.4;" onerror="this.style.display='none'" title="Previsualización de carga automática">
+              </div>
             </div>
-            <div style="display:flex; gap:5px; align-items:center; margin-top:5px;">
-              <input type="file" id="file-${f.key}" accept="image/*" style="font-size:0.7rem; width:140px;">
-              <button onclick="subirImagenMapeo('${data.id}', '${f.key}')" 
-                style="background:#10b981; color:white; border:none; border-radius:6px; padding:4px 8px; font-weight:bold; font-size:0.7rem; cursor:pointer;">Subir</button>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+               <div style="display:flex; gap:5px; align-items:center;">
+                  <input type="file" id="file-${f.key}" accept="image/*" style="font-size:0.7rem; width:130px;">
+                  <button onclick="subirImagenMapeo('${data.id}', '${f.key}')" 
+                    style="background:#10b981; color:white; border:none; border-radius:6px; padding:4px 8px; font-weight:bold; font-size:0.7rem; cursor:pointer;" title="Subir a Supabase">Subir</button>
+               </div>
+               <div style="display:flex; gap:5px; align-items:center; border-top:1px solid #f1f5f9; pt-5">
+                  <input type="text" id="url-${f.key}" placeholder="Paste GitHub Raw Link..." style="font-size:0.7rem; flex:1; padding:4px; border:1px solid #e2e8f0; border-radius:6px;">
+                  <button onclick="guardarUrlExterna('${data.id}', '${f.key}')" 
+                    style="background:#6366f1; color:white; border:none; border-radius:6px; padding:4px 8px; font-weight:bold; font-size:0.7rem; cursor:pointer;" title="Vincular link externo">Vincular</button>
+               </div>
             </div>
           </div>
         `;
@@ -1831,6 +2120,41 @@
           mostrarAnalisis();
         }
 
+      } catch (e) {
+        st.innerText = "❌ Error: " + (e.message || "Desconocido");
+        console.error(e);
+      }
+    }
+
+    async function guardarUrlExterna(rowId, colName) {
+      let url = $(`url-${colName}`).value.trim();
+      if (!url) return alert("Pega un URL primero.");
+
+      // Auto-conversión de GitHub estándar a Raw si es necesario
+      if (url.includes("github.com") && url.includes("/blob/")) {
+        url = url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
+      }
+
+      const st = $('aimg-status');
+      st.innerText = "⏳ Vinculando URL externa...";
+
+      try {
+        const { data: curr } = await supabaseClient.from('eval_preguntas').select(colName).eq('id', rowId).single();
+        let textPart = "";
+        if (curr && curr[colName]) {
+          const str = curr[colName].toString();
+          if (str.includes(" ||| ")) textPart = str.split(" ||| ")[0];
+          else if (!str.startsWith("http")) textPart = str;
+        }
+
+        const finalContent = textPart ? `${textPart} ||| ${url}` : url;
+
+        const { error: updError } = await supabaseClient.from('eval_preguntas').update({ [colName]: finalContent }).eq('id', rowId);
+        if (updError) throw updError;
+
+        st.innerText = "✅ URL vinculada exitosamente.";
+        $(`url-${colName}`).value = "";
+        verDetallePreguntaAdmin();
       } catch (e) {
         st.innerText = "❌ Error: " + (e.message || "Desconocido");
         console.error(e);
@@ -2432,11 +2756,15 @@
 
         const html = construirHTMLBoletin(est, puestoGlobal, alumnosGrupo.length, puestosMaterias, config, historico);
 
-        $('reporte-content').innerHTML = `
+        const printActions = currentRole === 'admin' ? `
           <div class="no-print" style="margin-bottom:1rem; display:flex; gap:10px; justify-content: flex-end;">
             <button onclick="window.print()" style="background:#4f46e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">🖨️ IMPRIMIR ESTE REPORTE</button>
             <button onclick="imprimirTodoElGrado()" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">📋 IMPRIMIR TODO EL GRADO</button>
           </div>
+        ` : '';
+
+        $('reporte-content').innerHTML = `
+          ${printActions}
           <div id="report-print-area">${html}</div>
         `;
 
@@ -2454,12 +2782,6 @@
     }
 
     function construirHTMLBoletin(est, puesto, total, puestosMaterias, config, historico = []) {
-      const getValoration = (p) => {
-        if (p >= 91) return { label: 'Superior', nivel: 'N4', color: '#16a34a', icon: '🟢' };
-        if (p >= 71) return { label: 'Alto', nivel: 'N3', color: '#eab308', icon: '🟡' };
-        if (p >= 51) return { label: 'Básico', nivel: 'N2', color: '#f97316', icon: '🟠' };
-        return { label: 'Bajo', nivel: 'N1', color: '#ef4444', icon: '🔴' };
-      };
 
       const curP = parseInt(est.periodo) || 1;
       
@@ -2622,7 +2944,7 @@
                     <tr style="border-bottom:1px dashed #e2e8f0;">
                        <td style="padding:4px; font-size:1.1rem; text-align:center;">${m.icon}</td>
                        <td style="padding:4px; font-weight:800; font-size:0.8rem;">${m.name}</td>
-                       <td style="padding:4px; text-align:center;"><span style="font-weight:900; color:#2563eb;">${m.pct}%</span></td>
+                       <td style="padding:4px; text-align:center;"><span style="font-weight:900; color:#2563eb;">${m.pct}</span></td>
                        <td style="padding:4px; text-align:center; font-weight:900; color:#2563eb;">${m.val.nivel}</td>
                        <td style="padding:4px; text-align:center; font-weight:900;">${m.puesto}</td>
                        <td style="padding:4px; text-align:center;">
@@ -2632,11 +2954,11 @@
                        </td>
                        ${curP > 1 ? `
                        <td style="padding:4px; text-align:center; border-left:2px solid #2563eb; background:#f0f7ff;">
-                          <span style="font-weight:800; color:#64748b; font-size:0.75rem;">${m.hist[1] !== undefined ? m.hist[1] + '%' : '-'}</span>
+                          <span style="font-weight:800; color:#64748b; font-size:0.75rem;">${m.hist[1] !== undefined ? m.hist[1] : '-'}</span>
                        </td>` : ''}
                        ${curP > 2 ? `
                        <td style="padding:4px; text-align:center; background:#f0f7ff;">
-                          <span style="font-weight:800; color:#64748b; font-size:0.75rem;">${m.hist[2] !== undefined ? m.hist[2] + '%' : '-'}</span>
+                          <span style="font-weight:800; color:#64748b; font-size:0.75rem;">${m.hist[2] !== undefined ? m.hist[2] : '-'}</span>
                        </td>` : ''}
                     </tr>
                     `;
@@ -2667,7 +2989,7 @@
                          ${historico.filter(h => h.periodo <= curP).map(h => `
                          <tr style="border-bottom:1px solid #f1f5f9;">
                             <td style="padding:3px; font-weight:700; color:#1e293b;">${h.periodo === 3 ? 'E. Final (EF)' : 'E. '+h.periodo}</td>
-                            <td style="padding:3px; text-align:center;"><span style="background:${getValoration(Math.round(h.porcentaje)).color}; color:white; padding:1px 5px; border-radius:4px; font-weight:900; font-size:0.7rem;">${Math.round(h.porcentaje)}%</span></td>
+                            <td style="padding:3px; text-align:center;"><span style="background:${getValoration(Math.round(h.porcentaje)).color}; color:white; padding:1px 5px; border-radius:4px; font-weight:900; font-size:0.7rem;">${Math.round(h.porcentaje)}</span></td>
                          </tr>
                          `).join('')}
                       </tbody>
@@ -2698,13 +3020,7 @@
 
         const labels = histFiltrado.map(h => h.periodo === 3 ? 'EF' : 'E' + h.periodo);
         const data = histFiltrado.map(h => Math.round(h.porcentaje));
-        const colors = histFiltrado.map(h => {
-             const pct = Math.round(h.porcentaje);
-             if (pct >= 91) return '#16a34a'; // N4
-             if (pct >= 71) return '#eab308'; // N3
-             if (pct >= 51) return '#f97316'; // N2
-             return '#ef4444'; // N1
-        });
+        const colors = histFiltrado.map(h => getValoration(Math.round(h.porcentaje)).color);
 
         new Chart(ctx, {
             type: 'line',
@@ -2736,7 +3052,7 @@
                         offset: 4,
                         color: '#1e293b',
                         font: { weight: 'bold', size: 10 },
-                        formatter: (v) => v + '%'
+                        formatter: (v) => v
                     }
                 },
                 scales: {
@@ -2753,6 +3069,347 @@
             },
             plugins: [ChartDataLabels]
         });
+    }
+
+    async function cargarGruposInformeGrupal() {
+        showLoading(true);
+        try {
+            const { data } = await supabaseClient.from('eval_estudiantes_notas').select('zipgrade_id').eq('periodo', currentPeriodo);
+            const uniqueGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))]
+                .sort((a,b) => a.localeCompare(b, undefined, {numeric: true})) : [];
+            
+            const sel = $('gru-sel-grado');
+            sel.innerHTML = '<option value="">Seleccione grupo...</option>' + uniqueGroups.map(g => `<option value="${g}">${g}</option>`).join('');
+        } catch (e) {
+            console.error("Error cargando grupos grupal:", e);
+        }
+        showLoading(false);
+    }
+
+    async function generarInformeGrupal() {
+        const grupo = $('gru-sel-grado').value;
+        if (!grupo) return;
+
+        showLoading(true);
+        try {
+            const { data: todosData, error } = await supabaseClient.from('eval_estudiantes_notas')
+                .select('*')
+                .eq('periodo', currentPeriodo);
+
+            if (error) throw error;
+
+            const alumnosGrupo = todosData.filter(t => extraerGrupo(t.zipgrade_id) === grupo)
+                .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre));
+
+            if (alumnosGrupo.length === 0) {
+                $('grupal-content').innerHTML = '<p style="text-align:center; padding:2rem;">No hay datos para este grupo.</p>';
+                showLoading(false);
+                return;
+            }
+
+            const gNum = extraerGradoBase(grupo);
+            let mKey = '6-9';
+            if (gNum <= 4) mKey = '3-4';
+            else if (gNum === 5) mKey = '5';
+            else if (gNum >= 10) mKey = '10-11';
+            const config = MATRIZ_RANGOS[mKey];
+
+            let html = `
+                <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                    <thead>
+                        <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
+                            <th style="padding:10px 8px; text-align:left; position:sticky; left:0; background:#f8fafc; z-index:10; min-width:180px;">ESTUDIANTE</th>
+                            ${config.map(s => {
+                                const abrev = {
+                                    'Matemáticas': 'Mat', 'Competencias Ciudadanas': 'Ciu', 'Ciudadanas': 'Ciu',
+                                    'Ciencias Sociales': 'Soc', 'Sociales': 'Soc', 'Lenguaje': 'Len',
+                                    'Biología': 'Bio', 'Física': 'Fis', 'Química': 'Qui', 'Inglés': 'Ing',
+                                    'Ciencias Naturales': 'Nat', 'Lectura Crítica': 'Lect', 'Filosofía': 'Fil',
+                                    'Ética': 'Ét', 'Educación Física': 'EdF', 'Religión': 'Rel',
+                                    'Tecnología': 'Tec', 'Artística': 'Art'
+                                };
+                                let label = abrev[s.label] || s.label;
+                                return `<th style="padding:10px 4px; text-align:center; min-width:45px; font-size:0.75rem;">${label}</th>`;
+                            }).join('')}
+                            <th style="padding:10px 8px; text-align:center; font-weight:800; background:#f0f9ff; min-width:50px;">PROM.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            alumnosGrupo.forEach(est => {
+                let sumaPct = 0;
+                html += `
+                    <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:10px 12px; font-weight:700; position:sticky; left:0; background:white; border-right:1px solid #f1f5f9; white-space:nowrap;">${est.estudiante_nombre}</td>
+                `;
+
+                config.forEach(subj => {
+                    let ok = 0, totalSub = 0;
+                    for (let i = subj.start; i <= subj.end; i++) {
+                        totalSub++;
+                        if (est.respuestas && est.respuestas[i] === 1) ok++;
+                    }
+                    const pct = Math.round((ok / totalSub) * 100);
+                    sumaPct += pct;
+                    const val = getValoration(pct);
+                    html += `<td style="padding:4px; text-align:center;">
+                        <div style="background:${val.color}; color:${val.color === '#facc15' ? '#1e293b' : 'white'}; padding:5px 2px; border-radius:5px; font-size:0.75rem; font-weight:900; line-height:1; width:30px; display:inline-block; text-align:center;">
+                            ${val.initial}
+                        </div>
+                    </td>`;
+                });
+
+                const prom = Math.round(sumaPct / config.length);
+                const valGen = getValoration(prom);
+                html += `
+                    <td style="padding:8px; text-align:center; background:#f0f9ff; font-weight:900; color:${valGen.color};">
+                        ${prom}
+                    </td>
+                </tr>`;
+            });
+
+            // Fila de Promedios del Grupo
+            html += `
+                <tr style="background:#f8fafc; font-weight:800; border-top:2px solid #e2e8f0;">
+                    <td style="padding:12px; position:sticky; left:0; background:#f8fafc;">PROMEDIO GRUPAL</td>
+            `;
+
+            let totalGrupo = 0;
+            config.forEach(subj => {
+                let sumaPctSub = 0;
+                alumnosGrupo.forEach(est => {
+                    let ok = 0, totalSub = 0;
+                    for (let i = subj.start; i <= subj.end; i++) {
+                        totalSub++;
+                        if (est.respuestas && est.respuestas[i] === 1) ok++;
+                    }
+                    sumaPctSub += Math.round((ok / totalSub) * 100);
+                });
+                const promSub = Math.round(sumaPctSub / alumnosGrupo.length);
+                totalGrupo += promSub;
+                html += `<td style="padding:12px; text-align:center; color:#1e293b;">${promSub}</td>`;
+            });
+
+            html += `
+                    <td style="padding:12px; text-align:center; background:#e0f2fe; color:#0369a1; font-size:1.1rem;">${Math.round(totalGrupo / config.length)}</td>
+                </tr>
+                </tbody></table>
+            `;
+
+            $('grupal-content').innerHTML = html;
+
+        } catch (e) {
+            console.error("Error generando informe grupal:", e);
+            alert("Error: " + e.message);
+        }
+        showLoading(false);
+    }
+
+    async function imprimirInformeGrupal() {
+        const grupo = $('gru-sel-grado').value;
+        const content = $('grupal-content').innerHTML;
+        if (!grupo || !content || content.includes('Seleccione')) return;
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Informe Grupal - ${grupo}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+                    <style>
+                        @page { size: portrait; margin: 10mm; }
+                        body { font-family: 'Outfit', sans-serif; color: #1e293b; margin: 0; padding: 10px; }
+                        table { width: 100%; border-collapse: collapse; border: 1px solid #e2e8f0; }
+                        th { background: #f8fafc; padding: 4px 2px; border: 1px solid #e2e8f0; font-size: 0.65rem; }
+                        td { padding:3px 1px; border: 1px solid #e2e8f0; font-size: 0.65rem; text-align: center; }
+                        .estudiante-col { text-align: left; font-weight: 700; white-space: nowrap; padding: 3px 8px; min-width: 160px; }
+                        .val-box { padding: 4px 0; border-radius: 4px; font-weight: 800; font-size: 0.7rem; color: white; display: inline-block; width: 25px; text-align: center; line-height: 1; }
+                        h1 { color: #4f46e5; font-size: 1.5rem; margin-bottom: 20px; }
+                        .header-info { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+                        @media print {
+                            .no-print { display: none; }
+                            tr { page-break-inside: avoid; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header-info">
+                        <div>
+                            <h1>Informe de Desempeño Grupal</h1>
+                            <p><strong>Grupo:</strong> ${grupo} | <strong>Periodo:</strong> ${currentPeriodo} | <strong>Año:</strong> 2025</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png" style="height: 60px;">
+                        </div>
+                    </div>
+                    ${content.replace(/position:sticky; left:0; background:#f8fafc; z-index:10;/g, '')
+                             .replace(/position:sticky; left:0; background:white; border-right:1px solid #f1f5f9; white-space:nowrap;/g, 'font-weight:700; text-align:left;')
+                             .replace(/background:#f0f9ff;/g, '')
+                             .replace(/background:#e0f2fe;/g, '')
+                             .replace(/width:30px;/g, 'width:25px;')
+                             .replace(/font-size:0.75rem;/g, 'font-size:0.65rem;')
+                             .replace(/font-weight:900;/g, 'font-weight:800;')}
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        setTimeout(() => printWindow.print(), 500);
+    }
+
+    async function cargarGruposInformeAsignatura() {
+        showLoading(true);
+        try {
+            const { data } = await supabaseClient.from('eval_estudiantes_notas').select('zipgrade_id').eq('periodo', currentPeriodo);
+            const uniqueGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))]
+                .sort((a,b) => a.localeCompare(b, undefined, {numeric: true})) : [];
+            const sel = $('asig-sel-grado');
+            sel.innerHTML = '<option value="">Seleccione grupo...</option>' + uniqueGroups.map(g => `<option value="${g}">${g}</option>`).join('');
+        } catch (e) { console.error(e); }
+        showLoading(false);
+    }
+
+    async function generarInformeAsignatura() {
+        const grupo = $('asig-sel-grado').value;
+        const materiaFiltro = $('asig-sel-materia').value; 
+        if (!grupo || !materiaFiltro) {
+            $('asignatura-content').innerHTML = '<p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un grupo y una asignatura para ver el detalle.</p>';
+            return;
+        }
+
+        showLoading(true);
+        try {
+            const { data: todosData, error } = await supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo);
+            if (error) throw error;
+
+            const alumnosGrupo = todosData.filter(t => extraerGrupo(t.zipgrade_id) === grupo)
+                .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre));
+
+            if (alumnosGrupo.length === 0) {
+                $('asignatura-content').innerHTML = '<p style="text-align:center; padding:2rem;">No hay datos.</p>';
+                showLoading(false); return;
+            }
+
+            const gNum = extraerGradoBase(grupo);
+            let mKey = '6-9';
+            if (gNum <= 4) mKey = '3-4'; else if (gNum === 5) mKey = '5'; else if (gNum >= 10) mKey = '10-11';
+            const configFull = MATRIZ_RANGOS[mKey];
+
+            // Mapeo de materias seleccionadas
+            let config = [];
+            if (materiaFiltro === 'Naturales') {
+                if (gNum >= 10) {
+                    config = configFull.filter(c => ['Biología', 'Física', 'Química'].includes(c.label));
+                } else {
+                    config = configFull.filter(c => c.label.includes('Naturales'));
+                }
+            } else {
+                config = configFull.filter(c => c.label.includes(materiaFiltro));
+            }
+
+            if (config.length === 0) {
+                $('asignatura-content').innerHTML = `<p style="text-align:center; padding:2rem;">La asignatura "${materiaFiltro}" no está definida para este grado.</p>`;
+                showLoading(false); return;
+            }
+
+            let html = `
+                <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                    <thead>
+                        <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
+                            <th style="padding:12px; text-align:left; position:sticky; left:0; background:#f8fafc; min-width:200px;">ESTUDIANTE</th>
+                            ${config.map(s => `<th style="padding:12px; text-align:center;">${s.label.toUpperCase()}</th>`).join('')}
+                            <th style="padding:12px; text-align:center; font-weight:800; background:#f0f9ff;">PROM.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            alumnosGrupo.forEach(est => {
+                let sumaPct = 0;
+                html += `<tr style="border-bottom:1px solid #f1f5f9;">
+                    <td style="padding:10px 12px; font-weight:700; position:sticky; left:0; background:white; white-space:nowrap;">${est.estudiante_nombre}</td>`;
+                
+                config.forEach(subj => {
+                    let ok = 0, totalSub = 0;
+                    for (let i = subj.start; i <= subj.end; i++) {
+                        totalSub++;
+                        if (est.respuestas && est.respuestas[i] === 1) ok++;
+                    }
+                    const pct = Math.round((ok/totalSub)*100);
+                    sumaPct += pct;
+                    const val = getValoration(pct);
+                    html += `<td style="padding:8px; text-align:center;">
+                        <div style="background:${val.color}; color:${val.color === '#facc15' ? '#1e293b' : 'white'}; padding:5px; border-radius:5px; font-size:0.8rem; font-weight:900; width:30px; display:inline-block;">${val.initial}</div>
+                    </td>`;
+                });
+
+                const prom = Math.round(sumaPct / config.length);
+                const valGen = getValoration(prom);
+                html += `<td style="padding:8px; text-align:center; background:#f0f9ff; font-weight:900; color:${valGen.color};">${prom}</td></tr>`;
+            });
+
+            // Resumen Grupal
+            html += `<tr style="background:#f8fafc; font-weight:800; border-top:2px solid #e2e8f0;">
+                <td style="padding:12px; position:sticky; left:0; background:#f8fafc;">PROMEDIO GRUPAL</td>`;
+            let totalGeneral = 0;
+            config.forEach(subj => {
+                let sumaSub = 0;
+                alumnosGrupo.forEach(est => {
+                   let ok = 0, totalSub = 0;
+                   for (let i = subj.start; i <= subj.end; i++) { totalSub++; if (est.respuestas && est.respuestas[i] === 1) ok++; }
+                   sumaSub += Math.round((ok/totalSub)*100);
+                });
+                const promSub = Math.round(sumaSub / alumnosGrupo.length);
+                totalGeneral += promSub;
+                html += `<td style="padding:12px; text-align:center;">${promSub}</td>`;
+            });
+            html += `<td style="padding:12px; text-align:center; background:#e0f2fe; color:#0369a1; font-size:1.1rem;">${Math.round(totalGeneral/config.length)}</td></tr>
+                </tbody></table>`;
+
+            $('asignatura-content').innerHTML = html;
+        } catch (e) { console.error(e); }
+        showLoading(false);
+    }
+
+    async function imprimirInformeAsignatura() {
+        const grupo = $('asig-sel-grado').value;
+        const materia = $('asig-sel-materia').value;
+        const content = $('asignatura-content').innerHTML;
+        if (!grupo || !content || content.includes('Seleccione')) return;
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Reporte ${materia} - ${grupo}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+                    <style>
+                        @page { size: portrait; margin: 10mm; }
+                        body { font-family: 'Outfit', sans-serif; color: #1e293b; margin: 0; padding: 15px; }
+                        table { width: 100%; border-collapse: collapse; border: 1px solid #e2e8f0; }
+                        th { background: #f8fafc; padding: 8px; border: 1px solid #e2e8f0; font-size: 0.75rem; }
+                        td { padding: 4px; border: 1px solid #e2e8f0; font-size: 0.7rem; text-align: center; }
+                        .estudiante-nombre { text-align: left; font-weight: 700; padding-left: 10px; }
+                        h1 { color: #4036e5; font-size: 1.4rem; margin: 0; }
+                        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px; }
+                        .val-box { padding: 4px 0; border-radius: 4px; font-weight: 900; font-size: 0.7rem; color: white; display: inline-block; width: 25px; text-align: center; line-height: 1; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div>
+                            <h1>Reporte de Desempeño: ${materia.toUpperCase()}</h1>
+                            <p style="margin:5px 0;"><strong>Grupo:</strong> ${grupo} | <strong>Periodo:</strong> ${currentPeriodo}</p>
+                        </div>
+                        <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png" style="height: 50px;">
+                    </div>
+                    ${content.replace(/position:sticky; left:0; background:#f8fafc;/g, '')
+                             .replace(/position:sticky; left:0; background:white; white-space:nowrap;/g, 'text-align:left; font-weight:700;')}
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        setTimeout(() => printWindow.print(), 500);
     }
 
     async function imprimirTodoElGrado() {
@@ -2844,10 +3501,11 @@
               const historicosData = JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(historicosMap))}"));
               const currentP = ${parseInt(currentPeriodo) || 1};
 
-              function getVal(p) {
-                if (p >= 91) return { label: 'Superior', nivel: 'N4', color: '#16a34a' };
-                if (p >= 71) return { label: 'Alto', nivel: 'N3', color: '#eab308' };
-                if (p >= 51) return { label: 'Básico', nivel: 'N2', color: '#f97316' };
+              function getVal(p) { return getValoration(p); }
+              function getValoration(p) {
+                if (p >= 91) return { label: 'Superior', nivel: 'N4', color: '#a855f7' };
+                if (p >= 71) return { label: 'Alto', nivel: 'N3', color: '#22c55e' };
+                if (p >= 51) return { label: 'Básico', nivel: 'N2', color: '#facc15' };
                 return { label: 'Bajo', nivel: 'N1', color: '#ef4444' };
               }
 
@@ -2877,7 +3535,7 @@
                       },
                       options: {
                         responsive: true, maintainAspectRatio: false, animation: false,
-                        plugins: { legend: { display: false }, datalabels: { align: 'top', font: { weight: 'bold', size: 9 }, formatter: (v) => v + '%' } },
+                        plugins: { legend: { display: false }, datalabels: { align: 'top', font: { weight: 'bold', size: 9 }, formatter: (v) => v } },
                         scales: { y: { display: false, min: 0, max: 115 }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } }
                       }
                     });
