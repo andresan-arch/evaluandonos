@@ -831,6 +831,57 @@
     }
 
     /* Resto de estilos del reporte */
+
+    /* --- RESPONSIVE DESIGN (Celulares y Tablets) --- */
+    @media (max-width: 768px) {
+      .header-banner img { height: 140px; }
+      .header-sub { 
+        font-size: 0.8rem; 
+        padding: 6px 15px; 
+        transform: translateX(-50%) translateY(-25px);
+      }
+      .controls, #filtros-container { 
+        grid-template-columns: 1fr !important; 
+        gap: 1rem !important; 
+        padding: 1rem !important;
+      }
+      .tabs { 
+        flex-wrap: wrap; 
+        justify-content: center;
+        width: 100%;
+        gap: 4px;
+      }
+      .tab-btn { 
+        padding: 6px 10px !important; 
+        font-size: 0.75rem !important; 
+        flex: 1;
+        text-align: center;
+        min-width: 130px;
+      }
+      .dashboard-grid, .estadisticas-grid, #estadisticas-container > div { 
+        grid-template-columns: 1fr !important; 
+      }
+      .period-tabs { 
+        width: 100%; 
+        justify-content: center; 
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+      .period-tab { padding: 8px 15px; font-size: 0.75rem; }
+      .container { padding: 0 0.5rem; }
+      
+      /* Reubicar badge de usuario en móviles */
+      #user-badge {
+        top: auto !important;
+        bottom: 16px !important;
+        right: 16px !important;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2) !important;
+      }
+
+      /* Ajustes de tipografía */
+      .question-title { font-size: 1.1rem; }
+      .stat-val { font-size: 1.2rem; }
+    }
   </style>
 </head>
 
