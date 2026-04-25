@@ -1533,9 +1533,17 @@
     const $ = id => document.getElementById(id);
 
     async function checkSession() {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
-        loguearExitoso(session.user);
+      try {
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        if (error) throw error;
+        if (session) {
+          console.log("Sesión recuperada:", session.user.email);
+          loguearExitoso(session.user);
+        } else {
+          console.log("Sin sesión activa.");
+        }
+      } catch (e) {
+        console.error("Error al verificar sesión:", e);
       }
     }
 
@@ -1669,6 +1677,12 @@
           supabaseClient.from('eval_preguntas').select('grado').eq('periodo', currentPeriodo)
         ]);
 
+        if (resResults.error || resPreguntas.error) {
+           const err = resResults.error || resPreguntas.error;
+           console.error("Error RLS/Supabase:", err);
+           alert("Error al cargar grados: " + err.message + "\n\nVerifica los permisos (RLS) en Supabase.");
+        }
+
         const data1 = resResults.data || [];
         const data2 = resPreguntas.data || [];
 
@@ -1682,7 +1696,8 @@
           sel.innerHTML = '<option value="">Grado...</option>' + unique.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
         }
       } catch (e) {
-        console.error("Error al cargar grados:", e);
+        console.error("Error fatal al cargar grados:", e);
+        alert("Ocurrió un error inesperado al cargar los grados.");
       }
       showLoading(false);
     }

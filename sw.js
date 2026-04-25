@@ -1,4 +1,4 @@
-const CACHE_NAME = 'evaluandonos-v7';
+const CACHE_NAME = 'evaluandonos-v8';
 const urlsToCache = [
   './index.html',
   './manifest.json'
