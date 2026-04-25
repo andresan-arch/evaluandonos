@@ -845,22 +845,44 @@
         gap: 1rem !important; 
         padding: 1rem !important;
       }
+
+      /* Forzar que TODOS los filtros de todas las pestañas se apilen en móviles */
+      #individual-container .card > div,
+      #grupal-container .card > div,
+      #asignatura-container .card > div,
+      .admin-header {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+      }
+
+      /* Asegurar que los selectores y botones ocupen todo el ancho */
+      select, .tab-btn, button {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+      }
+
       .tabs { 
         flex-wrap: wrap; 
         justify-content: center;
         width: 100%;
-        gap: 4px;
+        gap: 5px;
       }
+
       .tab-btn { 
-        padding: 6px 10px !important; 
+        padding: 8px 12px !important; 
         font-size: 0.75rem !important; 
-        flex: 1;
-        text-align: center;
-        min-width: 130px;
+        flex: 1 1 45%; /* Dos por fila en móviles pequeños */
+        min-width: 120px;
       }
-      .dashboard-grid, .estadisticas-grid, #estadisticas-container > div { 
+
+      .dashboard-grid, .estadisticas-grid, #estadisticas-container > div, .admin-grid { 
         grid-template-columns: 1fr !important; 
+        padding: 10px !important;
       }
+
       .period-tabs { 
         width: 100%; 
         justify-content: center; 
@@ -868,19 +890,22 @@
         margin-top: 10px;
       }
       .period-tab { padding: 8px 15px; font-size: 0.75rem; }
-      .container { padding: 0 0.5rem; }
+      .container { padding: 0 5px; }
       
-      /* Reubicar badge de usuario en móviles */
       #user-badge {
         top: auto !important;
         bottom: 16px !important;
         right: 16px !important;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.2) !important;
+        padding: 6px 12px !important;
       }
 
-      /* Ajustes de tipografía */
-      .question-title { font-size: 1.1rem; }
-      .stat-val { font-size: 1.2rem; }
+      .question-title { font-size: 1rem; }
+      
+      /* Scroll horizontal para tablas de reportes */
+      [id$="-content"] {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+      }
     }
   </style>
 </head>
