@@ -2676,12 +2676,26 @@
         const zipId = (row[zipIdIdx] || "").toString().trim();
         if (!zipId || zipId.toLowerCase() === "primary key") continue;
 
-        const gradoOriginal = row[classIdx] || "";
+        let gradoOriginal = (row[classIdx] || "").toString().trim();
+        
+        // Fallback: Si no hay clase (ej. en algunos CSV estándar), inferirlo del ZipGrade ID
+        if (!gradoOriginal && zipId) {
+          gradoOriginal = extraerGrupo(zipId);
+        }
+
         const sede = detectarSede(gradoOriginal);
-        const gradoLimpio = parseInt(gradoOriginal.toString().match(/\d+/)) || 0;
-        const nombre = ((row[fNameIdx] || "") + " " + (row[lNameIdx] || "")).trim();
+        let gradoLimpio = parseInt(gradoOriginal.toString().match(/\d+/)) || 0;
+        
         const quizRaw = row[quizIdx] || "";
         const quizName = quizRaw.toString().trim();
+
+        // Fallback final: Si el grado sigue siendo 0, intentar sacarlo del nombre del quiz
+        if (gradoLimpio === 0) {
+          const matchG = quizName.match(/(\d+)/);
+          if (matchG) gradoLimpio = parseInt(matchG[1]);
+        }
+
+        const nombre = ((row[fNameIdx] || "") + " " + (row[lNameIdx] || "")).trim();
 
         let periodoDetectado = detectarPeriodo(quizName);
         if (fileName && (periodoDetectado === currentPeriodo || periodoDetectado === 1)) {
