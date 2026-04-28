@@ -1541,7 +1541,18 @@
         prefix = prefix.substring(0, 2) + "0" + prefix.substring(2);
       }
       
-      // El prefijo ya es el grupo completo (ej. 901, 305, 1102)
+      const gradoBase = extraerGradoBase(prefix);
+      const ultimo = prefix.slice(-1);
+      
+      // Mapeo de Sedes a Abreviaturas
+      const mapaSedes = { "4":"PJ", "5":"YA", "6":"SE", "7":"PU" };
+      
+      // Si el último dígito corresponde a una sede, le agregamos la abreviatura
+      if (mapaSedes[ultimo]) {
+        return gradoBase + mapaSedes[ultimo];
+      }
+      
+      // Si es de la central (1, 2, 3), retorna los 3 números completos (ej. 901, 903)
       return prefix;
     }
 
@@ -2687,15 +2698,15 @@
         }
 
         const sede = detectarSede(gradoOriginal);
-        let gradoLimpio = extraerGradoBase(gradoOriginal) || 0;
+        let gradoLimpio = gradoOriginal;
         
         const quizRaw = row[quizIdx] || "";
         const quizName = quizRaw.toString().trim();
 
-        // Fallback final: Si el grado sigue siendo 0, intentar sacarlo del nombre del quiz
-        if (gradoLimpio === 0) {
+        // Fallback final: Si el grado sigue vacío o es 0, intentar sacarlo del nombre del quiz
+        if (!gradoLimpio || gradoLimpio === 0) {
           const matchG = quizName.match(/(\d+)/);
-          if (matchG) gradoLimpio = parseInt(matchG[1]);
+          if (matchG) gradoLimpio = matchG[1]; // Lo guardamos como string para mantener el tipo
         }
 
         const nombre = ((row[fNameIdx] || "") + " " + (row[lNameIdx] || "")).trim();
