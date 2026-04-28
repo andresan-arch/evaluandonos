@@ -1365,10 +1365,10 @@
 
     // --- LOGICA DE SEDES ---
     const SEDES_MAP = {
-      'Y': 'Yanacona',
+      'YA': 'Yanacona',
       'PJ': 'Pisoje Bajo',
       'PU': 'Pueblillo',
-      'S': 'Sendero'
+      'SE': 'Sendero'
     };
 
     const MATRIZ_RANGOS = {
@@ -1530,7 +1530,7 @@
       // Mapeo a Nomenclatura Estándar (solo para Sedes y Primaria)
       const gradoBase = extraerGradoBase(prefix);
       const ultimo = prefix.slice(-1);
-      const mapaNombres = { "1":"C", "2":"S", "3":"P", "4":"PJ", "5":"Y" };
+      const mapaNombres = { "1":"C", "2":"SE", "3":"PU", "4":"PJ", "5":"YA" };
       
       if (mapaNombres[ultimo] && prefix.length >= 3) {
         // REGLA: Primaria (grado < 6) siempre usa letras. 
@@ -2431,27 +2431,37 @@
 
         updateStatus(`🚀 [${i + 1}/${pendingFiles.length}] Procesando: ${fileObj.name}...`);
 
-        let type = manualType;
-        if (type === 'auto') {
+        let isBanco = false;
+        let isItemAnalysis = false;
+        let isEstudiantes = false;
+
+        if (manualType === 'auto') {
           const headerStr = header.join(',').toLowerCase();
-          // Lógica de detección 3-archivos (más flexible)
-          if (headerStr.includes("pregunta") || headerStr.includes("asignatura") || headerStr.includes("materia") || headerStr.includes("texto")) {
-            type = 'banco';
-          } else if (headerStr.includes("zipgrade id") || headerStr.includes("external id") || headerStr.includes("first name") || headerStr.includes("last name")) {
-            type = 'estudiantes';
-          } else if (headerStr.includes("primary_answer") || headerStr.includes("question_number") || headerStr.includes("discriminant") || headerStr.includes("correct")) {
-            type = 'item_analysis';
-          } else {
-            type = 'item_analysis'; // Fallback
+          // Lógica de detección múltiple (permite procesar CSVs consolidados)
+          isBanco = headerStr.includes("texto de la pregunta") || headerStr.includes("asignatura") || headerStr.includes("materia") || headerStr.includes("opción a");
+          isEstudiantes = headerStr.includes("zipgrade id") || headerStr.includes("external id") || headerStr.includes("first name") || headerStr.includes("last name");
+          isItemAnalysis = headerStr.includes("primary_answer") || headerStr.includes("question_number") || headerStr.includes("discriminant") || headerStr.includes("correct") || headerStr.includes("quiz_name");
+          
+          if (!isBanco && !isEstudiantes && !isItemAnalysis) {
+            isItemAnalysis = true; // Fallback
           }
+        } else {
+          if (manualType === 'banco') isBanco = true;
+          if (manualType === 'item_analysis' || manualType === 'consolidado') isItemAnalysis = true;
+          if (manualType === 'estudiantes') isEstudiantes = true;
         }
 
         try {
-          if (type === 'banco') {
+          if (isBanco) {
+            updateStatus(`🧠 Procesando Banco de Preguntas en ${fileObj.name}...`);
             await procesarBancoPreguntas(rows, header, true, fileObj.name);
-          } else if (type === 'item_analysis' || type === 'consolidado') {
+          }
+          if (isItemAnalysis) {
+            updateStatus(`📊 Procesando Análisis General en ${fileObj.name}...`);
             await procesarConsolidado(rows, header, true, fileObj.name);
-          } else if (type === 'estudiantes') {
+          }
+          if (isEstudiantes) {
+            updateStatus(`🎓 Procesando Notas de Estudiantes en ${fileObj.name}...`);
             await procesarEstudiantes(rows, header, true, fileObj.name);
           }
           updateStatus(`✅ Completado: ${fileObj.name}`);
