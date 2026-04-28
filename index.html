@@ -2684,7 +2684,7 @@
         }
 
         const sede = detectarSede(gradoOriginal);
-        let gradoLimpio = parseInt(gradoOriginal.toString().match(/\d+/)) || 0;
+        let gradoLimpio = extraerGradoBase(gradoOriginal) || 0;
         
         const quizRaw = row[quizIdx] || "";
         const quizName = quizRaw.toString().trim();
