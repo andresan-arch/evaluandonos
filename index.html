@@ -1416,9 +1416,23 @@
     function detectarSede(gradoStr) {
       if (!gradoStr) return 'Central';
       const clean = gradoStr.toString().trim().toUpperCase();
+      
+      // 1. Detección por sufijo de letras (retrocompatibilidad)
       for (const [key, val] of Object.entries(SEDES_MAP)) {
         if (clean.endsWith(key)) return val;
       }
+      
+      // 2. Detección por el último dígito del grupo (ej. 305 -> 5 -> Yanacona)
+      const match = clean.match(/\d+$/);
+      if (match) {
+        const lastDigit = match[0].slice(-1);
+        if (lastDigit === '4') return 'Pisoje Bajo';
+        if (lastDigit === '5') return 'Yanacona';
+        if (lastDigit === '6') return 'Sendero';
+        if (lastDigit === '7') return 'Pueblillo';
+      }
+      
+      // Si termina en 1, 2, 3 o cualquier otro, es Central
       return 'Central';
     }
 
@@ -1527,18 +1541,7 @@
         prefix = prefix.substring(0, 2) + "0" + prefix.substring(2);
       }
       
-      // Mapeo a Nomenclatura Estándar (solo para Sedes y Primaria)
-      const gradoBase = extraerGradoBase(prefix);
-      const ultimo = prefix.slice(-1);
-      const mapaNombres = { "1":"C", "2":"SE", "3":"PU", "4":"PJ", "5":"YA" };
-      
-      if (mapaNombres[ultimo] && prefix.length >= 3) {
-        // REGLA: Primaria (grado < 6) siempre usa letras. 
-        // Bachillerato (grado >= 6) solo usa letras para Sedes (4:PJ, 5:Y), central (1,2,3) se queda numérico.
-        if (gradoBase < 6 || ultimo === "4" || ultimo === "5") {
-          return gradoBase + mapaNombres[ultimo];
-        }
-      }
+      // El prefijo ya es el grupo completo (ej. 901, 305, 1102)
       return prefix;
     }
 
