@@ -2451,10 +2451,13 @@
 
         if (manualType === 'auto') {
           const headerStr = header.join(',').toLowerCase();
-          // Lógica de detección múltiple (permite procesar CSVs consolidados)
-          isBanco = headerStr.includes("texto de la pregunta") || headerStr.includes("asignatura") || headerStr.includes("materia") || headerStr.includes("opción a");
-          isEstudiantes = headerStr.includes("zipgrade id") || headerStr.includes("external id") || headerStr.includes("first name") || headerStr.includes("last name");
-          isItemAnalysis = headerStr.includes("primary_answer") || headerStr.includes("question_number") || headerStr.includes("discriminant") || headerStr.includes("correct") || headerStr.includes("quiz_name");
+          // Lógica de detección múltiple
+          isBanco = headerStr.includes("texto de la pregunta") || headerStr.includes("opción a");
+          // Un CSV de estudiantes individual de ZipGrade tiene zipgrade id + first name + last name
+          // Un CSV de item analysis tiene question_number y primary_answer
+          isEstudiantes = (headerStr.includes("zipgrade id") || headerStr.includes("zipgrade_id")) &&
+                          (headerStr.includes("first name") || headerStr.includes("first_name"));
+          isItemAnalysis = headerStr.includes("primary_answer") || headerStr.includes("question_number") || headerStr.includes("discriminant");
           
           if (!isBanco && !isEstudiantes && !isItemAnalysis) {
             isItemAnalysis = true; // Fallback
@@ -2690,23 +2693,22 @@
         const zipId = (row[zipIdIdx] || "").toString().trim();
         if (!zipId || zipId.toLowerCase() === "primary key") continue;
 
-        let gradoOriginal = (row[classIdx] || "").toString().trim();
-        
-        // Fallback: Si no hay clase (ej. en algunos CSV estándar), inferirlo del ZipGrade ID
-        if (!gradoOriginal && zipId) {
-          gradoOriginal = extraerGrupo(zipId);
-        }
-
-        const sede = detectarSede(gradoOriginal);
-        let gradoLimpio = gradoOriginal;
-        
         const quizRaw = row[quizIdx] || "";
         const quizName = quizRaw.toString().trim();
 
-        // Fallback final: Si el grado sigue vacío o es 0, intentar sacarlo del nombre del quiz
-        if (!gradoLimpio || gradoLimpio === 0) {
+        // Siempre extraemos el grupo desde el ZipGrade ID (fuente más confiable)
+        // El grupo puede ser: 901, 902, 9PJ, 9YA, 305, 3SE, etc.
+        const grupo = extraerGrupo(zipId);
+        const sede = detectarSede(grupo);
+        // El grado numérico base lo sacamos del grupo
+        const gradoNumBase = extraerGradoBase(grupo);
+        // Guardamos el grupo completo (ej. "9PJ", "901") en la columna grado
+        let gradoLimpio = grupo || gradoNumBase.toString();
+
+        // Fallback: si aún está vacío, sacarlo del nombre del quiz
+        if (!gradoLimpio) {
           const matchG = quizName.match(/(\d+)/);
-          if (matchG) gradoLimpio = matchG[1]; // Lo guardamos como string para mantener el tipo
+          if (matchG) gradoLimpio = matchG[1];
         }
 
         const nombre = ((row[fNameIdx] || "") + " " + (row[lNameIdx] || "")).trim();
