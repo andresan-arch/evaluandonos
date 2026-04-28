@@ -2728,6 +2728,11 @@
 
         const p_total = parseFloat((row[porcIdx] || "0").toString().replace(',', '.')) || 0;
 
+        // DEBUG: verificar qué valores se calculan
+        if (resultadosEstudiantes.length < 3) {
+          console.log(`[DEBUG] zipId=${zipId} -> grupo=${grupo} -> gradoLimpio=${gradoLimpio} -> sede=${sede}`);
+        }
+
         resultadosEstudiantes.push({
           estudiante_nombre: nombre,
           zipgrade_id: zipId,
