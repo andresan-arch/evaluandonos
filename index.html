@@ -4257,7 +4257,8 @@
         const gruposUnicos = [...new Set(dataPeriodoActual.map(d => extraerGrupo(d.zipgrade_id)))]
           .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
-        const gradosUnicos = [...new Set(dataPeriodoActual.map(d => d.grado))]
+        const gradosUnicos = [...new Set(dataPeriodoActual.map(d => extraerGradoBase(d.grado)))]
+          .filter(g => g > 0)
           .sort((a, b) => a - b);
 
         const selM = $('est-sel-grado');
@@ -4334,7 +4335,7 @@
     }
 
     function renderizarGraficoSedes(data) {
-      const sedes = ['Central', 'Yanacona', 'Pisoje Bajo', 'Pueblillo', 'Sendero'];
+      const sedes = ['Central', 'Yanaconas', 'Pisoje Bajo', 'Pueblillo', 'Sendero'];
       const niveles = {
         'Primaria (3-5)': [3, 4, 5],
         'Básica (6-9)': [6, 7, 8, 9],
@@ -4454,7 +4455,7 @@
       else if (gNum >= 10) mKey = '10-11';
       const config = MATRIZ_RANGOS[mKey];
 
-      const filtrados = dataPeriodoActual.filter(d => parseInt(d.grado) === gNum);
+      const filtrados = dataPeriodoActual.filter(d => extraerGradoBase(d.grado) === gNum);
       const gruposDelNivel = [...new Set(filtrados.map(f => extraerGrupo(f.zipgrade_id)))].sort();
 
       const datasets = gruposDelNivel.map((grupo, idx) => {
