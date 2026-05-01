@@ -1183,17 +1183,11 @@
 
         <!-- Estadísticas (Contenedor) -->
         <div id="estadisticas-container" style="display:none; margin-top:2rem;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+          <div style="display: grid; grid-template-columns: 1fr; gap: 2rem; margin-bottom: 2rem;">
             <div class="card">
               <h2 class="question-title">Promedio Detallado por Grupo</h2>
-              <div class="chart-container" style="height: 350px;">
+              <div class="chart-container" style="height: 400px;">
                 <canvas id="chart-grados"></canvas>
-              </div>
-            </div>
-            <div class="card">
-              <h2 class="question-title">Comparativo de Sedes por Nivel</h2>
-              <div class="chart-container" style="height: 350px;">
-                <canvas id="chart-sedes"></canvas>
               </div>
             </div>
           </div>
@@ -4270,8 +4264,8 @@
         // 2. Renderizar Gráfico de Grupos
         renderizarGraficoGrupos(dataPeriodoActual);
 
-        // 3. Renderizar Gráfico de Sedes
-        renderizarGraficoSedes(dataPeriodoActual);
+        // 3. Renderizar Gráfico de Sedes (Eliminado por solicitud de diseño)
+        // renderizarGraficoSedes(dataPeriodoActual);
 
         // 4. Renderizar Detalle de Materias (primer grado por defecto)
         if (gruposUnicos.length > 0) {
@@ -4298,6 +4292,13 @@
       const labels = Object.keys(promedios).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
       const values = labels.map(l => Math.round(promedios[l].suma / promedios[l].cont));
 
+      const colorsArr = labels.map(l => {
+        const g = extraerGradoBase(l);
+        if (g <= 5) return 'rgba(59, 130, 246, 0.8)'; // Primaria - Azul
+        if (g <= 9) return 'rgba(16, 185, 129, 0.8)'; // Básica - Verde
+        return 'rgba(245, 158, 11, 0.8)'; // Media - Naranja
+      });
+
       if (chartGrados) chartGrados.destroy();
       const ctx = $('chart-grados').getContext('2d');
       chartGrados = new Chart(ctx, {
@@ -4308,8 +4309,8 @@
           datasets: [{
             label: 'Promedio %',
             data: values,
-            backgroundColor: 'rgba(79, 70, 229, 0.8)',
-            borderColor: '#4f46e5',
+            backgroundColor: colorsArr,
+            borderColor: colorsArr.map(c => c.replace('0.8', '1')),
             borderWidth: 2,
             borderRadius: 10
           }]
@@ -4353,7 +4354,7 @@
         if (!stats[sede]) stats[sede] = {};
 
         Object.entries(niveles).forEach(([lvlName, gList]) => {
-          if (gList.includes(parseInt(d.grado))) {
+          if (gList.includes(extraerGradoBase(d.grado))) {
             if (!stats[sede][lvlName]) stats[sede][lvlName] = { suma: 0, cont: 0 };
             stats[sede][lvlName].suma += (d.porcentaje || 0);
             stats[sede][lvlName].cont++;
