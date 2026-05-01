@@ -50,7 +50,10 @@
     body::before {
       content: "";
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: inherit;
       background-attachment: fixed;
       background-size: cover;
@@ -59,14 +62,24 @@
       opacity: 1;
       transition: filter 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       pointer-events: none;
-      transform: scale(1.05); /* Evita bordes blancos por el desenfoque */
+      transform: scale(1.05);
+      /* Evita bordes blancos por el desenfoque */
     }
 
     body.blurred-bg::before {
       filter: blur(30px) contrast(90%) brightness(90%);
     }
 
-    .val-box { padding:5px 2px; border-radius:5px; font-size:0.75rem; font-weight:900; line-height:1; width:30px; display:inline-block; text-align:center; }
+    .val-box {
+      padding: 5px 2px;
+      border-radius: 5px;
+      font-size: 0.75rem;
+      font-weight: 900;
+      line-height: 1;
+      width: 30px;
+      display: inline-block;
+      text-align: center;
+    }
 
     header {
       background: transparent;
@@ -77,7 +90,8 @@
 
     .header-banner {
       width: 100%;
-      background: white; /* Banner sólido como pidió el usuario */
+      background: white;
+      /* Banner sólido como pidió el usuario */
       display: flex;
       justify-content: center;
       align-items: center;
@@ -132,7 +146,8 @@
       display: grid !important;
       grid-template-columns: 1fr 1.5fr 0.8fr !important;
       gap: 1.5rem;
-      background: rgba(255, 255, 255, 0.6) !important; /* Más transparente */
+      background: rgba(255, 255, 255, 0.6) !important;
+      /* Más transparente */
       backdrop-filter: blur(20px) !important;
       padding: 1.5rem;
       border-radius: 24px;
@@ -275,7 +290,8 @@
     }
 
     .card {
-      background: rgba(255, 255, 255, 0.4); /* Más tenue y transparente */
+      background: rgba(255, 255, 255, 0.4);
+      /* Más tenue y transparente */
       backdrop-filter: blur(25px) saturate(180%);
       border-radius: 24px;
       padding: 2.5rem;
@@ -471,7 +487,7 @@
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(15px);
       min-width: 230px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
       border-radius: 16px;
       z-index: 5000;
       top: 100%;
@@ -483,8 +499,15 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-12px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .dropdown.open .dropdown-content {
@@ -511,7 +534,8 @@
       transform: translateX(4px);
     }
 
-    .tab-btn.active, .dropdown.active .tab-btn {
+    .tab-btn.active,
+    .dropdown.active .tab-btn {
       background: var(--primary) !important;
       color: white !important;
       box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
@@ -836,22 +860,27 @@
 
     /* --- RESPONSIVE DESIGN (Celulares y Tablets) --- */
     @media (max-width: 768px) {
-      .header-banner img { height: 140px; }
-      .header-sub { 
-        font-size: 0.8rem; 
-        padding: 6px 15px; 
+      .header-banner img {
+        height: 140px;
+      }
+
+      .header-sub {
+        font-size: 0.8rem;
+        padding: 6px 15px;
         transform: translateX(-50%) translateY(-25px);
       }
-      .controls, #filtros-container { 
-        grid-template-columns: 1fr !important; 
-        gap: 1rem !important; 
+
+      .controls,
+      #filtros-container {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
         padding: 1rem !important;
       }
 
       /* Forzar que TODOS los filtros de todas las pestañas se apilen en móviles */
-      #individual-container .card > div,
-      #grupal-container .card > div,
-      #asignatura-container .card > div,
+      #individual-container .card>div,
+      #grupal-container .card>div,
+      #asignatura-container .card>div,
       .admin-header {
         display: flex !important;
         flex-direction: column !important;
@@ -860,40 +889,53 @@
       }
 
       /* Asegurar que los selectores y botones ocupen todo el ancho */
-      select, .tab-btn, button {
+      select,
+      .tab-btn,
+      button {
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box;
       }
 
-      .tabs { 
-        flex-wrap: wrap; 
+      .tabs {
+        flex-wrap: wrap;
         justify-content: center;
         width: 100%;
         gap: 5px;
       }
 
-      .tab-btn { 
-        padding: 8px 12px !important; 
-        font-size: 0.75rem !important; 
-        flex: 1 1 45%; /* Dos por fila en móviles pequeños */
+      .tab-btn {
+        padding: 8px 12px !important;
+        font-size: 0.75rem !important;
+        flex: 1 1 45%;
+        /* Dos por fila en móviles pequeños */
         min-width: 120px;
       }
 
-      .dashboard-grid, .estadisticas-grid, #estadisticas-container > div, .admin-grid { 
-        grid-template-columns: 1fr !important; 
+      .dashboard-grid,
+      .estadisticas-grid,
+      #estadisticas-container>div,
+      .admin-grid {
+        grid-template-columns: 1fr !important;
         padding: 10px !important;
       }
 
-      .period-tabs { 
-        width: 100%; 
-        justify-content: center; 
+      .period-tabs {
+        width: 100%;
+        justify-content: center;
         flex-wrap: wrap;
         margin-top: 10px;
       }
-      .period-tab { padding: 8px 15px; font-size: 0.75rem; }
-      .container { padding: 0 5px; }
-      
+
+      .period-tab {
+        padding: 8px 15px;
+        font-size: 0.75rem;
+      }
+
+      .container {
+        padding: 0 5px;
+      }
+
       #user-badge {
         top: auto !important;
         bottom: 16px !important;
@@ -901,8 +943,10 @@
         padding: 6px 12px !important;
       }
 
-      .question-title { font-size: 1rem; }
-      
+      .question-title {
+        font-size: 1rem;
+      }
+
       /* Scroll horizontal para tablas de reportes */
       [id$="-content"] {
         overflow-x: auto !important;
@@ -965,19 +1009,23 @@
               style="height: 75px; width: auto; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));" alt="Logo Mini">
             <div class="tabs" style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px;">
               <button onclick="switchMainTab('analisis')" id="tab-analisis" class="tab-btn active"
-                style="padding: 10px 25px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: 0.3s; display: flex; align-items: center; gap: 8px;">📈 Análisis General</button>
+                style="padding: 10px 25px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: 0.3s; display: flex; align-items: center; gap: 8px;">📈
+                Análisis General</button>
               <button onclick="switchMainTab('estadisticas')" id="tab-estadisticas" class="tab-btn"
                 style="padding: 8px 20px; border: none; border-radius: 10px; background: transparent; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: 0.3s;">Estadísticas</button>
-              
+
               <div class="dropdown" id="tab-informes-parent">
                 <button class="tab-btn" id="tab-informes-btn" onclick="toggleInformesDropdown(event)"
                   style="padding: 8px 20px; border: none; border-radius: 10px; background: transparent; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: 0.3s;">
                   📁 Informes ▾
                 </button>
                 <div class="dropdown-content">
-                  <div class="dropdown-item" id="tab-individual-item" onclick="selectInforme('individual')">👤 Reporte Individual</div>
-                  <div class="dropdown-item" id="tab-grupal-item" onclick="selectInforme('grupal')">👥 Reporte Grupal</div>
-                  <div class="dropdown-item" id="tab-asignatura-item" onclick="selectInforme('asignatura')">📚 Reporte Asignatura</div>
+                  <div class="dropdown-item" id="tab-individual-item" onclick="selectInforme('individual')">👤 Reporte
+                    Individual</div>
+                  <div class="dropdown-item" id="tab-grupal-item" onclick="selectInforme('grupal')">👥 Reporte Grupal
+                  </div>
+                  <div class="dropdown-item" id="tab-asignatura-item" onclick="selectInforme('asignatura')">📚 Reporte
+                    Asignatura</div>
                 </div>
               </div>
             </div>
@@ -995,375 +1043,413 @@
           </button>
         </div>
 
-    <!-- Resultados -->
-    <div id="resultado-container" style="display: none;">
-      
-        <div id="filtros-container" class="controls"
-          style="display: grid; grid-template-columns: 1fr 1.5fr 0.8fr; gap: 1.5rem; align-items: end; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.5); width: 100%; box-sizing: border-box; margin-bottom: 2rem;">
-          <div class="control-group">
-            <label style="display: block; font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 8px; text-transform: uppercase;">Grado</label>
-            <select id="sel-grado" onchange="cargarAsignaturas()" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; background: white;">
-              <option value="">Grado...</option>
-            </select>
-          </div>
-          <div class="control-group" id="card-asig" style="border-left: 4px solid #e2e8f0; padding-left: 15px; transition: all 0.3s ease;">
-            <label id="label-asig" style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 8px; text-transform: uppercase;">
-              Asignatura
-            </label>
-            <select id="sel-asig" onchange="onAsigChange(this)" style="width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #cbd5e1; background: white; font-weight: 700; transition: all 0.3s ease;">
-              <option value="">Seleccione asignatura...</option>
-            </select>
-          </div>
-          <div class="control-group">
-            <label style="display: block; font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 8px; text-transform: uppercase;">Pregunta</label>
-            <select id="sel-pregunta" onchange="mostrarAnalisis()" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; background: white;">
-              <option value=""># Pregunta</option>
-            </select>
-          </div>
-        </div>
+        <!-- Resultados -->
+        <div id="resultado-container" style="display: none;">
 
-      <div class="dashboard-grid">
-        <!-- Pregunta y Opciones -->
-        <div class="card">
-          <h2 class="question-title" id="pregunta-display-num">Pregunta #</h2>
-          <div
-            style="background: rgba(255, 255, 255, 0.3); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(5px);">
-            <div id="pregunta-media" class="media-container"></div>
-            <!-- Contenedor para imagen automática si existe -->
-            <div id="pregunta-media-auto" class="media-container" style="display:none;"></div>
-            <p id="pregunta-texto"
-              style="font-size: 1.1rem; color: var(--text); font-weight: 500; margin: 0; line-height: 1.6;"></p>
-          </div>
-
-          <div id="options-list" class="options-list">
-            <div id="opt-a" class="option">
-              <span class="option-letter">A</span>
-              <div id="txt-a" class="option-content"></div>
-            </div>
-            <div id="opt-b" class="option">
-              <span class="option-letter">B</span>
-              <div id="txt-b" class="option-content"></div>
-            </div>
-            <div id="opt-c" class="option">
-              <span class="option-letter">C</span>
-              <div id="txt-c" class="option-content"></div>
-            </div>
-            <div id="opt-d" class="option">
-              <span class="option-letter">D</span>
-              <div id="txt-d" class="option-content"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Gráfica -->
-        <div class="card">
-          <h2 class="question-title">Distribución de Respuestas</h2>
-          <div class="chart-container">
-            <canvas id="barChart"></canvas>
-          </div>
-          <div class="stats-summary">
-            <div class="stat-box"
-              style="background: rgba(99, 102, 241, 0.1); color: var(--primary); border: 2px solid rgba(99, 102, 241, 0.2);">
-              <span id="stat-total" class="stat-val" style="color: var(--primary);">0</span>
-              <span class="stat-label" style="color: var(--primary);">Personas Evaluadas</span>
-            </div>
-            <div class="stat-box">
-              <span id="stat-correctas" class="stat-val">0</span>
-              <span class="stat-label">Aciertos</span>
-            </div>
-            <div id="stat-p-box" class="stat-box">
-              <span id="stat-porcentaje" class="stat-val">0%</span>
-              <span class="stat-label">% Éxito</span>
-            </div>
-          </div>
-        </div>
-      </div> <!-- Cierra dashboard-grid -->
-    </div> <!-- Cierra resultado-container -->
-
-    <!-- Reporte Individual (Contenedor) -->
-    <div id="individual-container" style="display:none; margin-top:2rem;">
-      <div class="card">
-        <h2 style="margin-bottom:1.5rem; color:var(--primary);">Reporte de Resultados por Estudiante</h2>
-        <div
-          style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:2rem;">
-          <div>
-            <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Sede</label>
-            <select id="rep-sede" onchange="cargarGradosReporte()"
-              style="width:100%; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
-              <option value="Central">Central</option>
-              <option value="Yanaconas">Yanaconas</option>
-              <option value="Pisoje Bajo">Pisoje Bajo</option>
-              <option value="Pueblillo">Pueblillo</option>
-              <option value="Sendero">Sendero</option>
-            </select>
-          </div>
-          <div>
-            <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Grado</label>
-            <select id="rep-grado" onchange="cargarEstudiantesReporte()"
-              style="width:100%; padding:10px; border-radius:10px; border:1px solid #e2e8f0;"></select>
-          </div>
-          <div>
-            <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Estudiante</label>
-            <select id="rep-estudiante" onchange="generarReporteIndividual()"
-              style="width:100%; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
-              <option value="">Seleccione estudiante...</option>
-            </select>
-          </div>
-          <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
-            <button id="btn-print-basica" onclick="imprimirTodaLaSede('basica')" class="print-btn" style="display:none; width:200px; padding:10px; background:#10b981; color:white; border:none; border-radius:10px; font-weight:700; cursor:pointer; font-size:0.75rem;">🖨️ IMPRIMIR SEDE (3° a 9°)</button>
-            <button id="btn-print-superior" onclick="imprimirTodaLaSede('superior')" class="print-btn" style="display:none; width:200px; padding:10px; background:#f59e0b; color:white; border:none; border-radius:10px; font-weight:700; cursor:pointer; font-size:0.75rem;">🖨️ IMPRIMIR SEDE (10° y 11°)</button>
-          </div>
-        </div>
-        <div id="reporte-content">
-          <p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un estudiante para ver su reporte
-            detallado.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Estadísticas (Contenedor) -->
-    <div id="estadisticas-container" style="display:none; margin-top:2rem;">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
-        <div class="card">
-          <h2 class="question-title">Promedio Detallado por Grupo</h2>
-          <div class="chart-container" style="height: 350px;">
-            <canvas id="chart-grados"></canvas>
-          </div>
-        </div>
-        <div class="card">
-            <h2 class="question-title">Comparativo de Sedes por Nivel</h2>
-            <div class="chart-container" style="height: 350px;">
-              <canvas id="chart-sedes"></canvas>
-            </div>
-          </div>
-      </div>
-      
-      <div class="card" style="margin-bottom: 2rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--bg); padding-bottom: 0.5rem;">
-          <h2 class="question-title" style="margin: 0; border: none;">Rendimiento por Asignaturas</h2>
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <label style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">DETALLE GRADO:</label>
-            <select id="est-sel-grado" onchange="actualizarGraficoAsignaturas()" style="width: auto; padding: 5px 15px;">
-                <option value="">Cargando...</option>
-            </select>
-          </div>
-        </div>
-        <div class="chart-container" style="height: 400px;">
-          <canvas id="chart-materias"></canvas>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom: 2rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--bg); padding-bottom: 0.5rem;">
-          <h2 class="question-title" style="margin: 0; border: none;">Comparativo Detallado entre Sedes (Grupos)</h2>
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <label style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">COMPARAR GRADO:</label>
-            <select id="comp-sel-grado" onchange="actualizarGraficoComparativoGrupos()" style="width: auto; padding: 5px 15px;">
-                <option value="">Cargando...</option>
-            </select>
-          </div>
-        </div>
-        <div class="chart-container" style="height: 450px;">
-          <canvas id="chart-comparativo-grupos"></canvas>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Informe Grupal (Contenedor) -->
-    <div id="grupal-container" style="display:none; margin-top:2rem;">
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-          <h2 style="color:var(--primary); margin:0;">Informe General por Grupo</h2>
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <label style="font-weight: 700; font-size: 0.85rem;">GRUPO:</label>
-            <select id="gru-sel-grado" onchange="generarInformeGrupal()" style="width: auto; padding: 8px 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
-              <option value="">Seleccione grupo...</option>
-            </select>
-            <button onclick="imprimirInformeGrupal()" class="print-btn" style="display:none; background:#4036e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer; align-items:center; gap:8px;">
-              🖨️ Imprimir
-            </button>
-          </div>
-        </div>
-        
-        <div id="grupal-content" style="overflow-x: auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0;">
-          <p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un grupo para generar el informe detallado.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Informe por Asignatura (Contenedor) -->
-    <div id="asignatura-container" style="display:none; margin-top:2rem;">
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-          <h2 style="color:var(--primary); margin:0;">Análisis por Asignatura</h2>
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <label style="font-weight: 700; font-size: 0.85rem;">GRUPO:</label>
-            <select id="asig-sel-grado" onchange="generarInformeAsignatura()" style="width: auto; padding: 8px 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
-              <option value="">Seleccione grupo...</option>
-            </select>
-            <label style="font-weight: 700; font-size: 0.85rem; margin-left:10px;">ASIGNATURA:</label>
-            <select id="asig-sel-materia" onchange="generarInformeAsignatura()" style="width: auto; padding: 8px 15px; border-radius: 10px; border: 1px solid #e2e8f0; font-weight:700;">
-              <option value="">Seleccione asignatura...</option>
-              <option value="Matemáticas">Matemáticas</option>
-              <option value="Lenguaje">Lenguaje</option>
-              <option value="Sociales">Sociales</option>
-              <option value="Ciudadanas">Ciudadanas</option>
-              <option value="Inglés">Inglés</option>
-              <option value="Naturales">Naturales (Ciencias)</option>
-            </select>
-            <button onclick="imprimirInformeAsignatura()" class="print-btn" style="display:none; background:#4036e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">
-              🖨️ Imprimir
-            </button>
-          </div>
-        </div>
-        
-        <div id="asignatura-content" style="overflow-x: auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0;">
-          <p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un grupo y una asignatura para ver el detalle.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Panel de Administración (Modal con Cards) -->
-    <div class="admin-trigger" onclick="toggleAdmin()"
-      style="display:none; position:fixed; bottom:20px; right:20px; padding:12px 24px; background:var(--text); color:white; border-radius:50px; cursor:pointer; font-weight:700; box-shadow:0 10px 20px rgba(0,0,0,0.2); z-index:4000;">
-      ⚙️ Administrador de Datos</div>
-
-    <div class="admin-modal" id="admin-modal">
-      <div class="admin-container">
-        <div class="admin-header">
-          <h2 style="color:var(--text); font-weight:800;">🛠️ Panel Administrativo</h2>
-          <button onclick="toggleAdmin()"
-            style="background:#f1f5f9; border:none; padding:8px 15px; border-radius:12px; cursor:pointer; font-weight:800; color:#ef4444;">CERRAR</button>
-        </div>
-
-        <div class="admin-grid">
-          <!-- CARD 1: ZIPGRADE -->
-          <div class="admin-card">
-            <h5>📊 Carga de Datos ZipGrade (TSV/CSV)</h5>
-            <div style="background:#f1f5f9; padding:10px; border-radius:8px; margin-bottom:10px; font-size:0.75rem;">
-              <p style="margin-bottom:5px; font-weight:600;">Selecciona el tipo de archivo:</p>
-              <label style="display:flex; align-items:center; gap:5px; cursor:pointer; margin-bottom:3px;">
-                <input type="radio" name="upload-type" value="auto" checked> 🤖 Detección Automática
-              </label>
-              <label style="display:flex; align-items:center; gap:5px; cursor:pointer; margin-bottom:3px;">
-                <input type="radio" name="upload-type" value="consolidado"> 📋 Análisis Consolidado (TSV)
-              </label>
-              <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
-                <input type="radio" name="upload-type" value="estudiantes"> 👥 Reporte Estudiantes (CSV/TSV)
-              </label>
-              <hr style="border:0; border-top:1px solid #e2e8f0; margin:10px 0;">
-              <label style="display:flex; align-items:center; gap:5px; cursor:pointer; color:#ef4444; font-weight:700;">
-                <input type="checkbox" id="auto-reset-all"> 🔥 Limpiar TODO antes de cargar
-              </label>
-            </div>
-            <input type="file" id="csv-file" accept=".csv,.tsv" multiple
-              style="margin-bottom:10px; font-size:0.8rem; width:100%;">
-            <div id="admin-debug"
-              style="display:none; background:#f8fafc; padding:10px; border-radius:8px; font-size:0.7rem;">
-              <table id="debug-table" style="width:100%; border-collapse:collapse;"></table>
-              <button id="btn-confirm-upload" onclick="finalizarSubida()"
-                style="width:100%; margin-top:10px; background:var(--success); color:white; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">¡SUBIR
-                DATOS!</button>
-            </div>
-            <button onclick="previsualizarDatos()"
-              style="background:var(--primary); color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer;">1.
-              ANALIZAR ARCHIVO</button>
-            <div id="admin-status" style="margin-top:10px; font-size:0.75rem; color:#64748b; font-weight:bold;"></div>
-          </div>
-
-          <!-- CARD 2: MAPEO -->
-          <div class="admin-card">
-            <h5>🖼️ Gestión de Imágenes</h5>
-            <div style="background:#f1f5f9; padding:10px; border-radius:8px; margin-bottom:10px; font-size:0.7rem; color:#475569;">
-              <p style="margin:0 0 5px 0; font-weight:bold;">Nomenclatura Específica:</p>
-              <ul style="margin:0; padding-left:15px;">
-                <li>Preguntas: <code>[Num][CodMat][Grado].png</code> (Ej: 15M9.png)</li>
-                <li>Opciones: <code>[Num][CodMat][Grado][Letra].png</code> (Ej: 15M9A.png)</li>
-              </ul>
-              <p style="margin:5px 0 0 0;"><b>Códigos Materia:</b> M(Mat), S(Soc), L(Len), N(Nat), I(Ing), C(Ciu), B(Bio), F(Fis), Q(Qui), E(Eti), P(Fil).</p>
-            </div>
-            <p style="font-size:0.8rem; color:#64748b;">Asocia imágenes a las preguntas y configura las asignaturas por número.</p>
-            <div style="display:flex; gap:5px;">
-              <select id="aimg-grado" onchange="cargarAsignaturasAdminImg()"
-                style="flex:1; padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
+          <div id="filtros-container" class="controls"
+            style="display: grid; grid-template-columns: 1fr 1.5fr 0.8fr; gap: 1.5rem; align-items: end; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.5); width: 100%; box-sizing: border-box; margin-bottom: 2rem;">
+            <div class="control-group">
+              <label
+                style="display: block; font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 8px; text-transform: uppercase;">Grado</label>
+              <select id="sel-grado" onchange="cargarAsignaturas()"
+                style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; background: white;">
                 <option value="">Grado...</option>
               </select>
-              <select id="aimg-periodo" onchange="cargarAsignaturasAdminImg()"
-                style="flex:1; padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
-                <option value="1">P1</option>
-                <option value="2">P2</option>
-                <option value="3">Final</option>
+            </div>
+            <div class="control-group" id="card-asig"
+              style="border-left: 4px solid #e2e8f0; padding-left: 15px; transition: all 0.3s ease;">
+              <label id="label-asig"
+                style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 8px; text-transform: uppercase;">
+                Asignatura
+              </label>
+              <select id="sel-asig" onchange="onAsigChange(this)"
+                style="width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #cbd5e1; background: white; font-weight: 700; transition: all 0.3s ease;">
+                <option value="">Seleccione asignatura...</option>
               </select>
             </div>
-            <select id="aimg-asig" onchange="cargarPreguntasAdminImg()"
-              style="padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
-              <option value="">Asignatura...</option>
-            </select>
-            <select id="aimg-preg" onchange="verDetallePreguntaAdmin()"
-              style="padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
-              <option value="">Pregunta...</option>
-            </select>
-            <div id="aimg-detalle"
-              style="display:none; background:#f8fafc; padding:10px; border-radius:12px; border:1px solid #e2e8f0;">
-              <div id="aimg-fields" style="display:flex; flex-direction:column; gap:8px;"></div>
+            <div class="control-group">
+              <label
+                style="display: block; font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 8px; text-transform: uppercase;">Pregunta</label>
+              <select id="sel-pregunta" onchange="mostrarAnalisis()"
+                style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; background: white;">
+                <option value=""># Pregunta</option>
+              </select>
             </div>
           </div>
 
-          <!-- CARD 3: USUARIOS -->
-          <div class="admin-card">
-            <h5>👥 Gestión de Usuarios</h5>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-              <input type="email" id="nu-email" placeholder="Email"
-                style="padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
-              <input type="text" id="nu-nombre" placeholder="Nombre"
-                style="padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
-              <input type="password" id="nu-pass" placeholder="Password"
-                style="padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
-              <select id="nu-rol" style="padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
-                <option value="lector">Lector</option>
-                <option value="admin">Admin</option>
-                <option value="superadmin">Superadmin</option>
-              </select>
-              <input type="text" id="nu-grado" placeholder="Grado/Grupo (Ej: 1101 o primaria)"
-                style="padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
-              <button onclick="crearUsuario()"
-                style="background:var(--primary); color:white; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">CREAR
-                USUARIO</button>
-            </div>
-            <hr style="border:0; border-top:1px solid #e2e8f0; margin:5px 0;">
-            <p style="font-size:0.75rem; color:#64748b;">O importa masivamente:</p>
-            <input type="file" id="users-csv" accept=".csv" multiple style="font-size:0.75rem;">
-            <button onclick="importarUsuariosCSV()"
-              style="background:#10b981; color:white; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">IMPORTAR
-              XLS</button>
-            <div id="users-status" style="font-size:0.7rem;"></div>
-          </div>
+          <div class="dashboard-grid">
+            <!-- Pregunta y Opciones -->
+            <div class="card">
+              <h2 class="question-title" id="pregunta-display-num">Pregunta #</h2>
+              <div
+                style="background: rgba(255, 255, 255, 0.3); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(5px);">
+                <div id="pregunta-media" class="media-container"></div>
+                <!-- Contenedor para imagen automática si existe -->
+                <div id="pregunta-media-auto" class="media-container" style="display:none;"></div>
+                <p id="pregunta-texto"
+                  style="font-size: 1.1rem; color: var(--text); font-weight: 500; margin: 0; line-height: 1.6;"></p>
+              </div>
 
-          <!-- CARD 4: SISTEMA -->
-          <div class="admin-card">
-            <h5>⚠️ Gestión de Datos y Reset</h5>
-            <p style="font-size:0.8rem; color:#64748b;">Usa esta opción para LIMPIAR TODO (Resultados, Banco de
-              Preguntas y Notas) y empezar de cero.</p>
-            <button onclick="resetearBaseDeDatos()"
-              style="background:#ef4444; color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; width:100%;">🔥
-              BORRADO TOTAL (RESET)</button>
-            <p style="font-size:0.65rem; color:#94a3b8; text-align:center; margin-top:10px;">Versión 2.5 - Soporte TSV
-              Consolidado Activo</p>
+              <div id="options-list" class="options-list">
+                <div id="opt-a" class="option">
+                  <span class="option-letter">A</span>
+                  <div id="txt-a" class="option-content"></div>
+                </div>
+                <div id="opt-b" class="option">
+                  <span class="option-letter">B</span>
+                  <div id="txt-b" class="option-content"></div>
+                </div>
+                <div id="opt-c" class="option">
+                  <span class="option-letter">C</span>
+                  <div id="txt-c" class="option-content"></div>
+                </div>
+                <div id="opt-d" class="option">
+                  <span class="option-letter">D</span>
+                  <div id="txt-d" class="option-content"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gráfica -->
+            <div class="card">
+              <h2 class="question-title">Distribución de Respuestas</h2>
+              <div class="chart-container">
+                <canvas id="barChart"></canvas>
+              </div>
+              <div class="stats-summary">
+                <div class="stat-box"
+                  style="background: rgba(99, 102, 241, 0.1); color: var(--primary); border: 2px solid rgba(99, 102, 241, 0.2);">
+                  <span id="stat-total" class="stat-val" style="color: var(--primary);">0</span>
+                  <span class="stat-label" style="color: var(--primary);">Personas Evaluadas</span>
+                </div>
+                <div class="stat-box">
+                  <span id="stat-correctas" class="stat-val">0</span>
+                  <span class="stat-label">Aciertos</span>
+                </div>
+                <div id="stat-p-box" class="stat-box">
+                  <span id="stat-porcentaje" class="stat-val">0%</span>
+                  <span class="stat-label">% Éxito</span>
+                </div>
+              </div>
+            </div>
+          </div> <!-- Cierra dashboard-grid -->
+        </div> <!-- Cierra resultado-container -->
+
+        <!-- Reporte Individual (Contenedor) -->
+        <div id="individual-container" style="display:none; margin-top:2rem;">
+          <div class="card">
+            <h2 style="margin-bottom:1.5rem; color:var(--primary);">Reporte de Resultados por Estudiante</h2>
+            <div
+              style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:2rem;">
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Sede</label>
+                <select id="rep-sede" onchange="cargarGradosReporte()"
+                  style="width:100%; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
+                  <option value="Central">Central</option>
+                  <option value="Yanaconas">Yanaconas</option>
+                  <option value="Pisoje Bajo">Pisoje Bajo</option>
+                  <option value="Pueblillo">Pueblillo</option>
+                  <option value="Sendero">Sendero</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Grado</label>
+                <select id="rep-grado" onchange="cargarEstudiantesReporte()"
+                  style="width:100%; padding:10px; border-radius:10px; border:1px solid #e2e8f0;"></select>
+              </div>
+              <div>
+                <label
+                  style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Estudiante</label>
+                <select id="rep-estudiante" onchange="generarReporteIndividual()"
+                  style="width:100%; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
+                  <option value="">Seleccione estudiante...</option>
+                </select>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
+                <button id="btn-print-basica" onclick="imprimirTodaLaSede('basica')" class="print-btn"
+                  style="display:none; width:200px; padding:10px; background:#10b981; color:white; border:none; border-radius:10px; font-weight:700; cursor:pointer; font-size:0.75rem;">🖨️
+                  IMPRIMIR SEDE (3° a 9°)</button>
+                <button id="btn-print-superior" onclick="imprimirTodaLaSede('superior')" class="print-btn"
+                  style="display:none; width:200px; padding:10px; background:#f59e0b; color:white; border:none; border-radius:10px; font-weight:700; cursor:pointer; font-size:0.75rem;">🖨️
+                  IMPRIMIR SEDE (10° y 11°)</button>
+              </div>
+            </div>
+            <div id="reporte-content">
+              <p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un estudiante para ver su reporte
+                detallado.</p>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+
+        <!-- Estadísticas (Contenedor) -->
+        <div id="estadisticas-container" style="display:none; margin-top:2rem;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+            <div class="card">
+              <h2 class="question-title">Promedio Detallado por Grupo</h2>
+              <div class="chart-container" style="height: 350px;">
+                <canvas id="chart-grados"></canvas>
+              </div>
+            </div>
+            <div class="card">
+              <h2 class="question-title">Comparativo de Sedes por Nivel</h2>
+              <div class="chart-container" style="height: 350px;">
+                <canvas id="chart-sedes"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom: 2rem;">
+            <div
+              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--bg); padding-bottom: 0.5rem;">
+              <h2 class="question-title" style="margin: 0; border: none;">Rendimiento por Asignaturas</h2>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <label style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">DETALLE GRADO:</label>
+                <select id="est-sel-grado" onchange="actualizarGraficoAsignaturas()"
+                  style="width: auto; padding: 5px 15px;">
+                  <option value="">Cargando...</option>
+                </select>
+              </div>
+            </div>
+            <div class="chart-container" style="height: 400px;">
+              <canvas id="chart-materias"></canvas>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom: 2rem;">
+            <div
+              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--bg); padding-bottom: 0.5rem;">
+              <h2 class="question-title" style="margin: 0; border: none;">Comparativo Detallado entre Sedes (Grupos)
+              </h2>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <label style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">COMPARAR GRADO:</label>
+                <select id="comp-sel-grado" onchange="actualizarGraficoComparativoGrupos()"
+                  style="width: auto; padding: 5px 15px;">
+                  <option value="">Cargando...</option>
+                </select>
+              </div>
+            </div>
+            <div class="chart-container" style="height: 450px;">
+              <canvas id="chart-comparativo-grupos"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Informe Grupal (Contenedor) -->
+        <div id="grupal-container" style="display:none; margin-top:2rem;">
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+              <h2 style="color:var(--primary); margin:0;">Informe General por Grupo</h2>
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <label style="font-weight: 700; font-size: 0.85rem;">GRUPO:</label>
+                <select id="gru-sel-grado" onchange="generarInformeGrupal()"
+                  style="width: auto; padding: 8px 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                  <option value="">Seleccione grupo...</option>
+                </select>
+                <button onclick="imprimirInformeGrupal()" class="print-btn"
+                  style="display:none; background:#4036e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer; align-items:center; gap:8px;">
+                  🖨️ Imprimir
+                </button>
+              </div>
+            </div>
+
+            <div id="grupal-content"
+              style="overflow-x: auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0;">
+              <p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un grupo para generar el informe
+                detallado.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Informe por Asignatura (Contenedor) -->
+        <div id="asignatura-container" style="display:none; margin-top:2rem;">
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+              <h2 style="color:var(--primary); margin:0;">Análisis por Asignatura</h2>
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <label style="font-weight: 700; font-size: 0.85rem;">GRUPO:</label>
+                <select id="asig-sel-grado" onchange="generarInformeAsignatura()"
+                  style="width: auto; padding: 8px 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                  <option value="">Seleccione grupo...</option>
+                </select>
+                <label style="font-weight: 700; font-size: 0.85rem; margin-left:10px;">ASIGNATURA:</label>
+                <select id="asig-sel-materia" onchange="generarInformeAsignatura()"
+                  style="width: auto; padding: 8px 15px; border-radius: 10px; border: 1px solid #e2e8f0; font-weight:700;">
+                  <option value="">Seleccione asignatura...</option>
+                  <option value="Matemáticas">Matemáticas</option>
+                  <option value="Lenguaje">Lenguaje</option>
+                  <option value="Sociales">Sociales</option>
+                  <option value="Ciudadanas">Ciudadanas</option>
+                  <option value="Inglés">Inglés</option>
+                  <option value="Naturales">Naturales (Ciencias)</option>
+                </select>
+                <button onclick="imprimirInformeAsignatura()" class="print-btn"
+                  style="display:none; background:#4036e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">
+                  🖨️ Imprimir
+                </button>
+              </div>
+            </div>
+
+            <div id="asignatura-content"
+              style="overflow-x: auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0;">
+              <p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un grupo y una asignatura para ver
+                el detalle.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel de Administración (Modal con Cards) -->
+        <div class="admin-trigger" onclick="toggleAdmin()"
+          style="display:none; position:fixed; bottom:20px; right:20px; padding:12px 24px; background:var(--text); color:white; border-radius:50px; cursor:pointer; font-weight:700; box-shadow:0 10px 20px rgba(0,0,0,0.2); z-index:4000;">
+          ⚙️ Administrador de Datos</div>
+
+        <div class="admin-modal" id="admin-modal">
+          <div class="admin-container">
+            <div class="admin-header">
+              <h2 style="color:var(--text); font-weight:800;">🛠️ Panel Administrativo</h2>
+              <button onclick="toggleAdmin()"
+                style="background:#f1f5f9; border:none; padding:8px 15px; border-radius:12px; cursor:pointer; font-weight:800; color:#ef4444;">CERRAR</button>
+            </div>
+
+            <div class="admin-grid">
+              <!-- CARD 1: ZIPGRADE -->
+              <div class="admin-card">
+                <h5>📊 Carga de Datos ZipGrade (TSV/CSV)</h5>
+                <div
+                  style="background:#f1f5f9; padding:10px; border-radius:8px; margin-bottom:10px; font-size:0.75rem;">
+                  <p style="margin-bottom:5px; font-weight:600;">Selecciona el tipo de archivo:</p>
+                  <label style="display:flex; align-items:center; gap:5px; cursor:pointer; margin-bottom:3px;">
+                    <input type="radio" name="upload-type" value="auto" checked> 🤖 Detección Automática
+                  </label>
+                  <label style="display:flex; align-items:center; gap:5px; cursor:pointer; margin-bottom:3px;">
+                    <input type="radio" name="upload-type" value="consolidado"> 📋 Análisis Consolidado (TSV)
+                  </label>
+                  <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                    <input type="radio" name="upload-type" value="estudiantes"> 👥 Reporte Estudiantes (CSV/TSV)
+                  </label>
+                  <hr style="border:0; border-top:1px solid #e2e8f0; margin:10px 0;">
+                  <label
+                    style="display:flex; align-items:center; gap:5px; cursor:pointer; color:#ef4444; font-weight:700;">
+                    <input type="checkbox" id="auto-reset-all"> 🔥 Limpiar TODO antes de cargar
+                  </label>
+                </div>
+                <input type="file" id="csv-file" accept=".csv,.tsv" multiple
+                  style="margin-bottom:10px; font-size:0.8rem; width:100%;">
+                <div id="admin-debug"
+                  style="display:none; background:#f8fafc; padding:10px; border-radius:8px; font-size:0.7rem;">
+                  <table id="debug-table" style="width:100%; border-collapse:collapse;"></table>
+                  <button id="btn-confirm-upload" onclick="finalizarSubida()"
+                    style="width:100%; margin-top:10px; background:var(--success); color:white; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">¡SUBIR
+                    DATOS!</button>
+                </div>
+                <button onclick="previsualizarDatos()"
+                  style="background:var(--primary); color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer;">1.
+                  ANALIZAR ARCHIVO</button>
+                <div id="admin-status" style="margin-top:10px; font-size:0.75rem; color:#64748b; font-weight:bold;">
+                </div>
+              </div>
+
+              <!-- CARD 2: MAPEO -->
+              <div class="admin-card">
+                <h5>🖼️ Gestión de Imágenes</h5>
+                <div
+                  style="background:#f1f5f9; padding:10px; border-radius:8px; margin-bottom:10px; font-size:0.7rem; color:#475569;">
+                  <p style="margin:0 0 5px 0; font-weight:bold;">Nomenclatura Específica:</p>
+                  <ul style="margin:0; padding-left:15px;">
+                    <li>Preguntas: <code>[Num][CodMat][Grado].png</code> (Ej: 15M9.png)</li>
+                    <li>Opciones: <code>[Num][CodMat][Grado][Letra].png</code> (Ej: 15M9A.png)</li>
+                  </ul>
+                  <p style="margin:5px 0 0 0;"><b>Códigos Materia:</b> M(Mat), S(Soc), L(Len), N(Nat), I(Ing), C(Ciu),
+                    B(Bio), F(Fis), Q(Qui), E(Eti), P(Fil).</p>
+                </div>
+                <p style="font-size:0.8rem; color:#64748b;">Asocia imágenes a las preguntas y configura las asignaturas
+                  por número.</p>
+                <div style="display:flex; gap:5px;">
+                  <select id="aimg-grado" onchange="cargarAsignaturasAdminImg()"
+                    style="flex:1; padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
+                    <option value="">Grado...</option>
+                  </select>
+                  <select id="aimg-periodo" onchange="cargarAsignaturasAdminImg()"
+                    style="flex:1; padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
+                    <option value="1">P1</option>
+                    <option value="2">P2</option>
+                    <option value="3">Final</option>
+                  </select>
+                </div>
+                <select id="aimg-asig" onchange="cargarPreguntasAdminImg()"
+                  style="padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
+                  <option value="">Asignatura...</option>
+                </select>
+                <select id="aimg-preg" onchange="verDetallePreguntaAdmin()"
+                  style="padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
+                  <option value="">Pregunta...</option>
+                </select>
+                <div id="aimg-detalle"
+                  style="display:none; background:#f8fafc; padding:10px; border-radius:12px; border:1px solid #e2e8f0;">
+                  <div id="aimg-fields" style="display:flex; flex-direction:column; gap:8px;"></div>
+                </div>
+              </div>
+
+              <!-- CARD 3: USUARIOS -->
+              <div class="admin-card">
+                <h5>👥 Gestión de Usuarios</h5>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <input type="email" id="nu-email" placeholder="Email"
+                    style="padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
+                  <input type="text" id="nu-nombre" placeholder="Nombre"
+                    style="padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
+                  <input type="password" id="nu-pass" placeholder="Password"
+                    style="padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
+                  <select id="nu-rol"
+                    style="padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
+                    <option value="lector">Lector</option>
+                    <option value="admin">Admin</option>
+                    <option value="superadmin">Superadmin</option>
+                  </select>
+                  <input type="text" id="nu-grado" placeholder="Grado/Grupo (Ej: 1101 o primaria)"
+                    style="padding:8px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.8rem;">
+                  <button onclick="crearUsuario()"
+                    style="background:var(--primary); color:white; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">CREAR
+                    USUARIO</button>
+                </div>
+                <hr style="border:0; border-top:1px solid #e2e8f0; margin:5px 0;">
+                <p style="font-size:0.75rem; color:#64748b;">O importa masivamente:</p>
+                <input type="file" id="users-csv" accept=".csv" multiple style="font-size:0.75rem;">
+                <button onclick="importarUsuariosCSV()"
+                  style="background:#10b981; color:white; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">IMPORTAR
+                  XLS</button>
+                <div id="users-status" style="font-size:0.7rem;"></div>
+              </div>
+
+              <!-- CARD 4: SISTEMA -->
+              <div class="admin-card">
+                <h5>⚠️ Gestión de Datos y Reset</h5>
+                <p style="font-size:0.8rem; color:#64748b;">Usa esta opción para LIMPIAR TODO (Resultados, Banco de
+                  Preguntas y Notas) y empezar de cero.</p>
+                <button onclick="resetearBaseDeDatos()"
+                  style="background:#ef4444; color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; width:100%;">🔥
+                  BORRADO TOTAL (RESET)</button>
+                <p style="font-size:0.65rem; color:#94a3b8; text-align:center; margin-top:10px;">Versión 2.5 - Soporte
+                  TSV
+                  Consolidado Activo</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
   </main>
 
   <footer>
     <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
       <div style="display: flex; align-items: center; gap: 20px; justify-content: center;">
-        <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/andresanbordessinfondo.png" style="height: 42px;">
+        <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/andresanbordessinfondo.png"
+          style="height: 42px;">
         <div style="width: 1px; height: 30px; background: rgba(0,0,0,0.1);"></div>
-        <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png" style="height: 42px; opacity: 1;">
+        <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png"
+          style="height: 42px; opacity: 1;">
       </div>
-      <p class="footer-copy" style="margin: 0; color: #64748b; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.5px;">© 2026 AndréSán - Evaluándonos System</p>
+      <p class="footer-copy"
+        style="margin: 0; color: #64748b; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.5px;">© 2026 AndréSán
+        - Evaluándonos System</p>
     </div>
   </footer>
 
@@ -1428,12 +1514,12 @@
     function detectarSede(gradoStr) {
       if (!gradoStr) return 'Central';
       const clean = gradoStr.toString().trim().toUpperCase();
-      
+
       // 1. Detección por sufijo de letras (retrocompatibilidad)
       for (const [key, val] of Object.entries(SEDES_MAP)) {
         if (clean.endsWith(key)) return val;
       }
-      
+
       // 2. Detección por el último dígito del grupo (ej. 305 -> 5 -> Yanaconas)
       const match = clean.match(/\d+$/);
       if (match) {
@@ -1443,7 +1529,7 @@
         if (lastDigit === '6') return 'Sendero';
         if (lastDigit === '7') return 'Pueblillo';
       }
-      
+
       // Si termina en 1, 2, 3 o cualquier otro, es Central
       return 'Central';
     }
@@ -1472,13 +1558,13 @@
       // Solo si no es el tab de "analisis" inicial (para optimizar carga inicial) o si se desea total
       showLoading(true);
       try {
-          const [resG, resD] = await Promise.all([
-              supabaseClient.from('eval_resultados').select('grado').eq('periodo', currentPeriodo),
-              supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo)
-          ]);
-          dataPeriodoActual = resD.data || [];
-          // Cargar grados silenciosamente para los selectores
-          await cargarGrados(true); 
+        const [resG, resD] = await Promise.all([
+          supabaseClient.from('eval_resultados').select('grado').eq('periodo', currentPeriodo),
+          supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo)
+        ]);
+        dataPeriodoActual = resD.data || [];
+        // Cargar grados silenciosamente para los selectores
+        await cargarGrados(true);
       } catch (e) { console.error("Error en auto-refresco:", e); }
       showLoading(false);
 
@@ -1489,10 +1575,10 @@
 
       // Activar el tab correspondiente
       if (['individual', 'grupal', 'asignatura'].includes(tab)) {
-          if (informesParent) informesParent.classList.add('active');
+        if (informesParent) informesParent.classList.add('active');
       } else {
-          const activeBtn = $(`tab-${tab}`);
-          if (activeBtn) activeBtn.classList.add('active');
+        const activeBtn = $(`tab-${tab}`);
+        if (activeBtn) activeBtn.classList.add('active');
       }
 
       // Alternar visibilidad de los contenedores
@@ -1520,9 +1606,9 @@
 
       // Efecto de atenuación de fondo si se está viendo un reporte
       if (['individual', 'grupal', 'asignatura'].includes(tab)) {
-          document.body.classList.add('blurred-bg');
+        document.body.classList.add('blurred-bg');
       } else {
-          document.body.classList.remove('blurred-bg');
+        document.body.classList.remove('blurred-bg');
       }
 
       // Cargar/Refrescar vistas específicas
@@ -1552,18 +1638,18 @@
       if ((prefix.startsWith("10") || prefix.startsWith("11")) && prefix.length === 3) {
         prefix = prefix.substring(0, 2) + "0" + prefix.substring(2);
       }
-      
+
       const gradoBase = extraerGradoBase(prefix);
       const ultimo = prefix.slice(-1);
-      
+
       // Mapeo de Sedes a Abreviaturas
-      const mapaSedes = { "4":"PJ", "5":"YA", "6":"SE", "7":"PU" };
-      
+      const mapaSedes = { "4": "PJ", "5": "YA", "6": "SE", "7": "PU" };
+
       // Si el último dígito corresponde a una sede, le agregamos la abreviatura
       if (mapaSedes[ultimo]) {
         return gradoBase + mapaSedes[ultimo];
       }
-      
+
       // Si es de la central (1, 2, 3), retorna los 3 números completos (ej. 901, 903)
       return prefix;
     }
@@ -1621,7 +1707,7 @@
         .replace(/[\u0300-\u036f]/g, "")
         .toUpperCase()
         .trim();
-      
+
       // Búsqueda aproximada para mayor robustez
       if (normalizado.includes("COMPETENCIAS")) return ASIGNATURA_COLORES["COMPETENCIAS CIUDADANAS"];
       if (normalizado.includes("SOCIALES")) return ASIGNATURA_COLORES["CIENCIAS SOCIALES"];
@@ -1629,7 +1715,7 @@
       if (normalizado.includes("MATEMATICA")) return ASIGNATURA_COLORES["MATEMATICAS"];
       if (normalizado.includes("NATURALES")) return ASIGNATURA_COLORES["CIENCIAS NATURALES"];
       if (normalizado.includes("BIOLOGIA")) return ASIGNATURA_COLORES["BIOLOGIA"];
-      
+
       return ASIGNATURA_COLORES[normalizado] || "#94a3b8";
     }
 
@@ -1683,7 +1769,7 @@
     async function loguearExitoso(user) {
       if (!user) return;
       currentUser = user;
-      
+
       // Ocultar máscara inmediatamente
       if ($('login-mask')) $('login-mask').style.display = 'none';
       if ($('loading')) $('loading').style.display = 'none';
@@ -1720,13 +1806,13 @@
           if (individualTab) individualTab.style.display = 'block';
           if (grupalTab) grupalTab.style.display = 'block';
           if (asigTab) asigTab.style.display = 'block';
-        } 
+        }
         else if (rol === 'admin') {
           printButtons.forEach(el => el.style.display = 'inline-block');
           if (individualTab) individualTab.style.display = 'block';
           if (grupalTab) grupalTab.style.display = 'block';
           if (asigTab) asigTab.style.display = 'block';
-        } 
+        }
         else {
           if (individualTab) individualTab.style.display = 'none';
           if (assignedGrade) {
@@ -1759,18 +1845,18 @@
       document.querySelectorAll('.period-tab').forEach((t, i) => {
         t.classList.toggle('active', (i + 1) === p);
       });
-      
+
       // Reiniciar filtros de grados y dependientes
       await init();
 
       // Refrescar automáticamente la vista activa
       if ($('individual-container').style.display === 'block') {
-         if ($('rep-estudiante').value) generarReporteIndividual();
-         else cargarGradosReporte();
+        if ($('rep-estudiante').value) generarReporteIndividual();
+        else cargarGradosReporte();
       } else if ($('resultado-container').style.display === 'block') {
-         if ($('sel-grado').value && $('sel-asig').value && $('sel-pregunta').value) mostrarAnalisis();
+        if ($('sel-grado').value && $('sel-asig').value && $('sel-pregunta').value) mostrarAnalisis();
       } else if ($('estadisticas-container').style.display === 'block') {
-         cargarEstadisticas();
+        cargarEstadisticas();
       }
     }
 
@@ -1802,7 +1888,7 @@
       const cod = MATERIA_ADIVINAR[normalizar(materia)] || "X";
       const gNum = parseInt(grado) || 0;
       const anio = "2026";
-      
+
       // Determinar el nombre del examen según el periodo actual
       let examen = "E1";
       if (currentPeriodo == 2) examen = "E2";
@@ -1810,7 +1896,7 @@
 
       // Formato de archivo: [Num][Cod][Grado][Opcion].png -> Ej: 25M7A.png
       const fileName = `${num}${cod}${gNum}${opcion.toUpperCase()}.png`;
-      
+
       // Ruta: preguntas/2026/E1/25M7A.png
       const url = `${AUTO_IMG_BASE_URL}${anio}/${examen}/${fileName}`;
       console.log("🔍 Intentando cargar imagen:", url);
@@ -1827,9 +1913,9 @@
         ]);
 
         if (resResults.error || resPreguntas.error) {
-           const err = resResults.error || resPreguntas.error;
-           console.error("Error RLS/Supabase:", err);
-           alert("Error al cargar grados: " + err.message + "\n\nVerifica los permisos (RLS) en Supabase.");
+          const err = resResults.error || resPreguntas.error;
+          console.error("Error RLS/Supabase:", err);
+          alert("Error al cargar grados: " + err.message + "\n\nVerifica los permisos (RLS) en Supabase.");
         }
 
         const data1 = resResults.data || [];
@@ -1859,9 +1945,9 @@
         const { data } = await supabaseClient.from('eval_preguntas').select('asignatura').eq('grado', grado).eq('periodo', currentPeriodo);
         const unique = data ? [...new Set(data.map(d => d.asignatura))].sort() : [];
         const sel = $('sel-asig');
-        
+
         sel.innerHTML = '<option value="">Seleccione asignatura...</option>' + unique.map(a => `<option value="${a}">${a}</option>`).join('');
-        
+
         // Reset styles
         sel.style.borderColor = '#cbd5e1';
         sel.style.backgroundColor = 'white';
@@ -1892,12 +1978,12 @@
     async function onAsigChange(sel) {
       const g = $('sel-grado').value;
       const a = sel.value;
-      
+
       const card = $('card-asig');
       const colorBox = $('asig-color-box');
       const label = $('label-asig');
       const color = obtenerColorAsignatura(a);
-      
+
       if (a) {
         card.style.borderLeftColor = color;
         if (colorBox) colorBox.style.background = color;
@@ -2035,7 +2121,7 @@
 
       const str = content.toString();
       let parts = [];
-      
+
       // Soporte para formato Texto // Imagen // Texto o Texto // // Texto
       if (str.includes(" // ")) {
         parts = str.split(" // ");
@@ -2057,7 +2143,7 @@
 
       // Limpiar y Renderizar Texto Superior
       textElem.innerHTML = textBefore ? `<div style="margin-bottom:10px;">${textBefore}</div>` : "";
-      
+
       // Determinar la imagen a usar
       let finalImgUrl = "";
       let isGuess = false;
@@ -2217,7 +2303,7 @@
         } else {
           previewHtml = `<span style="color:#64748b; font-size:0.65rem;">(Sin Imagen)</span>`;
         }
-        
+
         // Sugerencia Automática GitHub
         const opcLetra = (f.key.length === 8 && f.key.startsWith('opcion_')) ? f.key.slice(-1).toUpperCase() : '';
         const sugerenciaNombre = `${num}${MATERIA_ADIVINAR[a.toUpperCase()] || 'X'}${g}${opcLetra}.png`;
@@ -2446,7 +2532,7 @@
 
                   const userId = signData?.user?.id;
                   const perData = { email, nombre, rol, grado_asignado: gradoAsig };
-                  
+
                   if (userId) {
                     const { error: pErr } = await supabaseClient.from('perfiles').upsert({ id: userId, ...perData }, { onConflict: 'id' });
                     if (pErr) throw pErr;
@@ -2491,13 +2577,13 @@
           delimiter: "",
           complete: function (results) {
             let rows = results.data;
-            
+
             // Si detecta una sola columna pero hay tabs, forzar división (corrección para archivos exportados de Excel)
             if (rows.length > 0 && rows[0].length === 1 && rows[0][0].includes('\t')) {
               console.log("Detectado formato TAB, separando columnas...");
               rows = rows.map(r => r[0].split('\t'));
             }
-            
+
             pendingFiles.push({ name: file.name, rows: rows });
 
             // Añadir fila decorativa a la tabla de preview (solo para el primer archivo o resumen)
@@ -2522,7 +2608,7 @@
     // Helper para encontrar índice de columna por múltiples posibles nombres
     function getColIdx(header, names) {
       if (!header || !names) return -1;
-      
+
       const normalize = (str) => (str || "").toString()
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar tildes
         .replace(/^\ufeff/, "") // Quitar BOM
@@ -2530,7 +2616,7 @@
 
       const h = header.map(v => normalize(v));
       console.log("Detectando columnas (normalizado):", h);
-      
+
       for (let name of names) {
         const target = normalize(name);
         const found = h.indexOf(target);
@@ -2572,20 +2658,20 @@
 
         if (manualType === 'auto') {
           const hStr = header.join(',').toLowerCase();
-          
+
           // Banco de Preguntas: Si tiene texto/enunciado, las opciones A/B/C/D o pregunta_num / # pregunta
-          isBanco = hStr.includes("texto") || hStr.includes("enunciado") || hStr.includes("question_text") || 
-                    hStr.includes("opción a") || hStr.includes("option a") || hStr.includes("pregunta_num") ||
-                    hStr.includes("# pregunta") || (hStr.includes(",a,") && hStr.includes(",b,"));
+          isBanco = hStr.includes("texto") || hStr.includes("enunciado") || hStr.includes("question_text") ||
+            hStr.includes("opción a") || hStr.includes("option a") || hStr.includes("pregunta_num") ||
+            hStr.includes("# pregunta") || (hStr.includes(",a,") && hStr.includes(",b,"));
 
           // Estudiantes: ZipGrade ID + Nombres
           isEstudiantes = (hStr.includes("zipgrade id") || hStr.includes("zipgrade_id")) &&
-                          (hStr.includes("first name") || hStr.includes("first_name") || hStr.includes("estudiante"));
+            (hStr.includes("first name") || hStr.includes("first_name") || hStr.includes("estudiante"));
 
           // Análisis de Items: Question Number + Primary Answer
-          isItemAnalysis = hStr.includes("primary_answer") || hStr.includes("question_number") || 
-                           hStr.includes("pregunta_num") || hStr.includes("discriminant");
-          
+          isItemAnalysis = hStr.includes("primary_answer") || hStr.includes("question_number") ||
+            hStr.includes("pregunta_num") || hStr.includes("discriminant");
+
           if (!isBanco && !isEstudiantes && !isItemAnalysis) {
             isItemAnalysis = true; // Fallback
           }
@@ -2595,7 +2681,7 @@
           if (manualType === 'estudiantes') isEstudiantes = true;
         }
 
-        console.log(`File: ${fileObj.name} | Type: ${isEstudiantes?'Estudiantes':isBanco?'Banco':isItemAnalysis?'Análisis':'Desconocido'}`);
+        console.log(`File: ${fileObj.name} | Type: ${isEstudiantes ? 'Estudiantes' : isBanco ? 'Banco' : isItemAnalysis ? 'Análisis' : 'Desconocido'}`);
         try {
           if (isBanco) {
             updateStatus(`🧠 Procesando Banco de Preguntas en ${fileObj.name}...`);
@@ -2645,7 +2731,7 @@
       const optBIdx = getColIdx(header, ["Opción B", "Option B", "B", "Opcion B"]);
       const optCIdx = getColIdx(header, ["Opción C", "Option C", "C", "Opcion C"]);
       const optDIdx = getColIdx(header, ["Opción D", "Option D", "D", "Opcion D"]);
-      
+
       console.log("Indices Banco:", { gIdx, qNumIdx, asigIdx, txtIdx, optAIdx, optBIdx, optCIdx, optDIdx });
 
       if (qNumIdx === -1) {
@@ -2713,7 +2799,7 @@
       const keyIdx = getColIdx(header, ["Primary_Answer", "Key"]);
       const okCountIdx = getColIdx(header, ["# Correct", "Num Correct"]);
       const porcIdx = getColIdx(header, ["% Correct", "Percent Correct"]);
-      
+
       if (qNumIdx === -1) {
         throw new Error(`No se encontró la columna de "Número de Pregunta" en el archivo de análisis. Asegúrate de que tenga un encabezado como "Question_Number", "Pregunta" o "pregunta_num".\n\nEncabezados detectados: ${header.join(' | ')}`);
       }
@@ -2972,13 +3058,13 @@
       try {
         const sede = $('rep-sede').value;
         const { data } = await supabaseClient.from('eval_estudiantes_notas').select('zipgrade_id').eq('periodo', currentPeriodo);
-        
+
         const assigned = localStorage.getItem('eval_user_grade');
         const rol = currentRole;
 
         // Obtener todos los grupos únicos
         let allGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))] : [];
-        
+
         // FILTRO POR DOCENTE
         if (rol === 'lector' && assigned) {
           if (assigned.toLowerCase() === 'primaria') {
@@ -2990,28 +3076,28 @@
             allGroups = allGroups.filter(g => g === assigned);
           }
         }
-        
+
         // Filtrar por sede seleccionada
         const uniqueGroups = allGroups.filter(g => detectarSede(g) === sede)
-          .sort((a,b) => a.localeCompare(b, undefined, {numeric: true}));
-        
+          .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
         const sel = $('rep-grado');
-        sel.innerHTML = uniqueGroups.length > 0 
+        sel.innerHTML = uniqueGroups.length > 0
           ? uniqueGroups.map(g => `<option value="${g}">${g}</option>`).join('')
           : '<option value="">Sin grupos...</option>';
-          
+
         // CONTROL DE BOTONES MASIVOS POR SEDE
         const canPrint = currentRole === 'superadmin' || currentRole === 'admin';
         const btnBasica = $('btn-print-basica');
         const btnSuperior = $('btn-print-superior');
-        
+
         if (canPrint) {
           if (btnBasica) btnBasica.style.display = 'block';
           if (btnSuperior) {
             btnSuperior.style.display = (sede === 'Central') ? 'block' : 'none';
           }
         }
-          
+
         cargarEstudiantesReporte();
       } catch (e) {
         console.error("Error cargando grupos:", e);
@@ -3037,7 +3123,7 @@
       const sel = $('rep-estudiante');
       sel.innerHTML = '<option value="">Seleccione estudiante...</option>' +
         Array.from(uniqueMap.entries())
-          .sort((a,b) => a[1].localeCompare(b[1]))
+          .sort((a, b) => a[1].localeCompare(b[1]))
           .map(([id, name]) => `<option value="${id}">${name}</option>`).join('');
     }
 
@@ -3108,7 +3194,7 @@
 
         // Renderizar gráfico comparativo después de inyectar el HTML
         if (historico && historico.length > 0) {
-            setTimeout(() => renderizarGraficoTendencia(historico), 100);
+          setTimeout(() => renderizarGraficoTendencia(historico), 100);
         }
       } catch (e) {
         console.error("Error generando reporte:", e);
@@ -3122,7 +3208,7 @@
     function construirHTMLBoletin(est, puesto, total, puestosMaterias, config, historico = []) {
 
       const curP = parseInt(est.periodo) || 1;
-      
+
       // Mapeo histórico por materia
       const histMaterias = {}; // { 'Matemáticas': { 1: 60, 2: 70 } }
       historico.forEach(h => {
@@ -3130,9 +3216,9 @@
         config.forEach(subj => {
           let ok = 0;
           for (let i = subj.start; i <= subj.end; i++) {
-             if (h.respuestas && h.respuestas[i] === 1) ok++;
+            if (h.respuestas && h.respuestas[i] === 1) ok++;
           }
-          const pct = Math.round((ok/(subj.end - subj.start + 1)) * 100);
+          const pct = Math.round((ok / (subj.end - subj.start + 1)) * 100);
           if (!histMaterias[subj.label]) histMaterias[subj.label] = {};
           histMaterias[subj.label][h.periodo] = pct;
         });
@@ -3152,18 +3238,18 @@
         let iconSubject = '📝';
         if (label.includes('MAT')) iconSubject = '🧮';
         else if (label.includes('LENG') || label.includes('LECTOR')) iconSubject = '📖';
-        else if (label.includes('CIUD')) iconSubject = '🤝'; 
-        else if (label.includes('SOC')) iconSubject = '🏛️';  
+        else if (label.includes('CIUD')) iconSubject = '🤝';
+        else if (label.includes('SOC')) iconSubject = '🏛️';
         else if (label.includes('BIO')) iconSubject = '🧬';
         else if (label.includes('QUI')) iconSubject = '🧪';
         else if (label.includes('FÍS')) iconSubject = '⚛️';
         else if (label.includes('ING')) iconSubject = '🗣️';
         else if (label.includes('NAT')) iconSubject = '🔬';
-        
-        return { 
-            name: subj.label, ok, total: totalSub, pct, val, icon: iconSubject, 
-            puesto: puestosMaterias[subj.label],
-            hist: histMaterias[subj.label] || {}
+
+        return {
+          name: subj.label, ok, total: totalSub, pct, val, icon: iconSubject,
+          puesto: puestosMaterias[subj.label],
+          hist: histMaterias[subj.label] || {}
         };
       });
 
@@ -3270,15 +3356,15 @@
                 </thead>
                 <tbody>
                    ${materias.map(m => {
-                    const trendIcon = (cur) => {
-                        const pPrev = m.hist[curP - 1];
-                        if (!pPrev) return '';
-                        if (cur > pPrev) return '<span style="color:#16a34a; font-size:0.7rem;">⬆️</span>';
-                        if (cur < pPrev) return '<span style="color:#ef4444; font-size:0.7rem;">⬇️</span>';
-                        return '<span style="color:#94a3b8; font-size:0.7rem;">➡️</span>';
-                    };
+        const trendIcon = (cur) => {
+          const pPrev = m.hist[curP - 1];
+          if (!pPrev) return '';
+          if (cur > pPrev) return '<span style="color:#16a34a; font-size:0.7rem;">⬆️</span>';
+          if (cur < pPrev) return '<span style="color:#ef4444; font-size:0.7rem;">⬇️</span>';
+          return '<span style="color:#94a3b8; font-size:0.7rem;">➡️</span>';
+        };
 
-                    return `
+        return `
                     <tr style="border-bottom:1px dashed #e2e8f0;">
                        <td style="padding:4px; font-size:1.1rem; text-align:center;">${m.icon}</td>
                        <td style="padding:4px; font-weight:800; font-size:0.8rem;">${m.name}</td>
@@ -3300,7 +3386,7 @@
                        </td>` : ''}
                     </tr>
                     `;
-                   }).join('')}
+      }).join('')}
                 </tbody>
              </table>
           </div>
@@ -3326,7 +3412,7 @@
                       <tbody>
                          ${historico.filter(h => h.periodo <= curP).map(h => `
                          <tr style="border-bottom:1px solid #f1f5f9;">
-                            <td style="padding:3px; font-weight:700; color:#1e293b;">${h.periodo === 3 ? 'E. Final (EF)' : 'E. '+h.periodo}</td>
+                            <td style="padding:3px; font-weight:700; color:#1e293b;">${h.periodo === 3 ? 'E. Final (EF)' : 'E. ' + h.periodo}</td>
                             <td style="padding:3px; text-align:center;"><span style="background:${getValoration(Math.round(h.porcentaje)).color}; color:white; padding:1px 5px; border-radius:4px; font-weight:900; font-size:0.7rem;">${Math.round(h.porcentaje)}</span></td>
                          </tr>
                          `).join('')}
@@ -3352,235 +3438,235 @@
     }
 
     function renderizarGraficoTendencia(historico) {
-        if (!historico || historico.length < 1) return;
-        const est = historico[0];
-        const ctx = document.getElementById(`chart-tendencia-${est.zipgrade_id}`);
-        if (!ctx) return;
+      if (!historico || historico.length < 1) return;
+      const est = historico[0];
+      const ctx = document.getElementById(`chart-tendencia-${est.zipgrade_id}`);
+      if (!ctx) return;
 
-        // Filtrar solo hasta el periodo actual
-        const curP = parseInt(currentPeriodo) || 1;
-        const histFiltrado = historico.filter(h => h.periodo <= curP).sort((a,b) => a.periodo - b.periodo);
-        if (histFiltrado.length < 1) return;
+      // Filtrar solo hasta el periodo actual
+      const curP = parseInt(currentPeriodo) || 1;
+      const histFiltrado = historico.filter(h => h.periodo <= curP).sort((a, b) => a.periodo - b.periodo);
+      if (histFiltrado.length < 1) return;
 
-        const labels = histFiltrado.map(h => h.periodo === 3 ? 'EF' : 'E' + h.periodo);
-        const data = histFiltrado.map(h => Math.round(h.porcentaje));
-        const colors = histFiltrado.map(h => getValoration(Math.round(h.porcentaje)).color);
+      const labels = histFiltrado.map(h => h.periodo === 3 ? 'EF' : 'E' + h.periodo);
+      const data = histFiltrado.map(h => Math.round(h.porcentaje));
+      const colors = histFiltrado.map(h => getValoration(Math.round(h.porcentaje)).color);
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Promedio',
-                    data: data,
-                    borderColor: '#4f46e5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    pointBackgroundColor: colors,
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
-                    borderWidth: 3,
-                    tension: 0.3,
-                    fill: true
-                }]
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Promedio',
+            data: data,
+            borderColor: '#4f46e5',
+            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+            pointBackgroundColor: colors,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            borderWidth: 3,
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              align: 'top',
+              offset: 4,
+              color: '#1e293b',
+              font: { weight: 'bold', size: 10 },
+              formatter: (v) => v
+            }
+          },
+          scales: {
+            y: {
+              display: false,
+              min: 0,
+              max: 110
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                plugins: {
-                    legend: { display: false },
-                    datalabels: {
-                        align: 'top',
-                        offset: 4,
-                        color: '#1e293b',
-                        font: { weight: 'bold', size: 10 },
-                        formatter: (v) => v
-                    }
-                },
-                scales: {
-                    y: { 
-                        display: false, 
-                        min: 0, 
-                        max: 110
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { font: { weight: 'bold', size: 10 } }
-                    }
-                }
-            },
-            plugins: [ChartDataLabels]
-        });
+            x: {
+              grid: { display: false },
+              ticks: { font: { weight: 'bold', size: 10 } }
+            }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
     }
 
     async function cargarGruposInformeGrupal() {
-        showLoading(true);
-        try {
-            const { data } = await supabaseClient.from('eval_estudiantes_notas').select('zipgrade_id').eq('periodo', currentPeriodo);
-            const assigned = localStorage.getItem('eval_user_grade');
-            const rol = currentRole;
+      showLoading(true);
+      try {
+        const { data } = await supabaseClient.from('eval_estudiantes_notas').select('zipgrade_id').eq('periodo', currentPeriodo);
+        const assigned = localStorage.getItem('eval_user_grade');
+        const rol = currentRole;
 
-            let uniqueGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))] : [];
-            
-            if (rol === 'lector' && assigned) {
-                if (assigned.toLowerCase() === 'primaria') {
-                    uniqueGroups = uniqueGroups.filter(g => {
-                        const base = extraerGradoBase(g);
-                        return base >= 1 && base <= 5;
-                    });
-                } else {
-                    uniqueGroups = uniqueGroups.filter(g => g === assigned);
-                }
-            }
-            uniqueGroups.sort((a,b) => a.localeCompare(b, undefined, {numeric: true}));
-            
-            const sel = $('gru-sel-grado');
-            sel.innerHTML = '<option value="">Seleccione grupo...</option>' + uniqueGroups.map(g => `<option value="${g}">${g}</option>`).join('');
-        } catch (e) {
-            console.error("Error cargando grupos grupal:", e);
+        let uniqueGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))] : [];
+
+        if (rol === 'lector' && assigned) {
+          if (assigned.toLowerCase() === 'primaria') {
+            uniqueGroups = uniqueGroups.filter(g => {
+              const base = extraerGradoBase(g);
+              return base >= 1 && base <= 5;
+            });
+          } else {
+            uniqueGroups = uniqueGroups.filter(g => g === assigned);
+          }
         }
-        showLoading(false);
+        uniqueGroups.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+        const sel = $('gru-sel-grado');
+        sel.innerHTML = '<option value="">Seleccione grupo...</option>' + uniqueGroups.map(g => `<option value="${g}">${g}</option>`).join('');
+      } catch (e) {
+        console.error("Error cargando grupos grupal:", e);
+      }
+      showLoading(false);
     }
 
     async function generarInformeGrupal() {
-        const grupo = $('gru-sel-grado').value;
-        if (!grupo) return;
+      const grupo = $('gru-sel-grado').value;
+      if (!grupo) return;
 
-        showLoading(true);
-        try {
-            const { data: todosData, error } = await supabaseClient.from('eval_estudiantes_notas')
-                .select('*')
-                .eq('periodo', currentPeriodo);
+      showLoading(true);
+      try {
+        const { data: todosData, error } = await supabaseClient.from('eval_estudiantes_notas')
+          .select('*')
+          .eq('periodo', currentPeriodo);
 
-            if (error) throw error;
+        if (error) throw error;
 
-            const alumnosGrupo = todosData.filter(t => extraerGrupo(t.zipgrade_id) === grupo)
-                .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre));
+        const alumnosGrupo = todosData.filter(t => extraerGrupo(t.zipgrade_id) === grupo)
+          .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre));
 
-            if (alumnosGrupo.length === 0) {
-                $('grupal-content').innerHTML = '<p style="text-align:center; padding:2rem;">No hay datos para este grupo.</p>';
-                showLoading(false);
-                return;
-            }
+        if (alumnosGrupo.length === 0) {
+          $('grupal-content').innerHTML = '<p style="text-align:center; padding:2rem;">No hay datos para este grupo.</p>';
+          showLoading(false);
+          return;
+        }
 
-            const gNum = extraerGradoBase(grupo);
-            let mKey = '6-9';
-            if (gNum <= 4) mKey = '3-4';
-            else if (gNum === 5) mKey = '5';
-            else if (gNum >= 10) mKey = '10-11';
-            const config = MATRIZ_RANGOS[mKey];
+        const gNum = extraerGradoBase(grupo);
+        let mKey = '6-9';
+        if (gNum <= 4) mKey = '3-4';
+        else if (gNum === 5) mKey = '5';
+        else if (gNum >= 10) mKey = '10-11';
+        const config = MATRIZ_RANGOS[mKey];
 
-            let html = `
+        let html = `
                 <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
                     <thead>
                         <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
                             <th style="padding:10px 8px; text-align:left; position:sticky; left:0; background:#f8fafc; z-index:10; min-width:180px;">ESTUDIANTE</th>
                             ${config.map(s => {
-                                const abrev = {
-                                    'Matemáticas': 'Mat', 'Competencias Ciudadanas': 'Ciu', 'Ciudadanas': 'Ciu',
-                                    'Ciencias Sociales': 'Soc', 'Sociales': 'Soc', 'Lenguaje': 'Len',
-                                    'Biología': 'Bio', 'Física': 'Fis', 'Química': 'Qui', 'Inglés': 'Ing',
-                                    'Ciencias Naturales': 'Nat', 'Lectura Crítica': 'Lect', 'Filosofía': 'Fil',
-                                    'Ética': 'Ét', 'Educación Física': 'EdF', 'Religión': 'Rel',
-                                    'Tecnología': 'Tec', 'Artística': 'Art'
-                                };
-                                let label = abrev[s.label] || s.label;
-                                return `<th class="subject-col-base" style="padding:10px 4px; text-align:center; min-width:45px; font-size:0.75rem;">${label}</th>`;
-                            }).join('')}
+          const abrev = {
+            'Matemáticas': 'Mat', 'Competencias Ciudadanas': 'Ciu', 'Ciudadanas': 'Ciu',
+            'Ciencias Sociales': 'Soc', 'Sociales': 'Soc', 'Lenguaje': 'Len',
+            'Biología': 'Bio', 'Física': 'Fis', 'Química': 'Qui', 'Inglés': 'Ing',
+            'Ciencias Naturales': 'Nat', 'Lectura Crítica': 'Lect', 'Filosofía': 'Fil',
+            'Ética': 'Ét', 'Educación Física': 'EdF', 'Religión': 'Rel',
+            'Tecnología': 'Tec', 'Artística': 'Art'
+          };
+          let label = abrev[s.label] || s.label;
+          return `<th class="subject-col-base" style="padding:10px 4px; text-align:center; min-width:45px; font-size:0.75rem;">${label}</th>`;
+        }).join('')}
                             <th class="promedio-col-base" style="padding:10px 8px; text-align:center; font-weight:800; background:#f0f9ff; min-width:50px;">PROM.</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
 
-            alumnosGrupo.forEach(est => {
-                let sumaPct = 0;
-                html += `
+        alumnosGrupo.forEach(est => {
+          let sumaPct = 0;
+          html += `
                     <tr style="border-bottom:1px solid #f1f5f9;">
                         <td class="estudiante-col-base" style="padding:10px 12px; font-weight:700; position:sticky; left:0; background:white; border-right:1px solid #f1f5f9; white-space:nowrap;">${est.estudiante_nombre}</td>
                 `;
 
-                config.forEach(subj => {
-                    let ok = 0, totalSub = 0;
-                    for (let i = subj.start; i <= subj.end; i++) {
-                        totalSub++;
-                        if (est.respuestas && est.respuestas[i] === 1) ok++;
-                    }
-                    const pct = Math.round((ok / totalSub) * 100);
-                    sumaPct += pct;
-                    const val = getValoration(pct);
-                    html += `<td class="subject-col-base" style="padding:4px; text-align:center;">
+          config.forEach(subj => {
+            let ok = 0, totalSub = 0;
+            for (let i = subj.start; i <= subj.end; i++) {
+              totalSub++;
+              if (est.respuestas && est.respuestas[i] === 1) ok++;
+            }
+            const pct = Math.round((ok / totalSub) * 100);
+            sumaPct += pct;
+            const val = getValoration(pct);
+            html += `<td class="subject-col-base" style="padding:4px; text-align:center;">
                         <div class="val-box" style="background:${val.color}; color:${val.color === '#facc15' ? '#1e293b' : 'white'};">
                             ${val.initial}
                         </div>
                     </td>`;
-                });
+          });
 
-                const prom = Math.round(sumaPct / config.length);
-                const valGen = getValoration(prom);
-                html += `
+          const prom = Math.round(sumaPct / config.length);
+          const valGen = getValoration(prom);
+          html += `
                     <td style="padding:8px; text-align:center; background:#f0f9ff; font-weight:900; color:${valGen.color};">
                         ${prom}
                     </td>
                 </tr>`;
-            });
+        });
 
-            // Fila de Promedios del Grupo
-            html += `
+        // Fila de Promedios del Grupo
+        html += `
                 <tr style="background:#f8fafc; font-weight:800; border-top:2px solid #e2e8f0;">
                     <td style="padding:12px; position:sticky; left:0; background:#f8fafc;">PROMEDIO GRUPAL</td>
             `;
 
-            let totalGrupo = 0;
-            config.forEach(subj => {
-                let sumaPctSub = 0;
-                alumnosGrupo.forEach(est => {
-                    let ok = 0, totalSub = 0;
-                    for (let i = subj.start; i <= subj.end; i++) {
-                        totalSub++;
-                        if (est.respuestas && est.respuestas[i] === 1) ok++;
-                    }
-                    sumaPctSub += Math.round((ok / totalSub) * 100);
-                });
-                const promSub = Math.round(sumaPctSub / alumnosGrupo.length);
-                totalGrupo += promSub;
-                html += `<td class="subject-col-base" style="padding:12px; text-align:center; color:#1e293b;">${promSub}</td>`;
-            });
+        let totalGrupo = 0;
+        config.forEach(subj => {
+          let sumaPctSub = 0;
+          alumnosGrupo.forEach(est => {
+            let ok = 0, totalSub = 0;
+            for (let i = subj.start; i <= subj.end; i++) {
+              totalSub++;
+              if (est.respuestas && est.respuestas[i] === 1) ok++;
+            }
+            sumaPctSub += Math.round((ok / totalSub) * 100);
+          });
+          const promSub = Math.round(sumaPctSub / alumnosGrupo.length);
+          totalGrupo += promSub;
+          html += `<td class="subject-col-base" style="padding:12px; text-align:center; color:#1e293b;">${promSub}</td>`;
+        });
 
-            html += `
+        html += `
                     <td class="promedio-col-base" style="padding:12px; text-align:center; background:#e0f2fe; color:#0369a1; font-size:1.1rem;">${Math.round(totalGrupo / config.length)}</td>
                 </tr>
                 </tbody></table>
             `;
 
-            $('grupal-content').innerHTML = html;
+        $('grupal-content').innerHTML = html;
 
-        } catch (e) {
-            console.error("Error generando informe grupal:", e);
-            alert("Error: " + e.message);
-        }
-        showLoading(false);
+      } catch (e) {
+        console.error("Error generando informe grupal:", e);
+        alert("Error: " + e.message);
+      }
+      showLoading(false);
     }
 
     async function imprimirInformeGrupal() {
-        const grupo = $('gru-sel-grado').value;
-        const content = $('grupal-content').innerHTML;
-        if (!grupo || !content || content.includes('Seleccione')) return;
+      const grupo = $('gru-sel-grado').value;
+      const content = $('grupal-content').innerHTML;
+      if (!grupo || !content || content.includes('Seleccione')) return;
 
-        showLoading(true);
-        let directorNombre = "Por asignar";
-        try {
-            const { data: directorData } = await supabaseClient.from('perfiles').select('nombre').eq('grado_asignado', grupo).maybeSingle();
-            if (directorData) directorNombre = directorData.nombre;
-        } catch(e) { console.error(e); }
+      showLoading(true);
+      let directorNombre = "Por asignar";
+      try {
+        const { data: directorData } = await supabaseClient.from('perfiles').select('nombre').eq('grado_asignado', grupo).maybeSingle();
+        if (directorData) directorNombre = directorData.nombre;
+      } catch (e) { console.error(e); }
 
-        const logoEvaluandonos = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png";
-        const logoLiceo = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png";
+      const logoEvaluandonos = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png";
+      const logoLiceo = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png";
 
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(`
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
             <html>
                 <head>
                     <title>Informe Grupal - ${grupo}</title>
@@ -3623,89 +3709,89 @@
                         </div>
                     </div>
                     ${content.replace(/position:sticky; left:0; background:#f8fafc; z-index:10;/g, '')
-                             .replace(/class="estudiante-col-base"/g, 'class="estudiante-col"')
-                             .replace(/class="subject-col-base"/g, 'class="subject-col"')
-                             .replace(/class="promedio-col-base"/g, 'class="subject-col"')
-                             .replace(/background:#f0f9ff;/g, '')
-                             .replace(/background:#e0f2fe;/g, '')
-                             .replace(/font-weight:900;/g, 'font-weight:800;')}
+          .replace(/class="estudiante-col-base"/g, 'class="estudiante-col"')
+          .replace(/class="subject-col-base"/g, 'class="subject-col"')
+          .replace(/class="promedio-col-base"/g, 'class="subject-col"')
+          .replace(/background:#f0f9ff;/g, '')
+          .replace(/background:#e0f2fe;/g, '')
+          .replace(/font-weight:900;/g, 'font-weight:800;')}
                 </body>
             </html>
         `);
-        printWindow.document.close();
-        showLoading(false);
-        setTimeout(() => printWindow.print(), 500);
+      printWindow.document.close();
+      showLoading(false);
+      setTimeout(() => printWindow.print(), 500);
     }
 
     async function cargarGruposInformeAsignatura() {
-        showLoading(true);
-        try {
-            const { data } = await supabaseClient.from('eval_estudiantes_notas').select('zipgrade_id').eq('periodo', currentPeriodo);
-            const assigned = localStorage.getItem('eval_user_grade');
-            const rol = currentRole;
+      showLoading(true);
+      try {
+        const { data } = await supabaseClient.from('eval_estudiantes_notas').select('zipgrade_id').eq('periodo', currentPeriodo);
+        const assigned = localStorage.getItem('eval_user_grade');
+        const rol = currentRole;
 
-            let uniqueGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))] : [];
-            if (rol === 'lector' && assigned) {
-                if (assigned.toLowerCase() === 'primaria') {
-                    uniqueGroups = uniqueGroups.filter(g => {
-                        const base = extraerGradoBase(g);
-                        return base >= 1 && base <= 5;
-                    });
-                } else {
-                    uniqueGroups = uniqueGroups.filter(g => g === assigned);
-                }
-            }
-            uniqueGroups.sort((a,b) => a.localeCompare(b, undefined, {numeric: true}));
-            const sel = $('asig-sel-grado');
-            sel.innerHTML = '<option value="">Seleccione grupo...</option>' + uniqueGroups.map(g => `<option value="${g}">${g}</option>`).join('');
-        } catch (e) { console.error(e); }
-        showLoading(false);
+        let uniqueGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))] : [];
+        if (rol === 'lector' && assigned) {
+          if (assigned.toLowerCase() === 'primaria') {
+            uniqueGroups = uniqueGroups.filter(g => {
+              const base = extraerGradoBase(g);
+              return base >= 1 && base <= 5;
+            });
+          } else {
+            uniqueGroups = uniqueGroups.filter(g => g === assigned);
+          }
+        }
+        uniqueGroups.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+        const sel = $('asig-sel-grado');
+        sel.innerHTML = '<option value="">Seleccione grupo...</option>' + uniqueGroups.map(g => `<option value="${g}">${g}</option>`).join('');
+      } catch (e) { console.error(e); }
+      showLoading(false);
     }
 
     async function generarInformeAsignatura() {
-        const grupo = $('asig-sel-grado').value;
-        const materiaFiltro = $('asig-sel-materia').value; 
-        if (!grupo || !materiaFiltro) {
-            $('asignatura-content').innerHTML = '<p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un grupo y una asignatura para ver el detalle.</p>';
-            return;
+      const grupo = $('asig-sel-grado').value;
+      const materiaFiltro = $('asig-sel-materia').value;
+      if (!grupo || !materiaFiltro) {
+        $('asignatura-content').innerHTML = '<p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un grupo y una asignatura para ver el detalle.</p>';
+        return;
+      }
+
+      showLoading(true);
+      try {
+        const { data: todosData, error } = await supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo);
+        if (error) throw error;
+
+        const alumnosGrupo = todosData.filter(t => extraerGrupo(t.zipgrade_id) === grupo)
+          .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre));
+
+        if (alumnosGrupo.length === 0) {
+          $('asignatura-content').innerHTML = '<p style="text-align:center; padding:2rem;">No hay datos.</p>';
+          showLoading(false); return;
         }
 
-        showLoading(true);
-        try {
-            const { data: todosData, error } = await supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo);
-            if (error) throw error;
+        const gNum = extraerGradoBase(grupo);
+        let mKey = '6-9';
+        if (gNum <= 4) mKey = '3-4'; else if (gNum === 5) mKey = '5'; else if (gNum >= 10) mKey = '10-11';
+        const configFull = MATRIZ_RANGOS[mKey];
 
-            const alumnosGrupo = todosData.filter(t => extraerGrupo(t.zipgrade_id) === grupo)
-                .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre));
+        // Mapeo de materias seleccionadas
+        let config = [];
+        if (materiaFiltro === 'Naturales') {
+          if (gNum >= 10) {
+            config = configFull.filter(c => ['Biología', 'Física', 'Química'].includes(c.label));
+          } else {
+            config = configFull.filter(c => c.label.includes('Naturales'));
+          }
+        } else {
+          config = configFull.filter(c => c.label.includes(materiaFiltro));
+        }
 
-            if (alumnosGrupo.length === 0) {
-                $('asignatura-content').innerHTML = '<p style="text-align:center; padding:2rem;">No hay datos.</p>';
-                showLoading(false); return;
-            }
+        if (config.length === 0) {
+          $('asignatura-content').innerHTML = `<p style="text-align:center; padding:2rem;">La asignatura "${materiaFiltro}" no está definida para este grado.</p>`;
+          showLoading(false); return;
+        }
 
-            const gNum = extraerGradoBase(grupo);
-            let mKey = '6-9';
-            if (gNum <= 4) mKey = '3-4'; else if (gNum === 5) mKey = '5'; else if (gNum >= 10) mKey = '10-11';
-            const configFull = MATRIZ_RANGOS[mKey];
-
-            // Mapeo de materias seleccionadas
-            let config = [];
-            if (materiaFiltro === 'Naturales') {
-                if (gNum >= 10) {
-                    config = configFull.filter(c => ['Biología', 'Física', 'Química'].includes(c.label));
-                } else {
-                    config = configFull.filter(c => c.label.includes('Naturales'));
-                }
-            } else {
-                config = configFull.filter(c => c.label.includes(materiaFiltro));
-            }
-
-            if (config.length === 0) {
-                $('asignatura-content').innerHTML = `<p style="text-align:center; padding:2rem;">La asignatura "${materiaFiltro}" no está definida para este grado.</p>`;
-                showLoading(false); return;
-            }
-
-            let html = `
+        let html = `
                 <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
                     <thead>
                         <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
@@ -3717,71 +3803,71 @@
                     <tbody>
             `;
 
-            alumnosGrupo.forEach(est => {
-                let sumaPct = 0;
-                html += `<tr style="border-bottom:1px solid #f1f5f9;">
+        alumnosGrupo.forEach(est => {
+          let sumaPct = 0;
+          html += `<tr style="border-bottom:1px solid #f1f5f9;">
                     <td class="estudiante-col-base" style="padding:10px 12px; font-weight:700; position:sticky; left:0; background:white; white-space:nowrap;">${est.estudiante_nombre}</td>`;
-                
-                config.forEach(subj => {
-                    let ok = 0, totalSub = 0;
-                    for (let i = subj.start; i <= subj.end; i++) {
-                        totalSub++;
-                        if (est.respuestas && est.respuestas[i] === 1) ok++;
-                    }
-                    const pct = Math.round((ok/totalSub)*100);
-                    sumaPct += pct;
-                    const val = getValoration(pct);
-                    html += `<td class="subject-col-base" style="padding:8px; text-align:center;">
+
+          config.forEach(subj => {
+            let ok = 0, totalSub = 0;
+            for (let i = subj.start; i <= subj.end; i++) {
+              totalSub++;
+              if (est.respuestas && est.respuestas[i] === 1) ok++;
+            }
+            const pct = Math.round((ok / totalSub) * 100);
+            sumaPct += pct;
+            const val = getValoration(pct);
+            html += `<td class="subject-col-base" style="padding:8px; text-align:center;">
                         <div class="val-box" style="background:${val.color}; color:${val.color === '#facc15' ? '#1e293b' : 'white'};">${val.initial}</div>
                     </td>`;
-                });
+          });
 
-                const prom = Math.round(sumaPct / config.length);
-                const valGen = getValoration(prom);
-                html += `<td class="promedio-col-base" style="padding:8px; text-align:center; background:#f0f9ff; font-weight:900; color:${valGen.color};">${prom}</td></tr>`;
-            });
+          const prom = Math.round(sumaPct / config.length);
+          const valGen = getValoration(prom);
+          html += `<td class="promedio-col-base" style="padding:8px; text-align:center; background:#f0f9ff; font-weight:900; color:${valGen.color};">${prom}</td></tr>`;
+        });
 
-            // Resumen Grupal
-            html += `<tr style="background:#f8fafc; font-weight:800; border-top:2px solid #e2e8f0;">
+        // Resumen Grupal
+        html += `<tr style="background:#f8fafc; font-weight:800; border-top:2px solid #e2e8f0;">
                 <td class="estudiante-col-base" style="padding:12px; position:sticky; left:0; background:#f8fafc;">PROMEDIO GRUPAL</td>`;
-            let totalGeneral = 0;
-            config.forEach(subj => {
-                let sumaSub = 0;
-                alumnosGrupo.forEach(est => {
-                   let ok = 0, totalSub = 0;
-                   for (let i = subj.start; i <= subj.end; i++) { totalSub++; if (est.respuestas && est.respuestas[i] === 1) ok++; }
-                   sumaSub += Math.round((ok/totalSub)*100);
-                });
-                const promSub = Math.round(sumaSub / alumnosGrupo.length);
-                totalGeneral += promSub;
-                html += `<td class="subject-col-base" style="padding:12px; text-align:center;">${promSub}</td>`;
-            });
-            html += `<td class="promedio-col-base" style="padding:12px; text-align:center; background:#e0f2fe; color:#0369a1; font-size:1.1rem;">${Math.round(totalGeneral/config.length)}</td></tr>
+        let totalGeneral = 0;
+        config.forEach(subj => {
+          let sumaSub = 0;
+          alumnosGrupo.forEach(est => {
+            let ok = 0, totalSub = 0;
+            for (let i = subj.start; i <= subj.end; i++) { totalSub++; if (est.respuestas && est.respuestas[i] === 1) ok++; }
+            sumaSub += Math.round((ok / totalSub) * 100);
+          });
+          const promSub = Math.round(sumaSub / alumnosGrupo.length);
+          totalGeneral += promSub;
+          html += `<td class="subject-col-base" style="padding:12px; text-align:center;">${promSub}</td>`;
+        });
+        html += `<td class="promedio-col-base" style="padding:12px; text-align:center; background:#e0f2fe; color:#0369a1; font-size:1.1rem;">${Math.round(totalGeneral / config.length)}</td></tr>
                 </tbody></table>`;
 
-            $('asignatura-content').innerHTML = html;
-        } catch (e) { console.error(e); }
-        showLoading(false);
+        $('asignatura-content').innerHTML = html;
+      } catch (e) { console.error(e); }
+      showLoading(false);
     }
 
     async function imprimirInformeAsignatura() {
-        const grupo = $('asig-sel-grado').value;
-        const materia = $('asig-sel-materia').value;
-        const content = $('asignatura-content').innerHTML;
-        if (!grupo || !content || content.includes('Seleccione')) return;
+      const grupo = $('asig-sel-grado').value;
+      const materia = $('asig-sel-materia').value;
+      const content = $('asignatura-content').innerHTML;
+      if (!grupo || !content || content.includes('Seleccione')) return;
 
-        showLoading(true);
-        let directorNombre = "Por asignar";
-        try {
-            const { data: directorData } = await supabaseClient.from('perfiles').select('nombre').eq('grado_asignado', grupo).maybeSingle();
-            if (directorData) directorNombre = directorData.nombre;
-        } catch(e) { console.error(e); }
+      showLoading(true);
+      let directorNombre = "Por asignar";
+      try {
+        const { data: directorData } = await supabaseClient.from('perfiles').select('nombre').eq('grado_asignado', grupo).maybeSingle();
+        if (directorData) directorNombre = directorData.nombre;
+      } catch (e) { console.error(e); }
 
-        const logoEvaluandonos = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png";
-        const logoLiceo = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png";
+      const logoEvaluandonos = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png";
+      const logoLiceo = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png";
 
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(`
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
             <html>
                 <head>
                     <title>Análisis Asignatura - ${materia} - ${grupo}</title>
@@ -3828,18 +3914,18 @@
                         </div>
                     </div>
                     ${content.replace(/position:sticky; left:0; background:#f8fafc; z-index:10;/g, '')
-                             .replace(/class="estudiante-col-base"/g, 'class="estudiante-col"')
-                             .replace(/class="subject-col-base"/g, 'class="subject-col"')
-                             .replace(/class="promedio-col-base"/g, 'class="subject-col"')
-                             .replace(/background:#f0f9ff;/g, '')
-                             .replace(/background:#e0f2fe;/g, '')
-                             .replace(/font-weight:900;/g, 'font-weight:800;')}
+          .replace(/class="estudiante-col-base"/g, 'class="estudiante-col"')
+          .replace(/class="subject-col-base"/g, 'class="subject-col"')
+          .replace(/class="promedio-col-base"/g, 'class="subject-col"')
+          .replace(/background:#f0f9ff;/g, '')
+          .replace(/background:#e0f2fe;/g, '')
+          .replace(/font-weight:900;/g, 'font-weight:800;')}
                 </body>
             </html>
         `);
-        printWindow.document.close();
-        showLoading(false);
-        setTimeout(() => printWindow.print(), 500);
+      printWindow.document.close();
+      showLoading(false);
+      setTimeout(() => printWindow.print(), 500);
     }
 
     async function imprimirTodoElGrado() {
@@ -3872,7 +3958,7 @@
       const config = MATRIZ_RANGOS[mKey];
 
       const printWindow = window.open('', '_blank');
-      
+
       // Construir el mapeo de históricos para acceso rápido
       const historicosMap = {};
       alumnosActuales.forEach(a => {
@@ -3888,10 +3974,10 @@
             let ok = 0;
             for (let q = subj.start; q <= subj.end; q++) { if (student.respuestas && student.respuestas[q] === 1) ok++; }
             return { id: student.zipgrade_id, ok };
-          }).sort((a,b) => b.ok - a.ok);
+          }).sort((a, b) => b.ok - a.ok);
           puestosMaterias[subj.label] = rankings.findIndex(r => r.id === est.zipgrade_id) + 1;
         });
-        
+
         const html = construirHTMLBoletin(est, idx + 1, alumnosActuales.length, puestosMaterias, config, historicosMap[est.zipgrade_id]);
         const materiasContadas = config.length;
         const forzarSuperior = materiasContadas > 6;
@@ -3994,7 +4080,7 @@
     async function imprimirTodaLaSede(rango) {
       const sede = $('rep-sede').value;
       if (!sede) return alert("Por favor selecciona una sede.");
-      
+
       const desc = rango === 'basica' ? '3° a 9°' : '10° y 11°';
       if (!confirm(`¿Deseas generar los reportes de la sede "${sede}" para los grados ${desc}?`)) return;
 
@@ -4008,12 +4094,12 @@
 
         // 1. Filtrar estudiantes de la sede y rango seleccionado
         const alumnosSede = todosData.filter(t => {
-            if (t.periodo !== parseInt(currentPeriodo)) return false;
-            if (detectarSede(extraerGrupo(t.zipgrade_id)) !== sede) return false;
-            const g = extraerGradoBase(extraerGrupo(t.zipgrade_id));
-            if (rango === 'basica') return g >= 3 && g <= 9;
-            if (rango === 'superior') return g >= 10;
-            return true;
+          if (t.periodo !== parseInt(currentPeriodo)) return false;
+          if (detectarSede(extraerGrupo(t.zipgrade_id)) !== sede) return false;
+          const g = extraerGradoBase(extraerGrupo(t.zipgrade_id));
+          if (rango === 'basica') return g >= 3 && g <= 9;
+          if (rango === 'superior') return g >= 10;
+          return true;
         });
 
         if (alumnosSede.length === 0) {
@@ -4024,47 +4110,47 @@
         // 2. Agrupar por grupo para calcular puestos
         const gruposMap = {};
         alumnosSede.forEach(a => {
-            const g = extraerGrupo(a.zipgrade_id);
-            if (!gruposMap[g]) gruposMap[g] = [];
-            gruposMap[g].push(a);
+          const g = extraerGrupo(a.zipgrade_id);
+          if (!gruposMap[g]) gruposMap[g] = [];
+          gruposMap[g].push(a);
         });
 
         const historicosMap = {};
         const reportesHtml = [];
-        const gruposOrdenados = Object.keys(gruposMap).sort((a,b) => a.localeCompare(b, undefined, {numeric: true}));
+        const gruposOrdenados = Object.keys(gruposMap).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
         for (const grupo of gruposOrdenados) {
-            const alumnosGrupo = gruposMap[grupo];
-            const gNum = extraerGradoBase(grupo);
-            let mKey = '6-9';
-            if (gNum <= 4) mKey = '3-4';
-            else if (gNum === 5) mKey = '5';
-            else if (gNum >= 10) mKey = '10-11';
-            const config = MATRIZ_RANGOS[mKey];
-            const isSuperior = gNum >= 10;
+          const alumnosGrupo = gruposMap[grupo];
+          const gNum = extraerGradoBase(grupo);
+          let mKey = '6-9';
+          if (gNum <= 4) mKey = '3-4';
+          else if (gNum === 5) mKey = '5';
+          else if (gNum >= 10) mKey = '10-11';
+          const config = MATRIZ_RANGOS[mKey];
+          const isSuperior = gNum >= 10;
 
-            const rankingsGrupo = alumnosGrupo.sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
+          const rankingsGrupo = alumnosGrupo.sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
 
-            rankingsGrupo.forEach((est, idxRank) => {
-                const zId = est.zipgrade_id.toString();
-                const isSuperior = zId.startsWith("10") || zId.startsWith("11");
-                const puestosMaterias = {};
-                config.forEach(subj => {
-                    const subjRank = alumnosGrupo.map(student => {
-                        let ok = 0;
-                        for (let q = subj.start; q <= subj.end; q++) { if (student.respuestas && student.respuestas[q] === 1) ok++; }
-                        return { id: student.zipgrade_id, ok };
-                    }).sort((a,b) => b.ok - a.ok);
-                    puestosMaterias[subj.label] = subjRank.findIndex(r => r.id === est.zipgrade_id) + 1;
-                });
-
-                historicosMap[est.zipgrade_id] = todosData.filter(t => t.zipgrade_id === est.zipgrade_id);
-                const html = construirHTMLBoletin(est, idxRank + 1, alumnosGrupo.length, puestosMaterias, config, historicosMap[est.zipgrade_id]);
-                const materiasContadas = config.length;
-                const forzarSuperior = materiasContadas > 6;
-                
-                reportesHtml.push(`<div class="individual-report-wrapper ${forzarSuperior ? 'compact-superior' : ''}">${html}</div>`);
+          rankingsGrupo.forEach((est, idxRank) => {
+            const zId = est.zipgrade_id.toString();
+            const isSuperior = zId.startsWith("10") || zId.startsWith("11");
+            const puestosMaterias = {};
+            config.forEach(subj => {
+              const subjRank = alumnosGrupo.map(student => {
+                let ok = 0;
+                for (let q = subj.start; q <= subj.end; q++) { if (student.respuestas && student.respuestas[q] === 1) ok++; }
+                return { id: student.zipgrade_id, ok };
+              }).sort((a, b) => b.ok - a.ok);
+              puestosMaterias[subj.label] = subjRank.findIndex(r => r.id === est.zipgrade_id) + 1;
             });
+
+            historicosMap[est.zipgrade_id] = todosData.filter(t => t.zipgrade_id === est.zipgrade_id);
+            const html = construirHTMLBoletin(est, idxRank + 1, alumnosGrupo.length, puestosMaterias, config, historicosMap[est.zipgrade_id]);
+            const materiasContadas = config.length;
+            const forzarSuperior = materiasContadas > 6;
+
+            reportesHtml.push(`<div class="individual-report-wrapper ${forzarSuperior ? 'compact-superior' : ''}">${html}</div>`);
+          });
         }
 
         const printWindow = window.open('', '_blank');
@@ -4169,27 +4255,27 @@
 
         // 1. Población de los selectores de grupos para estadísticas
         const gruposUnicos = [...new Set(dataPeriodoActual.map(d => extraerGrupo(d.zipgrade_id)))]
-          .sort((a,b) => a.localeCompare(b, undefined, {numeric: true}));
-        
+          .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
         const gradosUnicos = [...new Set(dataPeriodoActual.map(d => d.grado))]
-          .sort((a,b) => a - b);
-        
+          .sort((a, b) => a - b);
+
         const selM = $('est-sel-grado');
         selM.innerHTML = gruposUnicos.map(g => `<option value="${g}">${g}</option>`).join('');
-        
+
         const selC = $('comp-sel-grado');
         selC.innerHTML = gradosUnicos.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
 
         // 2. Renderizar Gráfico de Grupos
         renderizarGraficoGrupos(dataPeriodoActual);
-        
+
         // 3. Renderizar Gráfico de Sedes
         renderizarGraficoSedes(dataPeriodoActual);
-        
+
         // 4. Renderizar Detalle de Materias (primer grado por defecto)
         if (gruposUnicos.length > 0) {
-            actualizarGraficoAsignaturas();
-            actualizarGraficoComparativoGrupos();
+          actualizarGraficoAsignaturas();
+          actualizarGraficoComparativoGrupos();
         }
 
       } catch (e) {
@@ -4208,7 +4294,7 @@
       });
 
       // Ordenar alfanuméricamente
-      const labels = Object.keys(promedios).sort((a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'}));
+      const labels = Object.keys(promedios).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
       const values = labels.map(l => Math.round(promedios[l].suma / promedios[l].cont));
 
       if (chartGrados) chartGrados.destroy();
@@ -4229,17 +4315,17 @@
         },
         options: {
           responsive: true, maintainAspectRatio: false,
-          plugins: { 
+          plugins: {
             legend: { display: false },
-            datalabels: { 
-              color: '#fff', 
-              anchor: 'center', 
-              align: 'center', 
-              font: { weight: 'bold', size: 14 }, 
-              formatter: (v) => v 
+            datalabels: {
+              color: '#fff',
+              anchor: 'center',
+              align: 'center',
+              font: { weight: 'bold', size: 14 },
+              formatter: (v) => v
             }
           },
-          scales: { 
+          scales: {
             y: { beginAtZero: true, max: 100 },
             x: { ticks: { font: { weight: 'bold', size: 11 }, autoSkip: false, maxRotation: 45, minRotation: 45 } }
           }
@@ -4264,12 +4350,12 @@
       data.forEach(d => {
         const sede = d.sede || 'Central';
         if (!stats[sede]) stats[sede] = {};
-        
+
         Object.entries(niveles).forEach(([lvlName, gList]) => {
           if (gList.includes(parseInt(d.grado))) {
-             if (!stats[sede][lvlName]) stats[sede][lvlName] = { suma: 0, cont: 0 };
-             stats[sede][lvlName].suma += (d.porcentaje || 0);
-             stats[sede][lvlName].cont++;
+            if (!stats[sede][lvlName]) stats[sede][lvlName] = { suma: 0, cont: 0 };
+            stats[sede][lvlName].suma += (d.porcentaje || 0);
+            stats[sede][lvlName].cont++;
           }
         });
       });
@@ -4292,7 +4378,7 @@
         data: { labels: sedes, datasets: datasets },
         options: {
           responsive: true, maintainAspectRatio: false,
-          plugins: { 
+          plugins: {
             legend: { position: 'bottom' },
             datalabels: {
               color: '#fff',
@@ -4320,13 +4406,13 @@
       const materiasStats = config.map(subj => {
         let sumaPct = 0, totalEst = 0;
         filtrados.forEach(est => {
-            let ok = 0, totalPreg = 0;
-            for (let i = subj.start; i <= subj.end; i++) {
-                totalPreg++;
-                if (est.respuestas && est.respuestas[i] === 1) ok++;
-            }
-            sumaPct += (ok / totalPreg) * 100;
-            totalEst++;
+          let ok = 0, totalPreg = 0;
+          for (let i = subj.start; i <= subj.end; i++) {
+            totalPreg++;
+            if (est.respuestas && est.respuestas[i] === 1) ok++;
+          }
+          sumaPct += (ok / totalPreg) * 100;
+          totalEst++;
         });
         return { label: subj.label, val: totalEst > 0 ? Math.round(sumaPct / totalEst) : 0 };
       });
@@ -4349,7 +4435,7 @@
         options: {
           indexAxis: 'y',
           responsive: true, maintainAspectRatio: false,
-          plugins: { 
+          plugins: {
             legend: { display: false },
             datalabels: { color: '#000', anchor: 'end', align: 'right', font: { weight: 'bold' }, formatter: (v) => v }
           },
@@ -4370,13 +4456,13 @@
 
       const filtrados = dataPeriodoActual.filter(d => parseInt(d.grado) === gNum);
       const gruposDelNivel = [...new Set(filtrados.map(f => extraerGrupo(f.zipgrade_id)))].sort();
-      
+
       const datasets = gruposDelNivel.map((grupo, idx) => {
         const colors = ['rgba(79, 70, 229, 0.7)', 'rgba(16, 185, 129, 0.7)', 'rgba(245, 158, 11, 0.7)', 'rgba(239, 68, 68, 0.7)', 'rgba(107, 114, 128, 0.7)'];
         const dataForGrupo = config.map(subj => {
           const alumnosGrupo = filtrados.filter(f => extraerGrupo(f.zipgrade_id) === grupo);
           if (alumnosGrupo.length === 0) return 0;
-          
+
           let sumaPct = 0;
           alumnosGrupo.forEach(est => {
             let ok = 0, totalPreg = 0;
@@ -4433,9 +4519,9 @@
           },
           scales: {
             y: { beginAtZero: true, max: 115, title: { display: true, text: 'Promedio' } },
-            x: { 
+            x: {
               grid: { display: false },
-              ticks: { 
+              ticks: {
                 padding: 30,
                 font: { size: 10, weight: 'bold' },
                 maxRotation: 0,
