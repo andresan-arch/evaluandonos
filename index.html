@@ -755,8 +755,8 @@
     }
 
     .level-n2 {
-      background: #fef3c7;
-      color: #d97706;
+      background: #fef9c3;
+      color: #854d0e;
     }
 
     .level-n3 {
@@ -1421,7 +1421,7 @@
     const getValoration = (p) => {
       if (p >= 91) return { label: 'Superior', nivel: 'N4', initial: 'S', color: '#7e22ce', icon: '🟣' };
       if (p >= 71) return { label: 'Alto', nivel: 'N3', initial: 'A', color: '#15803d', icon: '🟢' };
-      if (p >= 51) return { label: 'Básico', nivel: 'N2', initial: 'B', color: '#b45309', icon: '🟡' };
+      if (p >= 51) return { label: 'Básico', nivel: 'N2', initial: 'B', color: '#eab308', icon: '🟡' };
       return { label: 'Bajo', nivel: 'N1', initial: 'B', color: '#b91c1c', icon: '🔴' };
     };
 
@@ -3239,7 +3239,7 @@
                    </div>
                    <div style="display:flex; flex-direction:column; align-items:center; ${general.nivel === 'N2' ? '' : 'opacity:0.25;'}">
                       <span style="font-size:0.5rem; font-weight:800; color:#94a3b8;">51-70</span>
-                      <div style="width:32px; height:32px; background:#f97316; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel === 'N2' ? 'box-shadow: 0 0 8px #f97316; border:2px solid white;' : ''}">2</div>
+                      <div style="width:32px; height:32px; background:#facc15; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel === 'N2' ? 'box-shadow: 0 0 8px #facc15; border:2px solid white;' : ''}">2</div>
                    </div>
                    <div style="display:flex; flex-direction:column; align-items:center; ${general.nivel === 'N3' ? '' : 'opacity:0.25;'}">
                       <span style="font-size:0.5rem; font-weight:800; color:#94a3b8;">71-90</span>
