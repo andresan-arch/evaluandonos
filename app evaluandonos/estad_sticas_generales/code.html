@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#f3effc",
+                    "on-surface-variant": "#464555",
+                    "inverse-surface": "#302f39",
+                    "secondary-fixed-dim": "#eec200",
+                    "on-primary": "#ffffff",
+                    "on-surface": "#1b1b24",
+                    "surface-container-low": "#f5f2ff",
+                    "on-tertiary-container": "#ffd2be",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary": "#7e3000",
+                    "background": "#fcf8ff",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#ffdbcc",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "secondary-container": "#fed01b",
+                    "on-tertiary-fixed": "#351000",
+                    "outline-variant": "#c7c4d8",
+                    "on-secondary-fixed-variant": "#574500",
+                    "secondary-fixed": "#ffe083",
+                    "on-tertiary-fixed-variant": "#7b2f00",
+                    "primary-fixed": "#e2dfff",
+                    "surface-tint": "#4d44e3",
+                    "surface-container-highest": "#e4e1ee",
+                    "tertiary-fixed-dim": "#ffb695",
+                    "on-secondary-fixed": "#231b00",
+                    "surface-container-high": "#eae6f4",
+                    "surface-container": "#f0ecf9",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "inverse-primary": "#c3c0ff",
+                    "primary-container": "#4f46e5",
+                    "outline": "#777587",
+                    "error-container": "#ffdad6",
+                    "primary": "#3525cd",
+                    "on-primary-container": "#dad7ff",
+                    "on-secondary-container": "#6f5900",
+                    "surface": "#fcf8ff",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#fcf8ff",
+                    "on-background": "#1b1b24",
+                    "surface-variant": "#e4e1ee",
+                    "on-primary-fixed": "#0f0069",
+                    "secondary": "#735c00",
+                    "surface-dim": "#dcd8e5",
+                    "tertiary-container": "#a44100",
+                    "on-error": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-safe": "24px",
+                    "stack-md": "16px",
+                    "stack-lg": "32px",
+                    "card-padding": "20px",
+                    "stack-sm": "8px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "body-base": ["Plus Jakarta Sans"],
+                    "display-stat": ["Plus Jakarta Sans"],
+                    "label-caps": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-stat": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(79, 70, 229, 0.08);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-base min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg docked full-width top-0 sticky z-50 border-b border-white/20 shadow-sm flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3 active:scale-95 transition-transform">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20">
+<img alt="Educator Profile" class="w-full h-full object-cover" data-alt="A professional and friendly educator profile avatar in a minimalist vector style. The avatar features a person with glasses and a warm expression, set against a soft, solid lavender background. The lighting is bright and even, reflecting a clean and modern academic interface design with a focus on trust and approachability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR5xSt_fzjLI7gSBOeVRbu1ll_jAoy2OIZP9RTiuHwLal4DKVZSCPEUzAMV5URmtmqtU0BTJseoHJ-togt3GP_pB_JXlUzfqjKL8DS2QSUPGBTB-xsR62obn0iJ5lIIe8dd0DzCWzU0tai7pYN5N0Nsz0QN0k2t9f1pkTIK8ho6315fylz6ddkFIeM7pc8CbK7OPQ310hNEcS5md0-7i_46YOu_OmOYeR4fRFUks3EbwdHPTpV5ntI-MRks4eMGZZP0d0GGH_Zm7hX"/>
+</div>
+<h1 class="text-indigo-600 dark:text-indigo-400 font-plus-jakarta text-lg font-bold font-extrabold tracking-tight">Evaluándonos</h1>
+</div>
+<button class="text-indigo-600 dark:text-indigo-400 hover:opacity-80 transition-opacity active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</header>
+<main class="px-margin-safe pt-stack-lg space-y-stack-lg max-w-lg mx-auto">
+<!-- Header & Selector Section -->
+<section class="space-y-stack-md">
+<div class="flex flex-col gap-1">
+<span class="font-label-caps text-label-caps text-primary uppercase tracking-widest">Dashboard Global</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Estadísticas Generales</h2>
+</div>
+<!-- Tactile Selector: Grade Selection -->
+<div class="glass-card rounded-2xl p-2 flex gap-1">
+<button class="flex-1 py-3 px-4 rounded-xl bg-primary-container text-on-primary-container font-label-caps text-label-caps transition-all active:scale-95">
+                    1º GRADO
+                </button>
+<button class="flex-1 py-3 px-4 rounded-xl text-on-surface-variant font-label-caps text-label-caps hover:bg-surface-container-high transition-all active:scale-95">
+                    2º GRADO
+                </button>
+<button class="flex-1 py-3 px-4 rounded-xl text-on-surface-variant font-label-caps text-label-caps hover:bg-surface-container-high transition-all active:scale-95">
+                    3º GRADO
+                </button>
+</div>
+</section>
+<!-- Metrics Grid -->
+<section class="grid grid-cols-1 gap-gutter">
+<!-- Metric Card 1: Total Evaluados -->
+<div class="glass-card rounded-3xl p-card-padding flex flex-col justify-between relative overflow-hidden">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl"></div>
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">TOTAL EVALUADOS</span>
+<div class="flex items-baseline gap-2">
+<span class="font-display-stat text-display-stat text-primary">1,284</span>
+<span class="font-label-caps text-label-caps text-success text-[#00875A] flex items-center">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span>
+                            12%
+                        </span>
+</div>
+</div>
+<div class="mt-stack-sm h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[85%] rounded-full"></div>
+</div>
+</div>
+<!-- Metric Card 2: Promedio General -->
+<div class="glass-card rounded-3xl p-card-padding">
+<div class="flex justify-between items-start">
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">PROMEDIO GENERAL</span>
+<div class="font-display-stat text-display-stat text-on-surface">4.2<span class="text-body-base font-normal text-outline">/5.0</span></div>
+</div>
+<div class="w-14 h-14 rounded-full border-[6px] border-secondary-container/20 flex items-center justify-center relative">
+<div class="absolute inset-0 border-[6px] border-secondary-container rounded-full" style="clip-path: polygon(0 0, 84% 0, 84% 100%, 0 100%)"></div>
+<span class="font-label-caps text-label-caps text-secondary">84%</span>
+</div>
+</div>
+<p class="text-body-base text-on-surface-variant mt-2">Supera la meta institucional (+0.4 pts).</p>
+</div>
+</section>
+<!-- Comparative Chart: Groups Performance -->
+<section class="space-y-stack-md">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-md text-headline-md text-on-surface">Rendimiento por Secciones</h3>
+<button class="text-primary font-label-caps text-label-caps flex items-center gap-1">
+                    FILTRAR <span class="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span>
+</button>
+</div>
+<div class="glass-card rounded-3xl p-card-padding space-y-6">
+<!-- Group A -->
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<span class="font-headline-md text-[16px] text-on-surface">Sección A - Matutina</span>
+<span class="font-label-caps text-label-caps text-primary">4.8 / 5.0</span>
+</div>
+<div class="h-8 w-full bg-surface-container rounded-lg overflow-hidden flex">
+<div class="h-full bg-primary-container w-[96%] relative">
+<div class="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
+</div>
+</div>
+</div>
+<!-- Group B -->
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<span class="font-headline-md text-[16px] text-on-surface">Sección B - Vespertina</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">3.9 / 5.0</span>
+</div>
+<div class="h-8 w-full bg-surface-container rounded-lg overflow-hidden flex">
+<div class="h-full bg-primary/40 w-[78%] relative"></div>
+</div>
+</div>
+<!-- Group C -->
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<span class="font-headline-md text-[16px] text-on-surface">Sección C - Nocturna</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">3.5 / 5.0</span>
+</div>
+<div class="h-8 w-full bg-surface-container rounded-lg overflow-hidden flex">
+<div class="h-full bg-primary/20 w-[70%] relative"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Detail Breakdown Section -->
+<section class="space-y-stack-md">
+<h3 class="font-headline-md text-headline-md text-on-surface">Detalle de Asignaturas</h3>
+<div class="grid grid-cols-2 gap-gutter">
+<!-- Subject 1 -->
+<div class="glass-card rounded-2xl p-4 flex flex-col items-center text-center space-y-2 border-b-4 border-b-secondary-container">
+<div class="w-10 h-10 bg-secondary-fixed/30 rounded-full flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="functions">functions</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">MATEMÁTICAS</span>
+<span class="font-headline-md text-headline-md">4.1</span>
+</div>
+<!-- Subject 2 -->
+<div class="glass-card rounded-2xl p-4 flex flex-col items-center text-center space-y-2 border-b-4 border-b-primary-container">
+<div class="w-10 h-10 bg-primary-fixed/30 rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">LENGUAJE</span>
+<span class="font-headline-md text-headline-md">4.5</span>
+</div>
+</div>
+</section>
+<!-- CTA / Report Block -->
+<section class="pt-4">
+<button class="w-full bg-primary-container text-on-primary shadow-[0_4px_20px_rgba(79,70,229,0.3)] py-5 rounded-2xl font-headline-md flex items-center justify-center gap-3 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined" data-icon="ios_share">ios_share</span>
+                Generar Informe PDF
+            </button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl fixed bottom-0 w-full z-50 rounded-t-3xl border-t border-white/20 shadow-[0_-4px_20px_rgba(79,70,229,0.15)] flex justify-around items-center px-4 pt-3 pb-8">
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-all duration-200 ease-out active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-plus-jakarta text-[11px] font-semibold">Análisis</span>
+</a>
+<a class="flex flex-col items-center justify-center text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/30 rounded-2xl px-3 py-1.5 transition-all duration-200 ease-out active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+<span class="font-plus-jakarta text-[11px] font-semibold">Estadísticas</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-all duration-200 ease-out active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-plus-jakarta text-[11px] font-semibold">Informes</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-all duration-200 ease-out active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="admin_panel_settings">admin_panel_settings</span>
+<span class="font-plus-jakarta text-[11px] font-semibold">Admin</span>
+</a>
+</nav>
+</body></html>

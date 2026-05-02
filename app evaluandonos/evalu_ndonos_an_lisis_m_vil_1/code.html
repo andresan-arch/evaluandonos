@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#f3effc",
+                    "on-surface-variant": "#464555",
+                    "inverse-surface": "#302f39",
+                    "secondary-fixed-dim": "#eec200",
+                    "on-primary": "#ffffff",
+                    "on-surface": "#1b1b24",
+                    "surface-container-low": "#f5f2ff",
+                    "on-tertiary-container": "#ffd2be",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary": "#7e3000",
+                    "background": "#fcf8ff",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#ffdbcc",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "secondary-container": "#fed01b",
+                    "on-tertiary-fixed": "#351000",
+                    "outline-variant": "#c7c4d8",
+                    "on-secondary-fixed-variant": "#574500",
+                    "secondary-fixed": "#ffe083",
+                    "on-tertiary-fixed-variant": "#7b2f00",
+                    "primary-fixed": "#e2dfff",
+                    "surface-tint": "#4d44e3",
+                    "surface-container-highest": "#e4e1ee",
+                    "tertiary-fixed-dim": "#ffb695",
+                    "on-secondary-fixed": "#231b00",
+                    "surface-container-high": "#eae6f4",
+                    "surface-container": "#f0ecf9",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "inverse-primary": "#c3c0ff",
+                    "primary-container": "#4f46e5",
+                    "outline": "#777587",
+                    "error-container": "#ffdad6",
+                    "primary": "#3525cd",
+                    "on-primary-container": "#dad7ff",
+                    "on-secondary-container": "#6f5900",
+                    "surface": "#fcf8ff",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#fcf8ff",
+                    "on-background": "#1b1b24",
+                    "surface-variant": "#e4e1ee",
+                    "on-primary-fixed": "#0f0069",
+                    "secondary": "#735c00",
+                    "surface-dim": "#dcd8e5",
+                    "tertiary-container": "#a44100",
+                    "on-error": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-safe": "24px",
+                    "stack-md": "16px",
+                    "stack-lg": "32px",
+                    "card-padding": "20px",
+                    "stack-sm": "8px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "body-base": ["Plus Jakarta Sans"],
+                    "display-stat": ["Plus Jakarta Sans"],
+                    "label-caps": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-stat": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg shadow-sm border-b border-white/20 docked full-width top-0 sticky z-50 flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-primary-fixed flex items-center justify-center">
+<img alt="Profile" data-alt="A professional studio portrait of a friendly educator with a warm smile, wearing modern glasses and a smart-casual blazer. The background is a soft, out-of-focus classroom with clean lines and indigo accents, bathed in bright, natural morning light. The overall aesthetic is clean, professional, and trustworthy, reflecting a modern educational environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNM2-hnHD3e831CzF2WvcL-nRmF5qwHtgXkSQI0jwm21M8oHWp-XtW1YwqMeZxwrHqr-aLAGPp8GRW8VLpgU9UEjdCs6yXF6IJ8RMZ2cXWLm83cprktWz-fbe20D4iKVaUsM5QTkutwozh6rHib2Q2EelV3OJ0bpCWem8TkiiBgjaS2XKxcXB1_cO-GAXZDscJoW1oBnTfFxqyb8uw2voLZbgRSu-LdPiW4TP9hvwmJ5PeaYXmE2GkiJprF9cdlau-7WVnt6T3T91I"/>
+</div>
+<h1 class="font-plus-jakarta text-lg font-bold text-indigo-600 dark:text-indigo-400 font-extrabold tracking-tight">Evaluándonos</h1>
+</div>
+<button class="text-slate-500 dark:text-slate-400 hover:opacity-80 transition-opacity active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</header>
+<main class="px-margin-safe mt-stack-lg space-y-stack-lg max-w-2xl mx-auto">
+<!-- Header Institution -->
+<section class="space-y-stack-sm">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-white glass-card rounded-xl flex items-center justify-center shadow-sm">
+<img alt="Logo" data-alt="A minimalist and modern academic logo featuring stylized geometric shapes that suggest a shield and an open book. The design is rendered in a sophisticated palette of deep indigo and soft lavender, set against a clean white background. The lighting is high-key and professional, evoking a sense of heritage combined with forward-thinking educational technology." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsE9xQe9Zh_1TlStD548LPSdKr9NtSFuRA97x3GDHAHbzl3yamZsIvJPg4InAF7hgwb1XEL2xvPQooKc-CIvgb43pLfZ-V_sufQmSjroniOPb_gNFp_NXhyROcEcNSnkMtEwKloqWn3yKiDnHyd7YvjD01um0IbynuTyQ_qlGqctkhGR7NyCtHPXh6GSQPT7zQPauCV1xRVar3L-k7BeXR6wGp69ShbeTKNF7vOtvesbAIBwQewpCdYQ1C12NtnbikQICT3tnt_SKe"/>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Instituto Superior de Educación</p>
+<h2 class="font-headline-lg text-headline-lg text-primary">Prueba de Diagnóstico 2024</h2>
+</div>
+</div>
+</section>
+<!-- Tactile Selectors -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="glass-card p-4 rounded-2xl shadow-sm flex flex-col gap-1 active:scale-95 transition-transform cursor-pointer">
+<span class="text-label-caps font-label-caps text-on-surface-variant">GRADO</span>
+<div class="flex items-center justify-between">
+<span class="font-headline-md text-headline-md">5to Primaria</span>
+<span class="material-symbols-outlined text-primary">expand_more</span>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl shadow-sm flex flex-col gap-1 active:scale-95 transition-transform cursor-pointer">
+<span class="text-label-caps font-label-caps text-on-surface-variant">ASIGNATURA</span>
+<div class="flex items-center justify-between">
+<span class="font-headline-md text-headline-md">Matemáticas</span>
+<span class="material-symbols-outlined text-primary">expand_more</span>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl shadow-sm flex flex-col gap-1 active:scale-95 transition-transform cursor-pointer">
+<span class="text-label-caps font-label-caps text-on-surface-variant">PREGUNTA</span>
+<div class="flex items-center justify-between">
+<span class="font-headline-md text-headline-md">Item #12</span>
+<span class="material-symbols-outlined text-primary">expand_more</span>
+</div>
+</div>
+</section>
+<!-- Current Question Card -->
+<section class="glass-card p-card-padding rounded-3xl shadow-lg border-primary/10">
+<div class="flex justify-between items-start mb-stack-md">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-label-caps font-label-caps">ANÁLISIS DE ITEM</span>
+<div class="flex items-center gap-1 text-green-600">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span class="text-label-caps font-label-caps">ALTO IMPACTO</span>
+</div>
+</div>
+<p class="font-headline-md text-headline-md text-on-surface mb-stack-lg leading-snug">
+                ¿Cuál es el resultado de simplificar la expresión 3x + 5 - (x - 2) si x es igual a 4?
+            </p>
+<div class="space-y-3">
+<div class="w-full p-4 rounded-2xl bg-white/50 border border-outline-variant flex items-center gap-4 active:bg-primary-fixed transition-colors cursor-pointer group">
+<div class="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center font-bold text-primary group-active:bg-primary group-active:text-white">A</div>
+<span class="font-body-base text-body-base">13</span>
+</div>
+<div class="w-full p-4 rounded-2xl bg-primary-container text-on-primary-container border border-primary flex items-center gap-4 shadow-md">
+<div class="w-8 h-8 rounded-full bg-white flex items-center justify-center font-bold text-primary-container">B</div>
+<span class="font-body-base text-body-base font-bold">15 (Correcta)</span>
+<span class="material-symbols-outlined ml-auto" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="w-full p-4 rounded-2xl bg-white/50 border border-outline-variant flex items-center gap-4 active:bg-primary-fixed transition-colors cursor-pointer group">
+<div class="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center font-bold text-primary group-active:bg-primary group-active:text-white">C</div>
+<span class="font-body-base text-body-base">11</span>
+</div>
+<div class="w-full p-4 rounded-2xl bg-white/50 border border-outline-variant flex items-center gap-4 active:bg-primary-fixed transition-colors cursor-pointer group">
+<div class="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center font-bold text-primary group-active:bg-primary group-active:text-white">D</div>
+<span class="font-body-base text-body-base">9</span>
+</div>
+</div>
+</section>
+<!-- Stats Card -->
+<section class="glass-card p-card-padding rounded-3xl shadow-lg">
+<div class="flex items-end justify-between mb-stack-lg">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Distribución</h3>
+<p class="text-on-surface-variant font-body-base text-[14px]">Total evaluados: 1,240</p>
+</div>
+<div class="text-right">
+<p class="text-display-stat font-display-stat text-primary">68%</p>
+<p class="text-green-600 font-label-caps text-label-caps flex items-center justify-end gap-1">
+<span class="material-symbols-outlined text-[16px]">trending_up</span> +12% vs anterior
+                    </p>
+</div>
+</div>
+<!-- Simulated Bar Chart -->
+<div class="space-y-6">
+<div class="space-y-2">
+<div class="flex justify-between text-label-caps font-label-caps text-on-surface-variant">
+<span>OPCIÓN A</span>
+<span>15%</span>
+</div>
+<div class="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-outline rounded-full" style="width: 15%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-label-caps font-label-caps text-primary">
+<span>OPCIÓN B (CORRECTA)</span>
+<span>68%</span>
+</div>
+<div class="h-4 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full shadow-[0_0_8px_rgba(79,70,233,0.4)]" style="width: 68%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-label-caps font-label-caps text-on-surface-variant">
+<span>OPCIÓN C</span>
+<span>10%</span>
+</div>
+<div class="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-outline rounded-full" style="width: 10%"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-label-caps font-label-caps text-on-surface-variant">
+<span>OPCIÓN D</span>
+<span>7%</span>
+</div>
+<div class="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-outline rounded-full" style="width: 7%"></div>
+</div>
+</div>
+</div>
+<button class="w-full mt-stack-lg py-4 bg-primary text-on-primary rounded-2xl font-headline-md flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(79,70,233,0.3)] active:scale-[0.98] transition-all">
+                Ver Informe Detallado
+                <span class="material-symbols-outlined">analytics</span>
+</button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-t-3xl border-t border-white/20 shadow-[0_-4px_20px_rgba(79,70,229,0.15)] z-50">
+<a class="flex flex-col items-center justify-center text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/30 rounded-2xl px-3 py-1.5 transition-all duration-200 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="analytics" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-plus-jakarta text-[11px] font-semibold">Análisis</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+<span class="font-plus-jakarta text-[11px] font-semibold">Estadísticas</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-plus-jakarta text-[11px] font-semibold">Informes</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="admin_panel_settings">admin_panel_settings</span>
+<span class="font-plus-jakarta text-[11px] font-semibold">Admin</span>
+</a>
+</nav>
+</body></html>

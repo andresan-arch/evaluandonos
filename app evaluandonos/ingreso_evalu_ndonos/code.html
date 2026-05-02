@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "inverse-on-surface": "#f3effc",
+                "on-surface-variant": "#464555",
+                "inverse-surface": "#302f39",
+                "secondary-fixed-dim": "#eec200",
+                "on-primary": "#ffffff",
+                "on-surface": "#1b1b24",
+                "surface-container-low": "#f5f2ff",
+                "on-tertiary-container": "#ffd2be",
+                "on-primary-fixed-variant": "#3323cc",
+                "surface-container-lowest": "#ffffff",
+                "tertiary": "#7e3000",
+                "background": "#fcf8ff",
+                "on-tertiary": "#ffffff",
+                "tertiary-fixed": "#ffdbcc",
+                "on-error-container": "#93000a",
+                "error": "#ba1a1a",
+                "secondary-container": "#fed01b",
+                "on-tertiary-fixed": "#351000",
+                "outline-variant": "#c7c4d8",
+                "on-secondary-fixed-variant": "#574500",
+                "secondary-fixed": "#ffe083",
+                "on-tertiary-fixed-variant": "#7b2f00",
+                "primary-fixed": "#e2dfff",
+                "surface-tint": "#4d44e3",
+                "surface-container-highest": "#e4e1ee",
+                "tertiary-fixed-dim": "#ffb695",
+                "on-secondary-fixed": "#231b00",
+                "surface-container-high": "#eae6f4",
+                "surface-container": "#f0ecf9",
+                "primary-fixed-dim": "#c3c0ff",
+                "inverse-primary": "#c3c0ff",
+                "primary-container": "#4f46e5",
+                "outline": "#777587",
+                "error-container": "#ffdad6",
+                "primary": "#3525cd",
+                "on-primary-container": "#dad7ff",
+                "on-secondary-container": "#6f5900",
+                "surface": "#fcf8ff",
+                "on-secondary": "#ffffff",
+                "surface-bright": "#fcf8ff",
+                "on-background": "#1b1b24",
+                "surface-variant": "#e4e1ee",
+                "on-primary-fixed": "#0f0069",
+                "secondary": "#735c00",
+                "surface-dim": "#dcd8e5",
+                "tertiary-container": "#a44100",
+                "on-error": "#ffffff"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "margin-safe": "24px",
+                "stack-md": "16px",
+                "stack-lg": "32px",
+                "card-padding": "20px",
+                "stack-sm": "8px",
+                "gutter": "16px"
+            },
+            "fontFamily": {
+                "body-base": ["Plus Jakarta Sans"],
+                "display-stat": ["Plus Jakarta Sans"],
+                "label-caps": ["Plus Jakarta Sans"],
+                "headline-md": ["Plus Jakarta Sans"],
+                "headline-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "display-stat": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .bg-mesh {
+            background-color: #fcf8ff;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(254, 208, 27, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(164, 65, 0, 0.05) 0px, transparent 50%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-mesh min-h-screen flex items-center justify-center font-body-base text-on-surface p-margin-safe">
+<!-- Auth Container -->
+<main class="w-full max-w-md space-y-stack-lg">
+<!-- Brand Identity Section -->
+<header class="flex flex-col items-center text-center space-y-stack-md">
+<div class="relative w-32 h-32 md:w-40 md:h-40 flex items-center justify-center">
+<!-- Decorative element behind logo -->
+<div class="absolute inset-0 bg-primary/10 blur-3xl rounded-full"></div>
+<div class="relative z-10 w-full h-full glass-panel rounded-[2rem] flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-[64px] text-primary" data-icon="school" style="font-variation-settings: 'FILL' 1;">school</span>
+</div>
+</div>
+<div class="space-y-2">
+<h1 class="font-headline-lg text-headline-lg text-primary-container tracking-tight">Evaluándonos</h1>
+<p class="font-body-base text-body-base text-on-surface-variant max-w-[280px] mx-auto">
+                    Gestión académica inteligente y análisis estadístico profesional.
+                </p>
+</div>
+</header>
+<!-- Login Form Card -->
+<section class="glass-panel rounded-3xl p-card-padding shadow-xl space-y-stack-md">
+<form class="space-y-stack-md">
+<!-- User Input -->
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant ml-1" for="email">USUARIO O CORREO</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-outline group-focus-within:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</div>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container-low/50 border border-outline-variant rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-body-base text-on-surface placeholder:text-outline" id="email" placeholder="ejemplo@educacion.com" type="email"/>
+</div>
+</div>
+<!-- Password Input -->
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant ml-1" for="password">CONTRASEÑA</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-outline group-focus-within:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+</div>
+<input class="w-full pl-12 pr-12 py-4 bg-surface-container-low/50 border border-outline-variant rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-body-base text-on-surface placeholder:text-outline" id="password" placeholder="••••••••••••" type="password"/>
+<button class="absolute inset-y-0 right-4 flex items-center text-outline hover:text-on-surface-variant" type="button">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+</div>
+</div>
+<!-- Options Row -->
+<div class="flex items-center justify-between px-1">
+<label class="flex items-center space-x-2 cursor-pointer group">
+<div class="relative">
+<input class="peer sr-only" type="checkbox"/>
+<div class="w-5 h-5 border-2 border-outline-variant rounded-md peer-checked:bg-primary peer-checked:border-primary transition-all"></div>
+<span class="material-symbols-outlined absolute inset-0 text-white text-[14px] flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity" data-icon="check" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant group-hover:text-on-surface transition-colors">Recordarme</span>
+</label>
+<a class="font-label-caps text-label-caps text-primary hover:text-primary-container transition-colors" href="#">¿Olvidaste tu contraseña?</a>
+</div>
+<!-- Submit Button -->
+<button class="w-full py-4 bg-primary text-on-primary font-headline-md text-headline-md rounded-2xl shadow-[0_8px_20px_rgba(79,70,229,0.3)] active:scale-[0.98] transition-all hover:bg-primary-container" type="submit">
+                    Iniciar Sesión
+                </button>
+</form>
+<!-- Social Login / Divider -->
+<div class="relative py-4">
+<div class="absolute inset-0 flex items-center"><div class="w-full border-t border-outline-variant/30"></div></div>
+<div class="relative flex justify-center text-xs uppercase"><span class="bg-surface/50 px-4 text-outline font-label-caps">O accede con</span></div>
+</div>
+<div class="grid grid-cols-2 gap-gutter">
+<button class="flex items-center justify-center space-x-2 py-3 glass-panel border border-outline-variant rounded-xl hover:bg-white transition-colors active:scale-95">
+<img alt="Google" class="w-4 h-4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASV8ixU_FusxyaB8w6wX66igxpZAIAUsVzfNrqR7_IAhgwnzTWtwe_qkcoed_pk2k63v0uI6HWqWapMLfEiBlyaKWwyJXJAEC4JdVjVdOExDoTpyeJIJgI_sFqMDjO9RkriUA2fgn1sFSlAX8iMlrTvh6eoMCMAnIv11-LemYsbG_hHock0_yIW5z86oh6xKknxwcLuM2yqudvG3EUBgbjFEXhIXMPd2VJOpl33ZwspFdm0H2Yn_ZHKa6nUmdUAncoLzhtYc8NE2JF"/>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Google</span>
+</button>
+<button class="flex items-center justify-center space-x-2 py-3 glass-panel border border-outline-variant rounded-xl hover:bg-white transition-colors active:scale-95">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="domain">domain</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Institución</span>
+</button>
+</div>
+</section>
+<!-- Footer Links -->
+<footer class="text-center space-y-4">
+<p class="font-body-base text-on-surface-variant">
+                ¿No tienes una cuenta? 
+                <a class="text-primary font-bold hover:underline" href="#">Regístrate ahora</a>
+</p>
+<div class="flex items-center justify-center space-x-6">
+<a class="font-label-caps text-[10px] text-outline hover:text-on-surface-variant" href="#">Privacidad</a>
+<div class="w-1 h-1 bg-outline-variant rounded-full"></div>
+<a class="font-label-caps text-[10px] text-outline hover:text-on-surface-variant" href="#">Términos</a>
+<div class="w-1 h-1 bg-outline-variant rounded-full"></div>
+<a class="font-label-caps text-[10px] text-outline hover:text-on-surface-variant" href="#">Soporte</a>
+</div>
+</footer>
+</main>
+<!-- Decorative Aesthetic Elements -->
+<div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
+<div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]"></div>
+<div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-secondary-container/5 rounded-full blur-[80px]"></div>
+<!-- Sample Background Image Illustration -->
+<div class="absolute right-0 bottom-0 opacity-20 hidden lg:block">
+<img class="w-[600px] h-auto object-cover mask-fade" data-alt="A clean, professional workspace scene with an open notebook, a pen, and a tablet showing statistical charts. The lighting is soft and natural, with a focus on educational items. The background is a minimalist, modern office environment with light tones of indigo and soft yellow accents, creating a calm and intellectual atmosphere suitable for an educational platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBLrP6JSGr2ZjiqO0DP2sjpHHsu-ZCckwt2xWe5xsrkrDCLzW2lpmmQNNm6VQlxzW3KWp3i2KkU5BsnIQDvULjmpZHVpwgURVSh_lyjQvcTeaIrmarUuO8NvOMqlfiKvN5GbMTylWG0NbG0GYj5nrwOirI8DBJwv0Hbpu8k84Xq5A1HSsMdZ3ZOXy3bDDXgUZpafyi5VKm0hW0p3TBHvK8L7v-eTGJ6zk-nGqqK-KCAKSsQmDgI1p9j9d7beagq_3FyOJM8tshGm3C" style="mask-image: radial-gradient(circle at center, black, transparent 80%); -webkit-mask-image: radial-gradient(circle at center, black, transparent 80%);"/>
+</div>
+</div>
+</body></html>
