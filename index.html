@@ -3334,7 +3334,7 @@
       const sel = $('rep-estudiante');
       sel.innerHTML = '<option value="">Seleccione estudiante...</option>' +
         Array.from(uniqueMap.entries())
-          .sort((a, b) => a[1].localeCompare(b[1]))
+          .sort((a, b) => a[1].localeCompare(b[1], 'es', { sensitivity: 'base' }))
           .map(([id, name]) => `<option value="${id}">${name}</option>`).join('');
     }
 
@@ -4154,7 +4154,7 @@
       }
 
       const alumnosActuales = todosData.filter(t => extraerGrupo(t.zipgrade_id) === grupo && t.periodo === parseInt(currentPeriodo))
-        .sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
+        .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre, 'es', { sensitivity: 'base' }));
 
       if (alumnosActuales.length === 0) {
         showLoading(false);
@@ -4340,7 +4340,7 @@
           const config = MATRIZ_RANGOS[mKey];
           const isSuperior = gNum >= 10;
 
-          const rankingsGrupo = alumnosGrupo.sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
+          const rankingsGrupo = alumnosGrupo.sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre, 'es', { sensitivity: 'base' }));
 
           rankingsGrupo.forEach((est, idxRank) => {
             const zId = est.zipgrade_id.toString();
