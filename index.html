@@ -270,8 +270,10 @@
       }
 
       .controls {
+        grid-template-columns: 1fr !important;
         padding: 1.2rem;
         margin-top: -1.5rem;
+        gap: 1rem;
       }
 
       .card {
@@ -463,25 +465,17 @@
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: 2000;
+      z-index: 5000;
     }
 
     @keyframes gradientMove {
-      0% {
-        background-position: 0% 50%;
-      }
-
-      50% {
-        background-position: 100% 50%;
-      }
-
-      100% {
-        background-position: 0% 50%;
-      }
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
-    .auth-container {
-      width: 100%;
+    .login-card {
+      width: 90%;
       max-width: 400px;
       background: rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(25px);
@@ -494,81 +488,38 @@
       color: white;
     }
 
-    .auth-logo {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 24px;
-      background: white;
-      border-radius: 20px;
-      padding: 15px;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .auth-logo img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    .auth-title {
+    .login-card h2 {
       font-size: 2rem;
       font-weight: 800;
-      margin-bottom: 8px;
+      margin-bottom: 24px;
       letter-spacing: -0.5px;
+      color: white;
     }
 
-    .auth-subtitle {
-      font-size: 0.95rem;
-      opacity: 0.8;
-      margin-bottom: 32px;
-    }
-
-    .auth-input-group {
-      margin-bottom: 20px;
-      text-align: left;
-    }
-
-    .auth-input-group label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      margin-left: 4px;
-      opacity: 0.9;
-    }
-
-    .auth-input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .auth-input-wrapper .material-symbols-outlined {
-      position: absolute;
-      left: 16px;
-      font-size: 20px;
-      opacity: 0.6;
-    }
-
-    .auth-input {
+    .login-card input {
       width: 100%;
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 16px;
-      padding: 14px 16px 14px 48px;
+      padding: 14px 16px;
       color: white;
       font-size: 1rem;
       transition: all 0.3s;
       outline: none;
+      margin-bottom: 15px;
     }
 
-    .auth-input:focus {
+    .login-card input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .login-card input:focus {
       background: rgba(255, 255, 255, 0.2);
       border-color: white;
       box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
     }
 
-    .auth-btn {
+    .login-card button {
       width: 100%;
       background: white;
       color: #4f46e5;
@@ -583,24 +534,9 @@
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
 
-    .auth-btn:hover {
+    .login-card button:hover {
       transform: translateY(-2px);
       box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .auth-btn:active {
-      transform: translateY(0);
-    }
-
-    .auth-error {
-      background: rgba(244, 63, 94, 0.2);
-      border: 1px solid rgba(244, 63, 94, 0.3);
-      color: #fda4af;
-      padding: 12px;
-      border-radius: 12px;
-      font-size: 0.85rem;
-      margin-bottom: 20px;
-      display: none;
     }
 
     /* Dropdown Informes */
@@ -667,6 +603,10 @@
       background: var(--primary) !important;
       color: white !important;
       box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+    }
+
+    .login-card button:active {
+      transform: translateY(0);
     }
 
     /* Period Selector */
@@ -1073,40 +1013,75 @@
       .mobile-nav-item {
         display: flex;
         flex-direction: column;
+    /* 📱 Barra de Navegación Móvil */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 10px 25px;
+      z-index: 4000;
+      box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    @media (max-width: 600px) {
+      .mobile-nav {
+        display: flex;
+      }
+
+      .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
         align-items: center;
         gap: 4px;
-        color: #64748b;
+        color: var(--gray);
         text-decoration: none;
         font-size: 0.65rem;
         font-weight: 700;
-        transition: all 0.2s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         flex: 1;
       }
 
       .mobile-nav-item.active {
         color: var(--primary);
+        transform: translateY(-4px);
       }
 
       .mobile-nav-item .material-symbols-outlined {
-        font-size: 24px;
-        font-variation-settings: 'FILL' 0;
+        font-size: 26px;
+        font-variation-settings: 'FILL' 0, 'wght' 400;
       }
 
       .mobile-nav-item.active .material-symbols-outlined {
-        font-variation-settings: 'FILL' 1;
+        font-variation-settings: 'FILL' 1, 'wght' 400;
       }
 
       body {
         padding-bottom: 100px;
       }
 
-      header {
+      header, footer, .tabs {
         display: none !important;
       }
-    }
 
-    .mobile-nav {
-      display: none;
+      /* Stacking filter headers on mobile */
+      .card > div[style*="display: flex"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 15px !important;
+      }
+
+      .card > div[style*="display: flex"] > div {
+        width: 100% !important;
+        justify-content: space-between !important;
+      }
     }
   </style>
 </head>
@@ -1115,35 +1090,14 @@
   <div id="loading">✨ Cargando análisis...</div>
 
   <div id="login-mask">
-    <div class="auth-container">
-      <div class="auth-logo">
-        <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png"
-          alt="Logo">
-      </div>
-      <h1 class="auth-title">Evaluándonos</h1>
-      <p class="auth-subtitle">Análisis Educativo Moderno</p>
-
-      <div id="login-err" class="auth-error"></div>
-
-      <div class="auth-input-group">
-        <label>Usuario o Email</label>
-        <div class="auth-input-wrapper">
-          <span class="material-symbols-outlined">person</span>
-          <input type="text" id="li-user" class="auth-input" placeholder="nombre.apellido">
-        </div>
-      </div>
-
-      <div class="auth-input-group">
-        <label>Contraseña</label>
-        <div class="auth-input-wrapper">
-          <span class="material-symbols-outlined">lock</span>
-          <input type="password" id="li-pass" class="auth-input" placeholder="••••••••">
-        </div>
-      </div>
-
-      <button id="btn-login" class="auth-btn" onclick="intentarLogin()">Ingresar</button>
-
-      <p style="margin-top: 24px; font-size: 0.75rem; opacity: 0.6;">&copy; 2026 Liceo Alejandro de Humboldt</p>
+    <div class="login-card">
+      <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png"
+        style="width: 120px; margin-bottom: 1rem;">
+      <h2>Evaluándonos</h2>
+      <input type="text" id="li-user" placeholder="Usuario">
+      <input type="password" id="li-pass" placeholder="Contraseña">
+      <div id="login-err" style="color: #ef4444; font-size: 0.8rem; margin-bottom: 1rem; display: none;"></div>
+      <button onclick="intentarLogin()" id="btn-login">Ingresar</button>
     </div>
   </div>
 
@@ -2078,6 +2032,11 @@
       return url;
     }
 
+    function showLoading(show) {
+      const el = $('loading');
+      if (el) el.style.display = show ? 'flex' : 'none';
+    }
+
     async function cargarGrados(silent = false) {
       if (!silent) showLoading(true);
       try {
@@ -2403,18 +2362,2318 @@
       const g = $('aimg-grado').value;
       const p = $('aimg-periodo').value;
       if (!g) return;
-      // ... (existing logic)
+      $('aimg-status').innerText = "Cargando asignaturas...";
+      const { data } = await supabaseClient.from('eval_preguntas').select('asignatura').eq('grado', g).eq('periodo', p);
+      if (data) {
+        const distinct = [...new Set(data.map(i => i.asignatura))].sort((a, b) => a.localeCompare(b, 'es'));
+        $('aimg-asig').innerHTML = '<option value="">Asignatura...</option>' + distinct.map(a => `<option value="${a}">${a}</option>`).join('');
+      }
+      $('aimg-preg').innerHTML = '<option value="">Pregunta...</option>';
+      $('aimg-detalle').style.display = 'none';
+      $('aimg-status').innerText = "";
     }
 
     async function cargarPreguntasAdminImg() {
-      // ... (existing logic)
+      const g = $('aimg-grado').value;
+      const p = $('aimg-periodo').value;
+      const a = $('aimg-asig').value;
+      if (!a) return;
+      $('aimg-status').innerText = "Cargando pregs...";
+      const { data } = await supabaseClient.from('eval_preguntas').select('pregunta_num').eq('grado', g).eq('periodo', p).eq('asignatura', a).order('pregunta_num');
+      if (data) {
+        const distinct = [...new Set(data.map(i => i.pregunta_num))].sort((x, y) => x - y);
+        $('aimg-preg').innerHTML = '<option value="">Pregunta...</option>' + distinct.map(x => `<option value="${x}">#${x}</option>`).join('');
+      }
+      $('aimg-detalle').style.display = 'none';
+      $('aimg-status').innerText = "";
     }
 
     async function verDetallePreguntaAdmin() {
-      // ... (existing logic)
+      const g = $('aimg-grado').value, p = $('aimg-periodo').value, a = $('aimg-asig').value, num = $('aimg-preg').value;
+      if (!num) { $('aimg-detalle').style.display = 'none'; return; }
+
+      $('aimg-status').innerText = "Cargando mapeo...";
+      const { data } = await supabaseClient.from('eval_preguntas').select('*').eq('grado', g).eq('periodo', p).eq('asignatura', a).eq('pregunta_num', num).maybeSingle();
+
+      if (!data) {
+        $('aimg-status').innerText = "No se halló mapeo para esta pregunta.";
+        $('aimg-detalle').style.display = 'none';
+        return;
+      }
+
+      $('aimg-title').innerText = `🎨 Pregunta #${num} - ${a}`;
+      const fields = [
+        { key: 'texto_pregunta', label: 'Texto/Imagen Pregunta' },
+        { key: 'opcion_a', label: 'Opción A' },
+        { key: 'opcion_b', label: 'Opción B' },
+        { key: 'opcion_c', label: 'Opción C' },
+        { key: 'opcion_d', label: 'Opción D' }
+      ];
+
+      let html = '';
+      fields.forEach(f => {
+        const val = data[f.key] || '';
+        let textDisplay = "";
+        let imgUrl = "";
+
+        if (val.includes(" ||| ")) {
+          const parts = val.split(" ||| ");
+          textDisplay = parts[0];
+          imgUrl = parts[1];
+        } else if (val.startsWith("http")) {
+          imgUrl = val;
+        } else {
+          textDisplay = val;
+        }
+
+        let previewHtml = '';
+        if (imgUrl) {
+          previewHtml = `
+            <div style="margin-top:5px; position:relative; display:inline-block;">
+              <img src="${imgUrl}" style="max-height:60px; border-radius:4px; border:1px solid #ddd;">
+              <button onclick="removerImagenMapeo('${data.id}', '${f.key}')" 
+                style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; border:none; width:20px; height:20px; border-radius:50%; font-size:12px; cursor:pointer;" title="Eliminar Imagen">×</button>
+            </div>`;
+        } else {
+          previewHtml = `<span style="color:#64748b; font-size:0.65rem;">(Sin Imagen)</span>`;
+        }
+
+        // Sugerencia Automática GitHub
+        const opcLetra = (f.key.length === 8 && f.key.startsWith('opcion_')) ? f.key.slice(-1).toUpperCase() : '';
+        const sugerenciaNombre = `${num}${MATERIA_ADIVINAR[a.toUpperCase()] || 'X'}${g}${opcLetra}.png`;
+        const urlSugerida = obtenerUrlPredictiva(g, a, num, opcLetra);
+
+        html += `
+          <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:5px;">
+              <div style="display:flex; flex-direction:column;">
+                <span style="font-weight:bold; color:#1e293b; font-size:0.75rem;">${f.label}</span>
+                <span style="color:#64748b; font-size:0.65rem; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">📝 ${textDisplay || 'Sin texto'}</span>
+                
+                <div style="margin-top:4px; padding:2px 5px; background:#f5f3ff; border-radius:4px; border:1px dashed #6366f1;">
+                   <span style="font-size:0.6rem; color:#6366f1; font-weight:bold;">🔍 GitHub: <code>${sugerenciaNombre}</code></span>
+                </div>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:5px;">
+                ${previewHtml}
+                <img src="${urlSugerida}" style="height:30px; border-radius:4px; opacity:0.4;" onerror="this.style.display='none'" title="Previsualización de carga automática">
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+               <div style="display:flex; gap:5px; align-items:center;">
+                  <input type="file" id="file-${f.key}" accept="image/*" style="font-size:0.7rem; width:130px;">
+                  <button onclick="subirImagenMapeo('${data.id}', '${f.key}')" 
+                    style="background:#10b981; color:white; border:none; border-radius:6px; padding:4px 8px; font-weight:bold; font-size:0.7rem; cursor:pointer;" title="Subir a Supabase">Subir</button>
+               </div>
+               <div style="display:flex; gap:5px; align-items:center; border-top:1px solid #f1f5f9; pt-5">
+                  <input type="text" id="url-${f.key}" placeholder="Paste GitHub Raw Link..." style="font-size:0.7rem; flex:1; padding:4px; border:1px solid #e2e8f0; border-radius:6px;">
+                  <button onclick="guardarUrlExterna('${data.id}', '${f.key}')" 
+                    style="background:#6366f1; color:white; border:none; border-radius:6px; padding:4px 8px; font-weight:bold; font-size:0.7rem; cursor:pointer;" title="Vincular link externo">Vincular</button>
+               </div>
+            </div>
+          </div>
+        `;
+      });
+
+      $('aimg-fields').innerHTML = html;
+      $('aimg-detalle').style.display = 'block';
+      $('aimg-status').innerText = "";
     }
 
-    // ... (existing helper functions)
+    async function removerImagenMapeo(rowId, colName) {
+      if (!confirm("¿Seguro que quieres eliminar esta imagen?")) return;
+      const st = $('aimg-status');
+      st.innerText = "⏳ Eliminando imagen...";
+      try {
+        // Obtenemos el valor actual para preservar el texto
+        const { data: curr } = await supabaseClient.from('eval_preguntas').select(colName).eq('id', rowId).single();
+        let newContent = "";
+        if (curr && curr[colName]) {
+          const str = curr[colName].toString();
+          if (str.includes(" ||| ")) newContent = str.split(" ||| ")[0];
+          else if (!str.startsWith("http")) newContent = str;
+        }
+
+        const { error } = await supabaseClient.from('eval_preguntas').update({ [colName]: newContent }).eq('id', rowId);
+        if (error) throw error;
+        st.innerText = "✅ Imagen eliminada.";
+        verDetallePreguntaAdmin();
+        if ($('resultado-container').style.display !== 'none') mostrarAnalisis();
+      } catch (e) {
+        console.error("Error al eliminar:", e);
+        st.innerText = "❌ Error: " + (e.message || "Desconocido");
+      }
+    }
+
+    async function subirImagenMapeo(rowId, colName) {
+      const fileInput = $(`file-${colName}`);
+      const file = fileInput.files[0];
+      if (!file) return alert("Selecciona una imagen primero.");
+
+      const st = $('aimg-status');
+      st.innerText = "⏳ Subiendo imagen y guardando...";
+
+      try {
+        const ext = file.name.split('.').pop();
+        const fname = `evt2026_${colName}_${Date.now()}.${ext}`;
+        const filePath = fname;
+
+        const { error: uploadError } = await supabaseClient.storage.from('assets').upload(filePath, file, { cacheControl: '3600', upsert: false });
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabaseClient.storage.from('assets').getPublicUrl(filePath);
+
+        const { data: curr } = await supabaseClient.from('eval_preguntas').select(colName).eq('id', rowId).single();
+        let textPart = "";
+        if (curr && curr[colName]) {
+          const str = curr[colName].toString();
+          if (str.includes(" ||| ")) textPart = str.split(" ||| ")[0];
+          else if (!str.startsWith("http")) textPart = str;
+        }
+
+        const finalContent = textPart ? `${textPart} ||| ${publicUrl}` : publicUrl;
+
+        const { error: updError } = await supabaseClient.from('eval_preguntas').update({ [colName]: finalContent }).eq('id', rowId);
+        if (updError) throw updError;
+
+        st.innerText = "✅ ¡Actualizado exitosamente!";
+        fileInput.value = "";
+        verDetallePreguntaAdmin();
+
+        const isShowingPreg = $('sel-pregunta') && $('sel-pregunta').value == $('aimg-preg').value;
+        if (isShowingPreg && $('sel-grado').value == $('aimg-grado').value) {
+          mostrarAnalisis();
+        }
+
+      } catch (e) {
+        st.innerText = "❌ Error: " + (e.message || "Desconocido");
+        console.error(e);
+      }
+    }
+
+    async function guardarUrlExterna(rowId, colName) {
+      let url = $(`url-${colName}`).value.trim();
+      if (!url) return alert("Pega un URL primero.");
+
+      // Auto-conversión de GitHub estándar a Raw si es necesario
+      if (url.includes("github.com") && url.includes("/blob/")) {
+        url = url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
+      }
+
+      const st = $('aimg-status');
+      st.innerText = "⏳ Vinculando URL externa...";
+
+      try {
+        const { data: curr } = await supabaseClient.from('eval_preguntas').select(colName).eq('id', rowId).single();
+        let textPart = "";
+        if (curr && curr[colName]) {
+          const str = curr[colName].toString();
+          if (str.includes(" ||| ")) textPart = str.split(" ||| ")[0];
+          else if (!str.startsWith("http")) textPart = str;
+        }
+
+        const finalContent = textPart ? `${textPart} ||| ${url}` : url;
+
+        const { error: updError } = await supabaseClient.from('eval_preguntas').update({ [colName]: finalContent }).eq('id', rowId);
+        if (updError) throw updError;
+
+        st.innerText = "✅ URL vinculada exitosamente.";
+        $(`url-${colName}`).value = "";
+        verDetallePreguntaAdmin();
+      } catch (e) {
+        st.innerText = "❌ Error: " + (e.message || "Desconocido");
+        console.error(e);
+      }
+    }
+
+    async function crearUsuario() {
+      const email = $('nu-email').value.trim();
+      const nombre = $('nu-nombre').value.trim();
+      const pass = $('nu-pass').value;
+      const rol = $('nu-rol').value;
+      const status = $('users-status');
+
+      if (!email || !pass || !nombre) return alert('Completa el nombre, email y la contraseña.');
+
+      status.innerText = '⏳ Creando usuario...';
+      try {
+        // 1. Crear cuenta en Supabase Auth
+        const { data, error } = await supabaseClient.auth.signUp({
+          email,
+          password: pass,
+          options: { data: { nombre: nombre, name: nombre } }
+        });
+        if (error) throw error;
+
+        const gradoAsig = $('nu-grado').value.trim();
+
+        // 2. Insertar en perfiles con el UUID del usuario
+        const { error: pErr } = await supabaseClient.from('perfiles')
+          .upsert({ id: userId, email, nombre, rol, grado_asignado: gradoAsig }, { onConflict: 'id' });
+        if (pErr) throw pErr;
+
+        status.innerText = `✅ Usuario creado: ${nombre} (${email}) — ${rol} [${gradoAsig || 'Todo'}]`;
+        $('nu-grado').value = '';
+        $('nu-email').value = '';
+        $('nu-nombre').value = '';
+        $('nu-pass').value = '';
+      } catch (e) {
+        status.innerText = `❌ Error: ${e.message}`;
+      }
+    }
+
+    async function importarUsuariosCSV() {
+      const files = Array.from($('users-csv').files);
+      if (files.length === 0) return alert('Selecciona primero uno o más archivos CSV.');
+      const status = $('users-status');
+
+      status.innerText = `⏳ Iniciando carga de ${files.length} archivos...`;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        status.innerText = `⏳ Procesando [${i + 1}/${files.length}]: ${file.name}...`;
+
+        await new Promise((resolve) => {
+          Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            encoding: 'UTF-8',
+            complete: async function (results) {
+              const rows = results.data;
+              if (!rows.length) {
+                status.innerText += `\n❌ ${file.name} está vacío.`;
+                return resolve();
+              }
+
+              let ok = 0, fail = 0, lastErrorMsg = "";
+              for (const row of rows) {
+                const email = (row.email || '').trim();
+                const pass = (row.password || row.contraseña || row.pass || '').trim();
+                const nombre = (row.nombre || '').trim();
+                const rol = (row.rol || 'lector').trim().toLowerCase();
+                const gradoAsig = (row.grado_asignado || row.grado || '').trim();
+
+                if (!email || !pass) { fail++; continue; }
+
+                try {
+                  const { data: signData, error: sErr } = await supabaseClient.auth.signUp({
+                    email,
+                    password: pass,
+                    options: { data: { nombre: nombre, name: nombre } }
+                  });
+
+                  if (sErr && !sErr.message.includes('registered')) throw sErr;
+
+                  const userId = signData?.user?.id;
+                  const perData = { email, nombre, rol, grado_asignado: gradoAsig };
+
+                  if (userId) {
+                    const { error: pErr } = await supabaseClient.from('perfiles').upsert({ id: userId, ...perData }, { onConflict: 'id' });
+                    if (pErr) throw pErr;
+                  } else {
+                    const { error: pErr2 } = await supabaseClient.from('perfiles').update(perData).eq('email', email);
+                    if (pErr2) throw pErr2;
+                  }
+                  ok++;
+                } catch (e) {
+                  console.error("Fallo con", email, e);
+                  lastErrorMsg = e.message || "Error desconocido";
+                  fail++;
+                }
+              }
+              status.innerText += `\n✅ ${file.name}: ${ok} OK, ${fail} Fallos.`;
+              resolve();
+            }
+          });
+        });
+      }
+      status.innerText += "\n✨ Proceso de usuarios finalizado.";
+    }
+
+
+
+    function previsualizarDatos() {
+      const files = Array.from($('csv-file').files);
+      if (files.length === 0) return alert("Selecciona primero uno o más archivos");
+
+      updateStatus(`🧐 Analizando ${files.length} archivos...`);
+      pendingFiles = [];
+      const table = $('debug-table');
+      table.innerHTML = "";
+
+      let loadedCount = 0;
+
+      files.forEach((file, idx) => {
+        Papa.parse(file, {
+          header: false,
+          skipEmptyLines: 'greedy',
+          encoding: "UTF-8",
+          delimiter: "",
+          complete: function (results) {
+            let rows = results.data;
+
+            // Si detecta una sola columna pero hay tabs, forzar división (corrección para archivos exportados de Excel)
+            if (rows.length > 0 && rows[0].length === 1 && rows[0][0].includes('\t')) {
+              console.log("Detectado formato TAB, separando columnas...");
+              rows = rows.map(r => r[0].split('\t'));
+            }
+
+            pendingFiles.push({ name: file.name, rows: rows });
+
+            // Añadir fila decorativa a la tabla de preview (solo para el primer archivo o resumen)
+            let rowHtml = `<tr><td colspan="5" style="background:#f1f5f9; font-weight:bold; font-size:0.7rem; padding:8px;">📄 ${file.name} (${rows.length} filas)</td></tr>`;
+            table.innerHTML += rowHtml;
+
+            loadedCount++;
+            if (loadedCount === files.length) {
+              $('admin-debug').style.display = 'block';
+              updateStatus(`✅ ${files.length} archivos listos para subir. Revisa el resumen arriba.`);
+            }
+          }
+        });
+      });
+    }
+
+    function updateStatus(msg) {
+      console.log("[STATUS]", msg);
+      $('admin-status').innerText = msg;
+    }
+
+    // Helper para encontrar índice de columna por múltiples posibles nombres
+    function getColIdx(header, names) {
+      if (!header || !names) return -1;
+
+      const normalize = (str) => (str || "").toString()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar tildes
+        .replace(/^\ufeff/, "") // Quitar BOM
+        .trim().toLowerCase();
+
+      const h = header.map(v => normalize(v));
+      console.log("Detectando columnas (normalizado):", h);
+
+      for (let name of names) {
+        const target = normalize(name);
+        const found = h.indexOf(target);
+        if (found !== -1) return found;
+      }
+      return -1;
+    }
+
+    async function finalizarSubida() {
+      if (!pendingFiles || pendingFiles.length === 0) return;
+
+      const confirmMsg = `¿Deseas subir ${pendingFiles.length} archivos a la base de datos?\n` +
+        pendingFiles.map(f => `• ${f.name}`).join('\n');
+      if (!confirm(confirmMsg)) return;
+
+      // Opción de borrado total antes de empezar
+      if ($('auto-reset-all').checked) {
+        updateStatus("🔥 Ejecutando LIMPIEZA TOTAL antes de cargar...");
+        await Promise.all([
+          supabaseClient.from('eval_resultados').delete().neq('grado', -1),
+          supabaseClient.from('eval_preguntas').delete().neq('grado', -1),
+          supabaseClient.from('eval_estudiantes_notas').delete().neq('grado', -1)
+        ]);
+      }
+
+      const manualType = document.querySelector('input[name="upload-type"]:checked').value;
+
+      for (let i = 0; i < pendingFiles.length; i++) {
+        const fileObj = pendingFiles[i];
+        const rows = [...fileObj.rows];
+        const header = rows[0];
+        rows.shift();
+
+        updateStatus(`🚀 [${i + 1}/${pendingFiles.length}] Procesando: ${fileObj.name}...`);
+
+        let isBanco = false;
+        let isItemAnalysis = false;
+        let isEstudiantes = false;
+
+        if (manualType === 'auto') {
+          const hStr = header.join(',').toLowerCase();
+
+          // Banco de Preguntas: Si tiene texto/enunciado, las opciones A/B/C/D o pregunta_num / # pregunta
+          isBanco = hStr.includes("texto") || hStr.includes("enunciado") || hStr.includes("question_text") ||
+            hStr.includes("opción a") || hStr.includes("option a") || hStr.includes("pregunta_num") ||
+            hStr.includes("# pregunta") || (hStr.includes(",a,") && hStr.includes(",b,"));
+
+          // Estudiantes: ZipGrade ID + Nombres
+          isEstudiantes = (hStr.includes("zipgrade id") || hStr.includes("zipgrade_id")) &&
+            (hStr.includes("first name") || hStr.includes("first_name") || hStr.includes("estudiante"));
+
+          // Análisis de Items: Question Number + Primary Answer
+          isItemAnalysis = hStr.includes("primary_answer") || hStr.includes("question_number") ||
+            hStr.includes("pregunta_num") || hStr.includes("discriminant");
+
+          if (!isBanco && !isEstudiantes && !isItemAnalysis) {
+            isItemAnalysis = true; // Fallback
+          }
+        } else {
+          if (manualType === 'banco') isBanco = true;
+          if (manualType === 'item_analysis' || manualType === 'consolidado') isItemAnalysis = true;
+          if (manualType === 'estudiantes') isEstudiantes = true;
+        }
+
+        console.log(`File: ${fileObj.name} | Type: ${isEstudiantes ? 'Estudiantes' : isBanco ? 'Banco' : isItemAnalysis ? 'Análisis' : 'Desconocido'}`);
+        try {
+          if (isBanco) {
+            updateStatus(`🧠 Procesando Banco de Preguntas en ${fileObj.name}...`);
+            await procesarBancoPreguntas(rows, header, true, fileObj.name);
+          }
+          if (isItemAnalysis) {
+            updateStatus(`📊 Procesando Análisis General en ${fileObj.name}...`);
+            await procesarConsolidado(rows, header, true, fileObj.name);
+          }
+          if (isEstudiantes) {
+            updateStatus(`🎓 Procesando Notas de Estudiantes en ${fileObj.name}...`);
+            await procesarEstudiantes(rows, header, true, fileObj.name);
+          }
+          if (!isBanco && !isItemAnalysis && !isEstudiantes) {
+            console.warn(`⚠️ El archivo ${fileObj.name} no coincide con ningún tipo conocido.`);
+          }
+          updateStatus(`✅ Completado: ${fileObj.name}`);
+        } catch (e) {
+          console.error(`Error procesando ${fileObj.name}:`, e);
+          const errorMsg = e.message || e.details || JSON.stringify(e);
+          updateStatus(`❌ Error en ${fileObj.name}: ${errorMsg}`);
+          // Siempre preguntar si continuar, mostrando el error real
+          if (!confirm(`❌ Error en "${fileObj.name}":\n\n${errorMsg}\n\n¿Deseas continuar con los demás archivos?`)) break;
+        }
+      }
+
+      updateStatus("✨ ¡Proceso de carga masiva finalizado!");
+
+      // Limpiar formulario para permitir nuevas subidas sin bloqueos
+      pendingFiles = [];
+      $('csv-file').value = "";
+      $('debug-table').innerHTML = "";
+      $('admin-debug').style.display = 'none';
+
+      setTimeout(() => alert("Carga masiva finalizada correctamente."), 500);
+
+      // Actualizar selectores principales para reflejar los nuevos datos
+      init();
+    }
+
+    async function procesarBancoPreguntas(rows, header, silent = false, fileName = "") {
+      const gIdx = getColIdx(header, ["Grado", "Grade", "Nivel"]);
+      const qNumIdx = getColIdx(header, ["Pregunta", "Question_Number", "No.", "Num", "pregunta_num", "# Pregunta", "#"]);
+      const asigIdx = getColIdx(header, ["Asignatura", "Subject", "Materia", "Area"]);
+      const txtIdx = getColIdx(header, ["Texto de la Pregunta", "Question Text", "Texto", "Enunciado"]);
+      const optAIdx = getColIdx(header, ["Opción A", "Option A", "A", "Opcion A"]);
+      const optBIdx = getColIdx(header, ["Opción B", "Option B", "B", "Opcion B"]);
+      const optCIdx = getColIdx(header, ["Opción C", "Option C", "C", "Opcion C"]);
+      const optDIdx = getColIdx(header, ["Opción D", "Option D", "D", "Opcion D"]);
+
+      console.log("Indices Banco:", { gIdx, qNumIdx, asigIdx, txtIdx, optAIdx, optBIdx, optCIdx, optDIdx });
+
+      if (qNumIdx === -1) {
+        throw new Error(`No se encontró la columna de "Número de Pregunta" en el archivo. Asegúrate de que tenga un encabezado como "# Pregunta", "pregunta_num" o "Pregunta".\n\nEncabezados detectados: ${header.join(' | ')}`);
+      }
+
+      const periodoDetectado = detectarPeriodo(fileName);
+      const batchPreguntas = [];
+      let lastGrado = 0;
+
+      for (const row of rows) {
+        const pNum = parseInt(row[qNumIdx]) || 0;
+        if (!pNum && (!txtIdx || !row[txtIdx])) continue;
+
+        const grado = (gIdx !== -1) ? (parseInt(row[gIdx]) || lastGrado) : lastGrado;
+        if (grado) lastGrado = grado;
+
+        const asig = (asigIdx !== -1 ? (row[asigIdx] || "General") : "General").trim();
+
+        batchPreguntas.push({
+          grado,
+          periodo: periodoDetectado,
+          asignatura: asig,
+          pregunta_num: pNum,
+          texto_pregunta: (txtIdx !== -1 ? (row[txtIdx] || "") : "").trim(),
+          opcion_a: (optAIdx !== -1 ? (row[optAIdx] || "") : "").trim(),
+          opcion_b: (optBIdx !== -1 ? (row[optBIdx] || "") : "").trim(),
+          opcion_c: (optCIdx !== -1 ? (row[optCIdx] || "") : "").trim(),
+          opcion_d: (optDIdx !== -1 ? (row[optDIdx] || "") : "").trim()
+        });
+      }
+
+      if (batchPreguntas.length === 0) {
+        throw new Error("No se detectaron preguntas válidas. Verifica que los nombres de las columnas sean correctos (Grado, Pregunta, Asignatura, Texto, A, B, C, D).");
+      }
+
+      if (!silent) {
+        if (!confirm(`¿Cargar ${batchPreguntas.length} preguntas del periodo ${periodoDetectado} al banco?`)) return;
+      }
+
+      updateStatus(`⏳ Guardando ${batchPreguntas.length} preguntas -> Detectado: Periodo ${periodoDetectado}...`);
+
+      // Borrado granular: por cada combinación única de (grado, asignatura, periodo) presente en el archivo
+      const uniqueCombs = [...new Set(batchPreguntas.map(p => `${p.grado}|${p.asignatura}|${p.periodo}`))];
+
+      for (const comb of uniqueCombs) {
+        const [g, asig, p] = comb.split('|');
+        await supabaseClient.from('eval_preguntas')
+          .delete()
+          .eq('grado', g)
+          .eq('periodo', p)
+          .eq('asignatura', asig);
+      }
+
+      const { error } = await supabaseClient.from('eval_preguntas').insert(batchPreguntas);
+      if (error) throw error;
+      updateStatus("✅ Banco de preguntas actualizado.");
+    }
+
+    async function procesarConsolidado(rows, header, silent = false, fileName = "") {
+      // Mapeo dinámico
+      const quizIdx = getColIdx(header, ["Quiz_Name", "Quiz Name"]);
+      const classIdx = getColIdx(header, ["Class"]);
+      const qNumIdx = getColIdx(header, ["Question_Number", "Pregunta", "pregunta_num", "No.", "Num", "# Pregunta", "#"]);
+      const keyIdx = getColIdx(header, ["Primary_Answer", "Key"]);
+      const okCountIdx = getColIdx(header, ["# Correct", "Num Correct"]);
+      const porcIdx = getColIdx(header, ["% Correct", "Percent Correct"]);
+
+      if (qNumIdx === -1) {
+        throw new Error(`No se encontró la columna de "Número de Pregunta" en el archivo de análisis. Asegúrate de que tenga un encabezado como "Question_Number", "Pregunta" o "pregunta_num".\n\nEncabezados detectados: ${header.join(' | ')}`);
+      }
+      // Distractores
+      const r1Idx = getColIdx(header, ["Response 1"]);
+      const r1pIdx = getColIdx(header, ["Response 1 %"]);
+      const r2Idx = getColIdx(header, ["Response 2"]);
+      const r2pIdx = getColIdx(header, ["Response 2 %"]);
+      const r3Idx = getColIdx(header, ["Response 3"]);
+      const r3pIdx = getColIdx(header, ["Response 3 %"]);
+      const r4Idx = getColIdx(header, ["Response 4"]);
+      const r4pIdx = getColIdx(header, ["Response 4 %"]);
+
+      const batchResultados = [];
+      const periodosDetectados = new Set();
+
+      for (const row of rows) {
+        const pNum = parseInt(row[qNumIdx]) || 0;
+        if (!pNum) continue;
+
+        const quizRaw = row[quizIdx] || "Evaluación";
+        const quiz = quizRaw.toString().trim(); // Limpieza de espacios accidentales
+
+        // Intentar detectar periodo del nombre del quiz, si falla, intentar del nombre del archivo
+        let periodoDetectado = detectarPeriodo(quiz);
+        if (fileName && (periodoDetectado === currentPeriodo || periodoDetectado === 1)) {
+          const pFile = detectarPeriodo(fileName);
+          if (pFile !== currentPeriodo) periodoDetectado = pFile;
+        }
+
+        periodosDetectados.add(periodoDetectado);
+
+        // Detectar grado del nombre del quiz si no hay columna
+        let grado = 0;
+        const matchG = quiz.match(/(\d+)/);
+        if (matchG) grado = parseInt(matchG[1]);
+
+        // Limpiar para cálculo
+        const p_corr = parseFloat((row[porcIdx] || "0").toString().replace(',', '.')) || 0;
+        const c_corr = parseInt(row[okCountIdx]) || 0;
+        const totalEst = p_corr > 0 ? Math.round((c_corr * 100) / p_corr) : 0;
+        const correctKey = (row[keyIdx] || "").toUpperCase();
+
+        // Extraer distribución de respuestas (ZipGrade da porcentajes, convertimos a cantidad de alumnos)
+        const dist = { 'A': 0, 'B': 0, 'C': 0, 'D': 0 };
+        const mapping = [[r1Idx, r1pIdx], [r2Idx, r2pIdx], [r3Idx, r3pIdx], [r4Idx, r4pIdx]];
+        mapping.forEach(pair => {
+          if (pair[0] === -1 || pair[1] === -1) return;
+          const val = (row[pair[0]] || "").toString().toUpperCase();
+          const pct = parseFloat((row[pair[1]] || "0").toString().replace(',', '.')) || 0;
+          if (dist.hasOwnProperty(val)) {
+            // Si es la respuesta correcta, usamos la cantidad real de aciertos
+            if (val === correctKey) {
+              dist[val] = c_corr;
+            } else {
+              dist[val] = Math.round((totalEst * pct) / 100);
+            }
+          }
+        });
+
+        batchResultados.push({
+          grado,
+          periodo: periodoDetectado,
+          sede: "GENERAL",
+          quiz_name: quiz,
+          pregunta_num: pNum,
+          key: correctKey,
+          cant_correctas: c_corr,
+          porc_correctas: p_corr,
+          resp_a_count: dist['A'],
+          resp_b_count: dist['B'],
+          resp_c_count: dist['C'],
+          resp_d_count: dist['D']
+        });
+      }
+
+      if (batchResultados.length === 0) return;
+
+      if (!silent) {
+        if (!confirm(`Se detectaron ${batchResultados.length} registros de análisis para: ${Array.from(periodosDetectados).join(', ')}. ¿Proceder?`)) return;
+      }
+
+      updateStatus("⏳ Guardando estadísticas generales...");
+
+      // Borrado granular: por cada combinación única de (grado, periodo, quiz_name)
+      const uniqueCombs = [...new Set(batchResultados.map(r => `${r.grado}|${r.periodo}|${r.quiz_name}`))];
+
+      for (const comb of uniqueCombs) {
+        const [g, p, q] = comb.split('|');
+        await supabaseClient.from('eval_resultados')
+          .delete()
+          .eq('grado', g)
+          .eq('periodo', p)
+          .eq('quiz_name', q);
+      }
+
+      const { error } = await supabaseClient.from('eval_resultados').insert(batchResultados);
+      if (error) throw error;
+      updateStatus("✅ Análisis consolidado guardado.");
+    }
+
+    async function procesarEstudiantes(rows, header, silent = false, fileName = "") {
+      // Solo capturar columnas que sean exactamente Q seguido de dígitos (Q1, Q2, ... Q120)
+      // Evita capturar "Quiz Name", "Quiz_Name", "Key Version", etc.
+      const qCols = [];
+      header.forEach((h, i) => {
+        if (h && /^Q\d+$/i.test(h.toString().trim())) qCols.push(i);
+      });
+
+      const quizIdx = getColIdx(header, ["Quiz Name", "Quiz_Name"]);
+      const classIdx = getColIdx(header, ["Class"]);
+      const zipIdIdx = getColIdx(header, ["ZipGrade ID", "ZipGrade_ID"]);
+      const fNameIdx = getColIdx(header, ["First Name", "First_Name"]);
+      const lNameIdx = getColIdx(header, ["Last Name", "Last_Name"]);
+      const okIdx = getColIdx(header, ["Num Correct", "# Correct"]);
+      const porcIdx = getColIdx(header, ["Percent Correct", "% Correct"]);
+
+      const resultadosEstudiantes = [];
+      for (const row of rows) {
+        const zipId = (row[zipIdIdx] || "").toString().trim();
+        if (!zipId || zipId.toLowerCase() === "primary key") continue;
+
+        const quizRaw = row[quizIdx] || "";
+        const quizName = quizRaw.toString().trim();
+
+        // Siempre extraemos el grupo desde el ZipGrade ID (fuente más confiable)
+        // El grupo puede ser: 901, 902, 9PJ, 9YA, 305, 3SE, etc.
+        const grupo = extraerGrupo(zipId);
+        const sede = detectarSede(grupo);
+        // El grado numérico base lo sacamos del grupo
+        const gradoNumBase = extraerGradoBase(grupo);
+        // Guardamos el grupo completo (ej. "9PJ", "901") en la columna grado
+        let gradoLimpio = grupo || gradoNumBase.toString();
+
+        // Fallback: si aún está vacío, sacarlo del nombre del quiz
+        if (!gradoLimpio) {
+          const matchG = quizName.match(/(\d+)/);
+          if (matchG) gradoLimpio = matchG[1];
+        }
+
+        const nombre = ((row[fNameIdx] || "") + " " + (row[lNameIdx] || "")).trim();
+
+        let periodoDetectado = detectarPeriodo(quizName);
+        if (fileName && (periodoDetectado === currentPeriodo || periodoDetectado === 1)) {
+          const pFile = detectarPeriodo(fileName);
+          if (pFile !== currentPeriodo) periodoDetectado = pFile;
+        }
+
+        const respuestas = {};
+        qCols.forEach((colIdx, i) => {
+          respuestas[i + 1] = parseInt(row[colIdx]) || 0;
+        });
+
+        if (!nombre) continue;
+
+        const p_total = parseFloat((row[porcIdx] || "0").toString().replace(',', '.')) || 0;
+
+        resultadosEstudiantes.push({
+          estudiante_nombre: nombre,
+          zipgrade_id: zipId,
+          grado: gradoLimpio,
+          sede: sede,
+          periodo: periodoDetectado,
+          quiz_name: quizName,
+          total_correctas: parseInt(row[okIdx]) || 0,
+          porcentaje: p_total,
+          respuestas: respuestas
+        });
+      }
+
+      if (resultadosEstudiantes.length === 0) return;
+
+      if (!silent) {
+        if (!confirm(`Se detectaron ${resultadosEstudiantes.length} resultados individuales. ¿Subir?`)) return;
+      }
+
+      try {
+        updateStatus("⏳ Guardando notas individuales...");
+        console.log(`🎓 [procesarEstudiantes] Total estudiantes a guardar: ${resultadosEstudiantes.length}`);
+        console.log('💾 Muestra del primer registro:', JSON.stringify(resultadosEstudiantes[0], null, 2));
+        console.log('💾 Muestra del último registro:', JSON.stringify(resultadosEstudiantes[resultadosEstudiantes.length - 1], null, 2));
+
+        // Borrado quirúrgico: solo eliminar los registros que coincidan con el quiz, periodo Y GRADO
+        const uniqueCombs = [...new Set(resultadosEstudiantes.map(e => `${e.quiz_name}|${e.grado}|${e.periodo}`))];
+        console.log('🗑️ Combinaciones a borrar (Quirúrgico):', uniqueCombs);
+        for (const comb of uniqueCombs) {
+          const [q, g, p] = comb.split('|');
+          console.log(`🗑️ Borrando previos: quiz_name="${q}" grado="${g}" periodo=${p}`);
+          const { error: delErr } = await supabaseClient.from('eval_estudiantes_notas')
+            .delete()
+            .eq('quiz_name', q)
+            .eq('grado', g)
+            .eq('periodo', p);
+          if (delErr) {
+            console.warn('⚠️ Advertencia al borrar previos:', delErr);
+          } else {
+            console.log(`✅ Borrado OK para "${q}" (Grado ${g}, P${p})`);
+          }
+        }
+
+        // Insertar en lotes de 200 para evitar límites de Supabase
+        const BATCH = 200;
+        for (let b = 0; b < resultadosEstudiantes.length; b += BATCH) {
+          const lote = resultadosEstudiantes.slice(b, b + BATCH);
+          console.log(`🚀 Insertando lote ${b / BATCH + 1}: estudiantes ${b + 1} al ${Math.min(b + BATCH, resultadosEstudiantes.length)}`);
+          const { error: err, data: insertData } = await supabaseClient.from('eval_estudiantes_notas').insert(lote);
+          if (err) {
+            console.error('❌ Error en insert lote:', err);
+            console.error('📄 Primer registro del lote fallido:', JSON.stringify(lote[0], null, 2));
+            throw err;
+          }
+          console.log(`✅ Lote insertado OK (${lote.length} registros)`);
+          updateStatus(`⏳ Guardando... ${Math.min(b + BATCH, resultadosEstudiantes.length)}/${resultadosEstudiantes.length} estudiantes`);
+        }
+        console.log(`🎉 TODOS los registros guardados exitosamente: ${resultadosEstudiantes.length} estudiantes`);
+        updateStatus(`✅ ${resultadosEstudiantes.length} notas individuales guardadas correctamente.`);
+      } catch (e) {
+        console.error('🔴 ERROR FATAL en procesarEstudiantes:', e);
+        const errorMsg = e.message || e.details || JSON.stringify(e);
+        // Siempre mostrar el error al usuario, sea modo silent o no
+        alert(`❌ Error guardando notas:\n\n${errorMsg}\n\nRevisa la consola del navegador (F12 > Consola) para más detalles.`);
+        throw e; // Propagar para que finalizarSubida lo maneje
+      }
+    }
+
+    async function resetearBaseDeDatos() {
+      const resp = confirm("⚠️ ¿ESTÁS SEGURO?\n\nEsto borrará TOTALMENTE los datos de:\n- Análisis General\n- Notas de Estudiantes\n- Banco de Preguntas\n\nEsta acción NO se puede deshacer.");
+      if (!resp) return;
+
+      const confirm2 = confirm("¿REALMENTE SEGURO? Estás a punto de vaciar TODA la aplicación.");
+      if (!confirm2) return;
+
+      showLoading(true);
+      try {
+        // Borramos todas las filas de las 3 tablas principales
+        // Usamos .neq('id', -1) que es una forma segura de borrar todo en Supabase si no hay filtros
+        await Promise.all([
+          supabaseClient.from('eval_resultados').delete().neq('grado', -1),
+          supabaseClient.from('eval_estudiantes_notas').delete().neq('grado', -1),
+          supabaseClient.from('eval_preguntas').delete().neq('grado', -1)
+        ]);
+
+        alert("✅ Base de datos reseteada correctamente. La página se recargará.");
+        location.reload();
+      } catch (e) {
+        console.error(e);
+        alert("Error al resetear: " + e.message);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // --- REPORTES INDIVIDUALES ---
+    async function cargarGradosReporte() {
+      showLoading(true);
+      try {
+        const sede = $('rep-sede').value;
+        const { data } = await supabaseClient.from('eval_estudiantes_notas').select('zipgrade_id').eq('periodo', currentPeriodo);
+
+        const assigned = localStorage.getItem('eval_user_grade');
+        const rol = currentRole;
+
+        // Obtener todos los grupos únicos
+        let allGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))] : [];
+
+        // FILTRO POR DOCENTE
+        if (rol === 'lector' && assigned) {
+          if (assigned.toLowerCase() === 'primaria') {
+            allGroups = allGroups.filter(g => {
+              const base = extraerGradoBase(g);
+              return base >= 1 && base <= 5;
+            });
+          } else {
+            allGroups = allGroups.filter(g => g === assigned);
+          }
+        }
+
+        // Filtrar por sede seleccionada
+        const uniqueGroups = allGroups.filter(g => detectarSede(g) === sede)
+          .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+        const sel = $('rep-grado');
+        sel.innerHTML = uniqueGroups.length > 0
+          ? uniqueGroups.map(g => `<option value="${g}">${g}</option>`).join('')
+          : '<option value="">Sin grupos...</option>';
+
+        // CONTROL DE BOTONES MASIVOS POR SEDE
+        const canPrint = currentRole === 'superadmin' || currentRole === 'admin';
+        const btnBasica = $('btn-print-basica');
+        const btnSuperior = $('btn-print-superior');
+
+        if (canPrint) {
+          if (btnBasica) btnBasica.style.display = 'block';
+          if (btnSuperior) {
+            btnSuperior.style.display = (sede === 'Central') ? 'block' : 'none';
+          }
+        }
+
+        cargarEstudiantesReporte();
+      } catch (e) {
+        console.error("Error cargando grupos:", e);
+      }
+      showLoading(false);
+    }
+
+    async function cargarEstudiantesReporte() {
+      const grupo = $('rep-grado').value;
+      if (!grupo) {
+        $('rep-estudiante').innerHTML = '<option value="">Seleccione estudiante...</option>';
+        return;
+      }
+
+      const { data } = await supabaseClient.from('eval_estudiantes_notas')
+        .select('estudiante_nombre, zipgrade_id')
+        .eq('periodo', currentPeriodo);
+
+      const filtrados = data ? data.filter(e => extraerGrupo(e.zipgrade_id) === grupo) : [];
+      const uniqueMap = new Map();
+      filtrados.forEach(e => uniqueMap.set(e.zipgrade_id, e.estudiante_nombre));
+
+      const sel = $('rep-estudiante');
+      sel.innerHTML = '<option value="">Seleccione estudiante...</option>' +
+        Array.from(uniqueMap.entries())
+          .sort((a, b) => a[1].localeCompare(b[1]))
+          .map(([id, name]) => `<option value="${id}">${name}</option>`).join('');
+    }
+
+    // --- GENERACIÓN DE REPORTES Y PUESTOS ---
+    async function generarReporteIndividual() {
+      const zipId = $('rep-estudiante').value;
+      const grupo = $('rep-grado').value;
+      if (!zipId) return;
+
+      showLoading(true);
+      try {
+        const [resHist, resTodos] = await Promise.all([
+          supabaseClient.from('eval_estudiantes_notas').select('*').eq('zipgrade_id', zipId).order('periodo', { ascending: true }),
+          supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo)
+        ]);
+
+        if (resHist.error) throw resHist.error;
+        if (resTodos.error) throw resTodos.error;
+
+        const historico = resHist.data || [];
+        const todos = resTodos.data || [];
+
+        const est = historico.find(t => t.periodo === parseInt(currentPeriodo)) || historico[historico.length - 1];
+        if (!est) throw new Error("No se encontró el registro del estudiante.");
+
+        // Filtrar todos los alumnos que pertenecen al mismo grupo del seleccionado
+        const alumnosGrupo = todos.filter(t => extraerGrupo(t.zipgrade_id) === grupo);
+        if (alumnosGrupo.length === 0) throw new Error("No se encontraron resultados para el grupo en este periodo.");
+
+        const sortedGlobal = [...alumnosGrupo].sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
+        const puestoGlobal = sortedGlobal.findIndex(t => t.zipgrade_id === zipId) + 1;
+
+        const gNum = extraerGradoBase(grupo);
+        let mKey = '6-9';
+        if (gNum <= 4) mKey = '3-4';
+        else if (gNum === 5) mKey = '5';
+        else if (gNum >= 10) mKey = '10-11';
+        const config = MATRIZ_RANGOS[mKey];
+
+        // Calcular puestos por cada asignatura (DENTRO DEL GRUPO SOLAMENTE)
+        const puestosMaterias = {};
+        config.forEach(subj => {
+          const rankings = alumnosGrupo.map(student => {
+            let ok = 0;
+            for (let i = subj.start; i <= subj.end; i++) {
+              if (student.respuestas && student.respuestas[i] === 1) ok++;
+            }
+            return { id: student.zipgrade_id, ok };
+          }).sort((a, b) => b.ok - a.ok);
+
+          puestosMaterias[subj.label] = rankings.findIndex(r => r.id === zipId) + 1;
+        });
+
+        const html = construirHTMLBoletin(est, puestoGlobal, alumnosGrupo.length, puestosMaterias, config, historico);
+
+        const canPrint = currentRole === 'superadmin' || currentRole === 'admin';
+        const printActions = canPrint ? `
+          <div class="no-print" style="margin-bottom:1rem; display:flex; gap:10px; justify-content: flex-end;">
+            <button onclick="window.print()" style="background:#4f46e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">🖨️ IMPRIMIR ESTE REPORTE</button>
+            <button onclick="imprimirTodoElGrado()" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">📋 IMPRIMIR TODO EL GRADO</button>
+          </div>
+        ` : '';
+
+        $('reporte-content').innerHTML = `
+          ${printActions}
+          <div id="report-print-area">${html}</div>
+        `;
+
+        // Renderizar gráfico comparativo después de inyectar el HTML
+        if (historico && historico.length > 0) {
+          setTimeout(() => renderizarGraficoTendencia(historico), 100);
+        }
+      } catch (e) {
+        console.error("Error generando reporte:", e);
+        alert("Hubo un problema al generar el reporte: " + e.message);
+        $('reporte-content').innerHTML = `<p style="text-align:center; color:#ef4444; padding:2rem;">❌ Error: ${e.message}</p>`;
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function construirHTMLBoletin(est, puesto, total, puestosMaterias, config, historico = []) {
+
+      const curP = parseInt(est.periodo) || 1;
+
+      // Mapeo histórico por materia
+      const histMaterias = {}; // { 'Matemáticas': { 1: 60, 2: 70 } }
+      historico.forEach(h => {
+        if (h.periodo >= curP) return; // Solo periodos anteriores
+        config.forEach(subj => {
+          let ok = 0;
+          for (let i = subj.start; i <= subj.end; i++) {
+            if (h.respuestas && h.respuestas[i] === 1) ok++;
+          }
+          const pct = Math.round((ok / (subj.end - subj.start + 1)) * 100);
+          if (!histMaterias[subj.label]) histMaterias[subj.label] = {};
+          histMaterias[subj.label][h.periodo] = pct;
+        });
+      });
+
+      const roundedPct = Math.round(est.porcentaje || 0);
+      const general = getValoration(roundedPct);
+      const materias = config.map(subj => {
+        let ok = 0, totalSub = 0;
+        for (let i = subj.start; i <= subj.end; i++) {
+          totalSub++;
+          if (est.respuestas && est.respuestas[i] === 1) ok++;
+        }
+        const pct = Math.round((ok / totalSub) * 100);
+        const val = getValoration(pct);
+        const label = subj.label.toUpperCase();
+        let iconSubject = '📝';
+        if (label.includes('MAT')) iconSubject = '🧮';
+        else if (label.includes('LENG') || label.includes('LECTOR')) iconSubject = '📖';
+        else if (label.includes('CIUD')) iconSubject = '🤝';
+        else if (label.includes('SOC')) iconSubject = '🏛️';
+        else if (label.includes('BIO')) iconSubject = '🧬';
+        else if (label.includes('QUI')) iconSubject = '🧪';
+        else if (label.includes('FÍS')) iconSubject = '⚛️';
+        else if (label.includes('ING')) iconSubject = '🗣️';
+        else if (label.includes('NAT')) iconSubject = '🔬';
+
+        return {
+          name: subj.label, ok, total: totalSub, pct, val, icon: iconSubject,
+          puesto: puestosMaterias[subj.label],
+          hist: histMaterias[subj.label] || {}
+        };
+      });
+
+      const logoLiceo = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png";
+      const logoEvaluandonos = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png";
+      const logoEscudo = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/Escudo%20liceo.png";
+
+      return `
+        <style>
+          @media print {
+            @page { size: A4; margin: 0; }
+            body { margin: 0; padding: 0; }
+            .report-card { border: none !important; box-shadow: none !important; width: 100% !important; margin: 0 !important; }
+          }
+        </style>
+        <div class="report-card" style="font-family:'Outfit', sans-serif; color:#1e293b; line-height:1.15; padding:15px; border:1px solid #e2e8f0; border-radius:10px; background-image: linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)), url('https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/fondo.png'); background-size: cover; background-position: center; background-repeat: no-repeat; width:100%; max-width:820px; margin: 0 auto; box-sizing:border-box; position: relative;">
+          
+          
+          <!-- Encabezado en Card -->
+          <div class="header-print-info" style="background:rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px); border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 15px; margin-bottom: 12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <img src="${logoLiceo}" style="height:65px;">
+              <div style="text-align:center; flex:1;">
+                 <h1 style="margin:0; font-size:1.2rem; color:#16a34a; font-weight:900; text-transform:uppercase;">I.E. Liceo Alejandro de Humboldt</h1>
+                 <div style="display:flex; align-items:center; justify-content:center; gap:5px; margin-top:4px;">
+                    <img src="${logoEvaluandonos}" style="height:82px;">
+                 </div>
+              </div>
+              <div style="text-align:right;">
+                 <img src="${logoEscudo}" style="height:65px;">
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="background:#f1f5f9; border:1px solid #2563eb; padding:2px 15px; border-radius:8px; color:#16a34a; font-weight:900; font-size:0.9rem;">Reporte de resultados</div>
+              <div style="text-align:right; font-size:0.8rem;">
+                 <span style="color:#2563eb; font-weight:900;">PRUEBA ${curP === 3 ? 'EF' : 'E' + curP}</span> | <span style="color:#64748b;">AÑO LECTIVO 2026</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Datos Estudiante -->
+          <div style="border:1px solid #cbd5e1; border-radius:12px; padding:6px 12px; margin-bottom:8px; background:rgba(255, 255, 255, 0.8); backdrop-filter: blur(4px);">
+             <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                <div><span style="font-weight:700; color:#64748b;">ESTUDIANTE:</span> <span style="font-weight:900;">${est.estudiante_nombre}</span></div>
+                <div><span style="font-weight:700; color:#64748b;">GRADO:</span> <span style="font-weight:900;">${est.grado}°</span></div>
+                <div><span style="font-weight:700; color:#64748b;">CÓDIGO:</span> <span style="font-weight:900;">${est.zipgrade_id}</span></div>
+             </div>
+          </div>
+
+          <!-- Resultado General -->
+          <div class="result-general-box" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
+             <div style="border:1px solid #2563eb; border-radius:12px; padding:8px; display:flex; justify-content:space-between; align-items:center; background:rgba(255, 255, 255, 0.8); backdrop-filter: blur(4px);">
+                <div>
+                   <h4 style="margin:0 0 4px 0; color:#2563eb; font-size:0.75rem; text-transform:uppercase;">Resultado general</h4>
+                   <div style="font-size:1rem;"><span style="font-weight:700;">Promedio:</span> <span style="font-weight:900; color:#2563eb; font-size:1.3rem;">${roundedPct}</span><span style="color:#94a3b8; font-weight:700;">/100</span></div>
+                   <div style="margin-top:1px;"><span style="font-weight:700; font-size:0.8rem;">Nivel:</span> <span style="font-weight:900; color:#f97316; font-size:0.8rem;">${general.nivel}</span></div>
+                </div>
+                <div style="text-align:center; border-left:1px solid #e2e8f0; padding-left:12px;">
+                   <span style="font-size:0.65rem; font-weight:800; color:#f97316; display:block; margin-bottom:2px;">DESEMPEÑO</span>
+                   <div style="border:2px solid #2563eb; padding:4px 12px; border-radius:8px; background:white;">
+                      <div style="font-size:0.6rem; font-weight:700; color:#64748b;">PUESTO GRADO</div>
+                      <div style="font-size:1.3rem; font-weight:900; color:#ef4444; line-height:1;">${puesto}</div>
+                   </div>
+                </div>
+             </div>
+
+             <div style="border:1px solid #cbd5e1; border-radius:12px; padding:8px; text-align:center; display:flex; align-items:center; justify-content:center; background:#fff;">
+                <div style="display:flex; align-items:flex-end; gap:5px; height:60px;">
+                    <div style="display:flex; flex-direction:column; align-items:center; ${general.nivel === 'N1' ? '' : 'opacity:0.25;'}">
+                      <span style="font-size:0.5rem; font-weight:800; color:#94a3b8;">0-50</span>
+                      <div style="width:32px; height:18px; background:#b91c1c; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel === 'N1' ? 'box-shadow: 0 0 8px #b91c1c; border:2px solid white;' : ''}">1</div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:center; ${general.nivel === 'N2' ? '' : 'opacity:0.25;'}">
+                      <span style="font-size:0.5rem; font-weight:800; color:#94a3b8;">51-70</span>
+                      <div style="width:32px; height:32px; background:#eab308; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel === 'N2' ? 'box-shadow: 0 0 8px #eab308; border:2px solid white;' : ''}">2</div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:center; ${general.nivel === 'N3' ? '' : 'opacity:0.25;'}">
+                      <span style="font-size:0.5rem; font-weight:800; color:#94a3b8;">71-90</span>
+                      <div style="width:32px; height:46px; background:#15803d; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel === 'N3' ? 'box-shadow: 0 0 8px #15803d; border:2px solid white;' : ''}">3</div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:center; ${general.nivel === 'N4' ? '' : 'opacity:0.25;'}">
+                      <span style="font-size:0.5rem; font-weight:800; color:#94a3b8;">91-100</span>
+                      <div style="width:32px; height:60px; background:#7e22ce; border-radius:3px; color:white; font-weight:900; font-size:0.75rem; display:flex; align-items:center; justify-content:center; ${general.nivel === 'N4' ? 'box-shadow: 0 0 8px #7e22ce; border:2px solid white;' : ''}">4</div>
+                    </div>
+                </div>
+             </div>
+          </div>
+
+          <!-- Tabla de Resultados -->
+          <div style="border:1px solid #cbd5e1; border-radius:12px; overflow:hidden; margin-bottom:12px; background:rgba(255, 255, 255, 0.8); backdrop-filter: blur(4px);">
+             <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                <thead>
+                   <tr style="background:rgba(248, 250, 252, 0.8);">
+                      <th style="padding:8px 10px; border-bottom:1px solid #cbd5e1; text-align:left; color:#16a34a; width:30px;"></th>
+                      <th style="padding:8px 5px; border-bottom:1px solid #cbd5e1; text-align:left; color:#16a34a;">ASIGNATURA</th>
+                      <th style="padding:8px 5px; border-bottom:1px solid #cbd5e1; text-align:center; color:#16a34a; width:60px;">PUNTAJE</th>
+                      <th style="padding:8px 5px; border-bottom:1px solid #cbd5e1; text-align:center; color:#16a34a; width:50px;">NIVEL</th>
+                      <th style="padding:8px 5px; border-bottom:1px solid #cbd5e1; text-align:center; color:#16a34a; width:50px;">PUESTO</th>
+                      <th style="padding:8px 5px; border-bottom:1px solid #cbd5e1; text-align:center; color:#16a34a; width:80px;">VALORACIÓN</th>
+                      ${curP > 1 ? `<th style="padding:8px 5px; border-bottom:1px solid #cbd5e1; text-align:center; background:#eff6ff; color:#2563eb; width:50px; border-left:2px solid #2563eb;">HIST. E1</th>` : ''}
+                      ${curP > 2 ? `<th style="padding:8px 5px; border-bottom:1px solid #cbd5e1; text-align:center; background:#eff6ff; color:#2563eb; width:50px;">HIST. E2</th>` : ''}
+                   </tr>
+                </thead>
+                <tbody>
+                   ${materias.map(m => {
+        const trendIcon = (cur) => {
+          const pPrev = m.hist[curP - 1];
+          if (!pPrev) return '';
+          if (cur > pPrev) return '<span style="color:#16a34a; font-size:0.7rem;">⬆️</span>';
+          if (cur < pPrev) return '<span style="color:#ef4444; font-size:0.7rem;">⬇️</span>';
+          return '<span style="color:#94a3b8; font-size:0.7rem;">➡️</span>';
+        };
+
+        return `
+                    <tr style="border-bottom:1px dashed #e2e8f0;">
+                       <td style="padding:4px; font-size:1.1rem; text-align:center;">${m.icon}</td>
+                       <td style="padding:4px; font-weight:800; font-size:0.8rem;">${m.name}</td>
+                       <td style="padding:4px; text-align:center;"><span style="font-weight:900; color:#2563eb;">${m.pct}</span></td>
+                       <td style="padding:4px; text-align:center; font-weight:900; color:#2563eb;">${m.val.nivel}</td>
+                       <td style="padding:4px; text-align:center; font-weight:900;">${m.puesto}</td>
+                       <td style="padding:4px; text-align:center;">
+                          <div style="color:${m.val.color}; font-weight:900; font-size:0.7rem; display:flex; align-items:center; justify-content:center; gap:3px;">
+                            ${m.val.label} ${trendIcon(m.pct)}
+                          </div>
+                       </td>
+                       ${curP > 1 ? `
+                       <td style="padding:4px; text-align:center; border-left:2px solid #2563eb; background:#f0f7ff;">
+                          <span style="font-weight:800; color:#64748b; font-size:0.75rem;">${m.hist[1] !== undefined ? m.hist[1] : '-'}</span>
+                       </td>` : ''}
+                       ${curP > 2 ? `
+                       <td style="padding:4px; text-align:center; background:#f0f7ff;">
+                          <span style="font-weight:800; color:#64748b; font-size:0.75rem;">${m.hist[2] !== undefined ? m.hist[2] : '-'}</span>
+                       </td>` : ''}
+                    </tr>
+                    `;
+      }).join('')}
+                </tbody>
+             </table>
+          </div>
+
+          <!-- Evolución Gráfica y Resumen -->
+          ${historico && historico.length > 1 ? `
+          <div class="chart-container" style="border:1px solid #2563eb; border-radius:12px; padding:10px; margin-bottom:10px; background:rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px);">
+             <h4 style="margin:0 0 8px 0; color:#2563eb; font-size:0.75rem; text-transform:uppercase; display:flex; align-items:center; gap:8px;">
+                📈 Evolución del Desempeño General
+             </h4>
+             <div style="display:grid; grid-template-columns: 1.6fr 1fr; gap:12px; align-items:center;">
+                <div style="height:100px; position:relative;">
+                   <canvas id="chart-tendencia-${est.zipgrade_id}"></canvas>
+                </div>
+                <div style="font-size:0.75rem;">
+                   <table style="width:100%; border-collapse:collapse;">
+                      <thead>
+                         <tr style="color:#64748b; border-bottom:1px solid #e2e8f0;">
+                            <th style="padding:3px; text-align:left;">PRUEBA</th>
+                            <th style="padding:3px; text-align:center;">PROM.</th>
+                         </tr>
+                      </thead>
+                      <tbody>
+                         ${historico.filter(h => h.periodo <= curP).map(h => `
+                         <tr style="border-bottom:1px solid #f1f5f9;">
+                            <td style="padding:3px; font-weight:700; color:#1e293b;">${h.periodo === 3 ? 'E. Final (EF)' : 'E. ' + h.periodo}</td>
+                            <td style="padding:3px; text-align:center;"><span style="background:${getValoration(Math.round(h.porcentaje)).color}; color:white; padding:1px 5px; border-radius:4px; font-weight:900; font-size:0.7rem;">${Math.round(h.porcentaje)}</span></td>
+                         </tr>
+                         `).join('')}
+                      </tbody>
+                   </table>
+                </div>
+             </div>
+          </div>
+          ` : ''}
+
+          <div style="margin-top:6px; display:flex; justify-content:space-between; align-items:center; opacity:0.5; font-size:0.6rem;">
+             <div style="display:flex; align-items:center; gap:5px;">
+                I.E. Liceo Alejandro de Humboldt - Proyecto Creo en TIC - 2026
+                <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/creoentic%20transparente.png" style="height:26px;">
+             </div>
+             <div style="font-weight:800; display:flex; align-items:center; gap:5px;">
+                EVALUÁNDONOS SYSTEM © 
+                <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/andresanbordessinfondo.png" style="height:22px;">
+             </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderizarGraficoTendencia(historico) {
+      if (!historico || historico.length < 1) return;
+      const est = historico[0];
+      const ctx = document.getElementById(`chart-tendencia-${est.zipgrade_id}`);
+      if (!ctx) return;
+
+      // Filtrar solo hasta el periodo actual
+      const curP = parseInt(currentPeriodo) || 1;
+      const histFiltrado = historico.filter(h => h.periodo <= curP).sort((a, b) => a.periodo - b.periodo);
+      if (histFiltrado.length < 1) return;
+
+      const labels = histFiltrado.map(h => h.periodo === 3 ? 'EF' : 'E' + h.periodo);
+      const data = histFiltrado.map(h => Math.round(h.porcentaje));
+      const colors = histFiltrado.map(h => getValoration(Math.round(h.porcentaje)).color);
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Promedio',
+            data: data,
+            borderColor: '#4f46e5',
+            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+            pointBackgroundColor: colors,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            borderWidth: 3,
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              align: 'top',
+              offset: 4,
+              color: '#1e293b',
+              font: { weight: 'bold', size: 10 },
+              formatter: (v) => v
+            }
+          },
+          scales: {
+            y: {
+              display: false,
+              min: 0,
+              max: 110
+            },
+            x: {
+              grid: { display: false },
+              ticks: { font: { weight: 'bold', size: 10 } }
+            }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+    }
+
+    async function cargarGruposInformeGrupal() {
+      showLoading(true);
+      try {
+        const { data } = await supabaseClient.from('eval_estudiantes_notas').select('zipgrade_id').eq('periodo', currentPeriodo);
+        const assigned = localStorage.getItem('eval_user_grade');
+        const rol = currentRole;
+
+        let uniqueGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))] : [];
+
+        if (rol === 'lector' && assigned) {
+          if (assigned.toLowerCase() === 'primaria') {
+            uniqueGroups = uniqueGroups.filter(g => {
+              const base = extraerGradoBase(g);
+              return base >= 1 && base <= 5;
+            });
+          } else {
+            uniqueGroups = uniqueGroups.filter(g => g === assigned);
+          }
+        }
+        uniqueGroups.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+        const sel = $('gru-sel-grado');
+        sel.innerHTML = '<option value="">Seleccione grupo...</option>' + uniqueGroups.map(g => `<option value="${g}">${g}</option>`).join('');
+      } catch (e) {
+        console.error("Error cargando grupos grupal:", e);
+      }
+      showLoading(false);
+    }
+
+    async function generarInformeGrupal() {
+      const grupo = $('gru-sel-grado').value;
+      if (!grupo) return;
+
+      showLoading(true);
+      try {
+        const { data: todosData, error } = await supabaseClient.from('eval_estudiantes_notas')
+          .select('*')
+          .eq('periodo', currentPeriodo);
+
+        if (error) throw error;
+
+        const alumnosGrupo = todosData.filter(t => extraerGrupo(t.zipgrade_id) === grupo)
+          .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre));
+
+        if (alumnosGrupo.length === 0) {
+          $('grupal-content').innerHTML = '<p style="text-align:center; padding:2rem;">No hay datos para este grupo.</p>';
+          showLoading(false);
+          return;
+        }
+
+        const gNum = extraerGradoBase(grupo);
+        let mKey = '6-9';
+        if (gNum <= 4) mKey = '3-4';
+        else if (gNum === 5) mKey = '5';
+        else if (gNum >= 10) mKey = '10-11';
+        const config = MATRIZ_RANGOS[mKey];
+
+        let html = `
+                <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                    <thead>
+                        <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
+                            <th style="padding:10px 8px; text-align:left; position:sticky; left:0; background:#f8fafc; z-index:10; min-width:180px;">ESTUDIANTE</th>
+                            ${config.map(s => {
+          const abrev = {
+            'Matemáticas': 'Mat', 'Competencias Ciudadanas': 'Ciu', 'Ciudadanas': 'Ciu',
+            'Ciencias Sociales': 'Soc', 'Sociales': 'Soc', 'Lenguaje': 'Len',
+            'Biología': 'Bio', 'Física': 'Fis', 'Química': 'Qui', 'Inglés': 'Ing',
+            'Ciencias Naturales': 'Nat', 'Lectura Crítica': 'Lect', 'Filosofía': 'Fil',
+            'Ética': 'Ét', 'Educación Física': 'EdF', 'Religión': 'Rel',
+            'Tecnología': 'Tec', 'Artística': 'Art'
+          };
+          let label = abrev[s.label] || s.label;
+          return `<th class="subject-col-base" style="padding:10px 4px; text-align:center; min-width:45px; font-size:0.75rem;">${label}</th>`;
+        }).join('')}
+                            <th class="promedio-col-base" style="padding:10px 8px; text-align:center; font-weight:800; background:#f0f9ff; min-width:50px;">PROM.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+        alumnosGrupo.forEach(est => {
+          let sumaPct = 0;
+          html += `
+                    <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td class="estudiante-col-base" style="padding:10px 12px; font-weight:700; position:sticky; left:0; background:white; border-right:1px solid #f1f5f9; white-space:nowrap;">${est.estudiante_nombre}</td>
+                `;
+
+          config.forEach(subj => {
+            let ok = 0, totalSub = 0;
+            for (let i = subj.start; i <= subj.end; i++) {
+              totalSub++;
+              if (est.respuestas && est.respuestas[i] === 1) ok++;
+            }
+            const pct = Math.round((ok / totalSub) * 100);
+            sumaPct += pct;
+            const val = getValoration(pct);
+            html += `<td class="subject-col-base" style="padding:4px; text-align:center;">
+                        <div class="val-box" style="background:${val.color}; color:${val.color === '#facc15' ? '#1e293b' : 'white'};">
+                            ${val.initial}
+                        </div>
+                    </td>`;
+          });
+
+          const prom = Math.round(sumaPct / config.length);
+          const valGen = getValoration(prom);
+          html += `
+                    <td style="padding:8px; text-align:center; background:#f0f9ff; font-weight:900; color:${valGen.color};">
+                        ${prom}
+                    </td>
+                </tr>`;
+        });
+
+        // Fila de Promedios del Grupo
+        html += `
+                <tr style="background:#f8fafc; font-weight:800; border-top:2px solid #e2e8f0;">
+                    <td style="padding:12px; position:sticky; left:0; background:#f8fafc;">PROMEDIO GRUPAL</td>
+            `;
+
+        let totalGrupo = 0;
+        config.forEach(subj => {
+          let sumaPctSub = 0;
+          alumnosGrupo.forEach(est => {
+            let ok = 0, totalSub = 0;
+            for (let i = subj.start; i <= subj.end; i++) {
+              totalSub++;
+              if (est.respuestas && est.respuestas[i] === 1) ok++;
+            }
+            sumaPctSub += Math.round((ok / totalSub) * 100);
+          });
+          const promSub = Math.round(sumaPctSub / alumnosGrupo.length);
+          totalGrupo += promSub;
+          html += `<td class="subject-col-base" style="padding:12px; text-align:center; color:#1e293b;">${promSub}</td>`;
+        });
+
+        html += `
+                    <td class="promedio-col-base" style="padding:12px; text-align:center; background:#e0f2fe; color:#0369a1; font-size:1.1rem;">${Math.round(totalGrupo / config.length)}</td>
+                </tr>
+                </tbody></table>
+            `;
+
+        $('grupal-content').innerHTML = html;
+
+      } catch (e) {
+        console.error("Error generando informe grupal:", e);
+        alert("Error: " + e.message);
+      }
+      showLoading(false);
+    }
+
+    async function imprimirInformeGrupal() {
+      const grupo = $('gru-sel-grado').value;
+      const content = $('grupal-content').innerHTML;
+      if (!grupo || !content || content.includes('Seleccione')) return;
+
+      showLoading(true);
+      let directorNombre = "Por asignar";
+      try {
+        const { data: directorData } = await supabaseClient.from('perfiles').select('nombre').eq('grado_asignado', grupo).maybeSingle();
+        if (directorData) directorNombre = directorData.nombre;
+      } catch (e) { console.error(e); }
+
+      const logoEvaluandonos = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png";
+      const logoLiceo = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png";
+
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Informe Grupal - ${grupo}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+                    <style>
+                        @page { size: letter; margin: 4mm; }
+                        body { font-family: 'Outfit', sans-serif; color: #1e293b; margin: 0; padding: 0; line-height: 1; display: flex; flex-direction: column; align-items: center; }
+                        .header-print { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; border-bottom: 1px solid #4f46e5; padding: 2px 0; }
+                        table { width: auto; border-collapse: collapse; border: 1px solid #cbd5e1; margin: 0 auto; }
+                        th { background: #f8fafc; padding: 1px 0 !important; border: 1px solid #cbd5e1; font-size: 0.5rem; text-transform: uppercase; height: 12px; line-height: 1; }
+                        td { padding: 1px 0 !important; border: 1px solid #cbd5e1; font-size: 0.58rem; text-align: center; height: 12px; overflow: hidden; line-height: 1; vertical-align: middle; }
+                        .estudiante-col { text-align: left; font-weight: 700; white-space: nowrap; padding-left: 3px !important; width: 1%; border-right: 2px solid #cbd5e1; }
+                        .subject-col { width: 22px; }
+                        .val-box { font-weight: 800; font-size: 0.55rem; color: white; display: inline-block; width: 14px; height: 10px; border-radius: 1px; line-height: 10px; }
+                        
+                        .header-logos { display: flex; align-items: center; gap: 5px; }
+                        .header-info-text { text-align: right; font-size: 0.6rem; line-height: 1.1; }
+                        
+                        h1 { color: #4f46e5; font-size: 0.85rem; margin: 0; font-weight: 900; }
+                        .director-tag { background: #f1f5f9; padding: 0px 4px; border-radius: 2px; font-weight: 700; color: #475569; display: inline-block; font-size: 0.6rem; }
+
+                        @media print {
+                            body { zoom: 1; }
+                            tr { page-break-inside: avoid; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header-print">
+                        <div class="header-logos">
+                            <img src="${logoLiceo}" style="height: 32px;">
+                            <img src="${logoEvaluandonos}" style="height: 18px;">
+                        </div>
+                        <div style="text-align: center; flex: 1;">
+                            <h1 style="display:inline-block; margin-right:10px;">INFORME GRUPAL</h1>
+                            <div class="director-tag">Director: ${directorNombre}</div>
+                        </div>
+                        <div class="header-info-text">
+                            <strong>GRUPO:</strong> ${grupo} | <strong>PER:</strong> ${currentPeriodo} | <strong>2026</strong>
+                        </div>
+                    </div>
+                    ${content.replace(/position:sticky; left:0; background:#f8fafc; z-index:10;/g, '')
+          .replace(/class="estudiante-col-base"/g, 'class="estudiante-col"')
+          .replace(/class="subject-col-base"/g, 'class="subject-col"')
+          .replace(/class="promedio-col-base"/g, 'class="subject-col"')
+          .replace(/background:#f0f9ff;/g, '')
+          .replace(/background:#e0f2fe;/g, '')
+          .replace(/font-weight:900;/g, 'font-weight:800;')}
+                </body>
+            </html>
+        `);
+      printWindow.document.close();
+      showLoading(false);
+      setTimeout(() => printWindow.print(), 500);
+    }
+
+    async function cargarGruposInformeAsignatura() {
+      showLoading(true);
+      try {
+        const { data } = await supabaseClient.from('eval_estudiantes_notas').select('zipgrade_id').eq('periodo', currentPeriodo);
+        const assigned = localStorage.getItem('eval_user_grade');
+        const rol = currentRole;
+
+        let uniqueGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))] : [];
+        if (rol === 'lector' && assigned) {
+          if (assigned.toLowerCase() === 'primaria') {
+            uniqueGroups = uniqueGroups.filter(g => {
+              const base = extraerGradoBase(g);
+              return base >= 1 && base <= 5;
+            });
+          } else {
+            uniqueGroups = uniqueGroups.filter(g => g === assigned);
+          }
+        }
+        uniqueGroups.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+        const sel = $('asig-sel-grado');
+        sel.innerHTML = '<option value="">Seleccione grupo...</option>' + uniqueGroups.map(g => `<option value="${g}">${g}</option>`).join('');
+      } catch (e) { console.error(e); }
+      showLoading(false);
+    }
+
+    async function generarInformeAsignatura() {
+      const grupo = $('asig-sel-grado').value;
+      const materiaFiltro = $('asig-sel-materia').value;
+      if (!grupo || !materiaFiltro) {
+        $('asignatura-content').innerHTML = '<p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un grupo y una asignatura para ver el detalle.</p>';
+        return;
+      }
+
+      showLoading(true);
+      try {
+        const { data: todosData, error } = await supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo);
+        if (error) throw error;
+
+        const alumnosGrupo = todosData.filter(t => extraerGrupo(t.zipgrade_id) === grupo)
+          .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre));
+
+        if (alumnosGrupo.length === 0) {
+          $('asignatura-content').innerHTML = '<p style="text-align:center; padding:2rem;">No hay datos.</p>';
+          showLoading(false); return;
+        }
+
+        const gNum = extraerGradoBase(grupo);
+        let mKey = '6-9';
+        if (gNum <= 4) mKey = '3-4'; else if (gNum === 5) mKey = '5'; else if (gNum >= 10) mKey = '10-11';
+        const configFull = MATRIZ_RANGOS[mKey];
+
+        // Mapeo de materias seleccionadas
+        let config = [];
+        if (materiaFiltro === 'Naturales') {
+          if (gNum >= 10) {
+            config = configFull.filter(c => ['Biología', 'Física', 'Química'].includes(c.label));
+          } else {
+            config = configFull.filter(c => c.label.includes('Naturales'));
+          }
+        } else {
+          config = configFull.filter(c => c.label.includes(materiaFiltro));
+        }
+
+        if (config.length === 0) {
+          $('asignatura-content').innerHTML = `<p style="text-align:center; padding:2rem;">La asignatura "${materiaFiltro}" no está definida para este grado.</p>`;
+          showLoading(false); return;
+        }
+
+        let html = `
+                <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                    <thead>
+                        <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
+                            <th class="estudiante-col-base" style="padding:10px 8px; text-align:left; position:sticky; left:0; background:#f8fafc; z-index:10; min-width:200px;">ESTUDIANTE</th>
+                            ${config.map(s => `<th class="subject-col-base" style="padding:10px; text-align:center;">${s.label.toUpperCase()}</th>`).join('')}
+                            <th class="promedio-col-base" style="padding:10px; text-align:center; font-weight:800; background:#f0f9ff;">PROM.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+        alumnosGrupo.forEach(est => {
+          let sumaPct = 0;
+          html += `<tr style="border-bottom:1px solid #f1f5f9;">
+                    <td class="estudiante-col-base" style="padding:10px 12px; font-weight:700; position:sticky; left:0; background:white; white-space:nowrap;">${est.estudiante_nombre}</td>`;
+
+          config.forEach(subj => {
+            let ok = 0, totalSub = 0;
+            for (let i = subj.start; i <= subj.end; i++) {
+              totalSub++;
+              if (est.respuestas && est.respuestas[i] === 1) ok++;
+            }
+            const pct = Math.round((ok / totalSub) * 100);
+            sumaPct += pct;
+            const val = getValoration(pct);
+            html += `<td class="subject-col-base" style="padding:8px; text-align:center;">
+                        <div class="val-box" style="background:${val.color}; color:${val.color === '#facc15' ? '#1e293b' : 'white'};">${val.initial}</div>
+                    </td>`;
+          });
+
+          const prom = Math.round(sumaPct / config.length);
+          const valGen = getValoration(prom);
+          html += `<td class="promedio-col-base" style="padding:8px; text-align:center; background:#f0f9ff; font-weight:900; color:${valGen.color};">${prom}</td></tr>`;
+        });
+
+        // Resumen Grupal
+        html += `<tr style="background:#f8fafc; font-weight:800; border-top:2px solid #e2e8f0;">
+                <td class="estudiante-col-base" style="padding:12px; position:sticky; left:0; background:#f8fafc;">PROMEDIO GRUPAL</td>`;
+        let totalGeneral = 0;
+        config.forEach(subj => {
+          let sumaSub = 0;
+          alumnosGrupo.forEach(est => {
+            let ok = 0, totalSub = 0;
+            for (let i = subj.start; i <= subj.end; i++) { totalSub++; if (est.respuestas && est.respuestas[i] === 1) ok++; }
+            sumaSub += Math.round((ok / totalSub) * 100);
+          });
+          const promSub = Math.round(sumaSub / alumnosGrupo.length);
+          totalGeneral += promSub;
+          html += `<td class="subject-col-base" style="padding:12px; text-align:center;">${promSub}</td>`;
+        });
+        html += `<td class="promedio-col-base" style="padding:12px; text-align:center; background:#e0f2fe; color:#0369a1; font-size:1.1rem;">${Math.round(totalGeneral / config.length)}</td></tr>
+                </tbody></table>`;
+
+        $('asignatura-content').innerHTML = html;
+      } catch (e) { console.error(e); }
+      showLoading(false);
+    }
+
+    async function imprimirInformeAsignatura() {
+      const grupo = $('asig-sel-grado').value;
+      const materia = $('asig-sel-materia').value;
+      const content = $('asignatura-content').innerHTML;
+      if (!grupo || !content || content.includes('Seleccione')) return;
+
+      showLoading(true);
+      let directorNombre = "Por asignar";
+      try {
+        const { data: directorData } = await supabaseClient.from('perfiles').select('nombre').eq('grado_asignado', grupo).maybeSingle();
+        if (directorData) directorNombre = directorData.nombre;
+      } catch (e) { console.error(e); }
+
+      const logoEvaluandonos = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png";
+      const logoLiceo = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png";
+
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Análisis Asignatura - ${materia} - ${grupo}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+                    <style>
+                        @page { size: letter; margin: 4mm; }
+                        body { font-family: 'Outfit', sans-serif; color: #1e293b; margin: 0; padding: 0; line-height: 1; display: flex; flex-direction: column; align-items: center; }
+                        .header-print { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; border-bottom: 1px solid #4f46e5; padding: 2px 0; }
+                        table { width: auto; border-collapse: collapse; border: 1px solid #cbd5e1; margin: 0 auto; }
+                        th { background: #f8fafc; padding: 1px 0 !important; border: 1px solid #cbd5e1; font-size: 0.5rem; text-transform: uppercase; height: 12px; line-height: 1; }
+                        td { padding: 1px 0 !important; border: 1px solid #cbd5e1; font-size: 0.58rem; text-align: center; height: 12px; overflow: hidden; line-height: 1; vertical-align: middle; }
+                        .estudiante-col { text-align: left; font-weight: 700; white-space: nowrap; padding-left: 3px !important; width: 1%; border-right: 2px solid #cbd5e1; }
+                        .subject-col { width: 50px; }
+                        .val-box { font-weight: 800; font-size: 0.55rem; color: white; display: inline-block; width: 14px; height: 10px; border-radius: 1px; line-height: 10px; }
+                        
+                        .header-logos { display: flex; align-items: center; gap: 5px; }
+                        .header-info-text { text-align: right; font-size: 0.6rem; line-height: 1.1; }
+                        
+                        h1 { color: #4f46e5; font-size: 0.85rem; margin: 0; font-weight: 900; }
+                        .materia-tag { background: #4f46e5; color: white; padding: 0px 6px; border-radius: 3px; font-weight: 700; font-size: 0.6rem; display: inline-block; }
+                        .director-tag { font-size: 0.6rem; color: #64748b; font-weight: 600; margin-left: 8px; }
+
+                        @media print {
+                            body { zoom: 1; }
+                            tr { page-break-inside: avoid; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header-print">
+                        <div class="header-logos">
+                            <img src="${logoLiceo}" style="height: 32px;">
+                            <img src="${logoEvaluandonos}" style="height: 18px;">
+                        </div>
+                        <div style="text-align: center; flex: 1;">
+                            <h1>ANÁLISIS POR ASIGNATURA</h1>
+                            <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-top:2px;">
+                                <div class="materia-tag">${materia.toUpperCase()}</div>
+                                <div class="director-tag">Director: ${directorNombre}</div>
+                            </div>
+                        </div>
+                        <div class="header-info-text">
+                            <strong>GRUPO:</strong> ${grupo} | <strong>PER:</strong> ${currentPeriodo} | <strong>2026</strong>
+                        </div>
+                    </div>
+                    ${content.replace(/position:sticky; left:0; background:#f8fafc; z-index:10;/g, '')
+          .replace(/class="estudiante-col-base"/g, 'class="estudiante-col"')
+          .replace(/class="subject-col-base"/g, 'class="subject-col"')
+          .replace(/class="promedio-col-base"/g, 'class="subject-col"')
+          .replace(/background:#f0f9ff;/g, '')
+          .replace(/background:#e0f2fe;/g, '')
+          .replace(/font-weight:900;/g, 'font-weight:800;')}
+                </body>
+            </html>
+        `);
+      printWindow.document.close();
+      showLoading(false);
+      setTimeout(() => printWindow.print(), 500);
+    }
+
+    async function imprimirTodoElGrado() {
+      const grupo = $('rep-grado').value;
+      if (!grupo) return;
+
+      showLoading(true);
+      const { data: todosData, error } = await supabaseClient.from('eval_estudiantes_notas')
+        .select('*')
+        .order('periodo', { ascending: true });
+
+      if (error) {
+        showLoading(false);
+        return alert("Error al cargar datos masivos: " + error.message);
+      }
+
+      const alumnosActuales = todosData.filter(t => extraerGrupo(t.zipgrade_id) === grupo && t.periodo === parseInt(currentPeriodo))
+        .sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
+
+      if (alumnosActuales.length === 0) {
+        showLoading(false);
+        return alert("No hay datos para este grupo en el periodo actual.");
+      }
+
+      const gNum = extraerGradoBase(grupo);
+      let mKey = '6-9';
+      if (gNum <= 4) mKey = '3-4';
+      else if (gNum === 5) mKey = '5';
+      else if (gNum >= 10) mKey = '10-11';
+      const config = MATRIZ_RANGOS[mKey];
+
+      const printWindow = window.open('', '_blank');
+
+      // Construir el mapeo de históricos para acceso rápido
+      const historicosMap = {};
+      alumnosActuales.forEach(a => {
+        historicosMap[a.zipgrade_id] = todosData.filter(t => t.zipgrade_id === a.zipgrade_id);
+      });
+
+      const isSuperior = gNum >= 10;
+
+      let contentHTML = alumnosActuales.map((est, idx) => {
+        const puestosMaterias = {};
+        config.forEach(subj => {
+          const rankings = alumnosActuales.map(student => {
+            let ok = 0;
+            for (let q = subj.start; q <= subj.end; q++) { if (student.respuestas && student.respuestas[q] === 1) ok++; }
+            return { id: student.zipgrade_id, ok };
+          }).sort((a, b) => b.ok - a.ok);
+          puestosMaterias[subj.label] = rankings.findIndex(r => r.id === est.zipgrade_id) + 1;
+        });
+
+        const html = construirHTMLBoletin(est, idx + 1, alumnosActuales.length, puestosMaterias, config, historicosMap[est.zipgrade_id]);
+        const materiasContadas = config.length;
+        const forzarSuperior = materiasContadas > 6;
+        return `<div class="individual-report-wrapper ${forzarSuperior ? 'compact-superior' : ''}">${html}</div>`;
+      }).join('');
+
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Reportes Masivos - Grupo ${grupo}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
+            <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"><\/script>
+            <style>
+              @page { size: letter; margin: 0; }
+              body { margin: 0; padding: 0; background: #fff; -webkit-print-color-adjust: exact; font-family: 'Outfit', sans-serif; }
+              .individual-report-wrapper { 
+                width: 100%; height: 139.7mm; position: relative; box-sizing: border-box;
+                border-bottom: 1px dashed #cbd5e1; display: flex; flex-direction: column; justify-content: center;
+                align-items: center; overflow: hidden;
+              }
+              .report-card { 
+                transform: scale(1.0); 
+                transform-origin: center center; 
+                padding: 8px !important;
+              }
+              .chart-container { height: 75px !important; }
+              td, th { padding: 1.5px !important; font-size: 0.72rem !important; }
+
+              .individual-report-wrapper:nth-child(2n) {
+                border-bottom: none;
+              }
+              @media print {
+                .individual-report-wrapper { 
+                    page-break-inside: avoid;
+                }
+                .individual-report-wrapper:nth-child(2n) {
+                    page-break-after: always;
+                }
+              }
+            </style>
+          </head>
+          <body>
+            ${contentHTML}
+            <script>
+              const historicosData = JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(historicosMap))}"));
+              const currentP = ${parseInt(currentPeriodo) || 1};
+
+              function getVal(p) { return getValoration(p); }
+              function getValoration(p) {
+                if (p >= 91) return { label: 'Superior', nivel: 'N4', color: '#a855f7' };
+                if (p >= 71) return { label: 'Alto', nivel: 'N3', color: '#22c55e' };
+                if (p >= 51) return { label: 'Básico', nivel: 'N2', color: '#facc15' };
+                return { label: 'Bajo', nivel: 'N1', color: '#ef4444' };
+              }
+
+              function initCharts() {
+                try {
+                  Object.keys(historicosData).forEach(zipId => {
+                    const histAll = historicosData[zipId];
+                    // Filtrar solo hasta el periodo actual
+                    const hist = histAll.filter(h => h.periodo <= currentP).sort((a,b) => a.periodo - b.periodo);
+                    if (!hist || hist.length < 1) return;
+
+                    const canvas = document.getElementById('chart-tendencia-' + zipId);
+                    if (!canvas) return;
+
+                    new Chart(canvas, {
+                      type: 'line',
+                      plugins: [ChartDataLabels],
+                      data: {
+                        labels: hist.map(h => h.periodo === 3 ? 'EF' : 'E' + h.periodo),
+                        datasets: [{
+                          data: hist.map(h => Math.round(h.porcentaje)),
+                          borderColor: '#4f46e5',
+                          backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                          pointBackgroundColor: hist.map(h => getVal(h.porcentaje).color),
+                          pointRadius: 5, borderWidth: 2, tension: 0.3, fill: true
+                        }]
+                      },
+                      options: {
+                        responsive: true, maintainAspectRatio: false, animation: false,
+                        plugins: { legend: { display: false }, datalabels: { align: 'top', font: { weight: 'bold', size: 9 }, formatter: (v) => v } },
+                        scales: { y: { display: false, min: 0, max: 115 }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } }
+                      }
+                    });
+                  });
+                } catch(e) { console.error(e); }
+                setTimeout(() => window.print(), 1000);
+              }
+              window.onload = initCharts;
+            <\/script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      showLoading(false);
+    }
+
+    async function imprimirTodaLaSede(rango) {
+      const sede = $('rep-sede').value;
+      if (!sede) return alert("Por favor selecciona una sede.");
+
+      const desc = rango === 'basica' ? '3° a 9°' : '10° y 11°';
+      if (!confirm(`¿Deseas generar los reportes de la sede "${sede}" para los grados ${desc}?`)) return;
+
+      showLoading(true);
+      try {
+        const { data: todosData, error } = await supabaseClient.from('eval_estudiantes_notas')
+          .select('*')
+          .order('periodo', { ascending: true });
+
+        if (error) throw error;
+
+        // 1. Filtrar estudiantes de la sede y rango seleccionado
+        const alumnosSede = todosData.filter(t => {
+          if (t.periodo !== parseInt(currentPeriodo)) return false;
+          if (detectarSede(extraerGrupo(t.zipgrade_id)) !== sede) return false;
+          const g = extraerGradoBase(extraerGrupo(t.zipgrade_id));
+          if (rango === 'basica') return g >= 3 && g <= 9;
+          if (rango === 'superior') return g >= 10;
+          return true;
+        });
+
+        if (alumnosSede.length === 0) {
+          showLoading(false);
+          return alert(`No hay datos para el rango ${desc} en la sede "${sede}".`);
+        }
+
+        // 2. Agrupar por grupo para calcular puestos
+        const gruposMap = {};
+        alumnosSede.forEach(a => {
+          const g = extraerGrupo(a.zipgrade_id);
+          if (!gruposMap[g]) gruposMap[g] = [];
+          gruposMap[g].push(a);
+        });
+
+        const historicosMap = {};
+        const reportesHtml = [];
+        const gruposOrdenados = Object.keys(gruposMap).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+        for (const grupo of gruposOrdenados) {
+          const alumnosGrupo = gruposMap[grupo];
+          const gNum = extraerGradoBase(grupo);
+          let mKey = '6-9';
+          if (gNum <= 4) mKey = '3-4';
+          else if (gNum === 5) mKey = '5';
+          else if (gNum >= 10) mKey = '10-11';
+          const config = MATRIZ_RANGOS[mKey];
+          const isSuperior = gNum >= 10;
+
+          const rankingsGrupo = alumnosGrupo.sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
+
+          rankingsGrupo.forEach((est, idxRank) => {
+            const zId = est.zipgrade_id.toString();
+            const isSuperior = zId.startsWith("10") || zId.startsWith("11");
+            const puestosMaterias = {};
+            config.forEach(subj => {
+              const subjRank = alumnosGrupo.map(student => {
+                let ok = 0;
+                for (let q = subj.start; q <= subj.end; q++) { if (student.respuestas && student.respuestas[q] === 1) ok++; }
+                return { id: student.zipgrade_id, ok };
+              }).sort((a, b) => b.ok - a.ok);
+              puestosMaterias[subj.label] = subjRank.findIndex(r => r.id === est.zipgrade_id) + 1;
+            });
+
+            historicosMap[est.zipgrade_id] = todosData.filter(t => t.zipgrade_id === est.zipgrade_id);
+            const html = construirHTMLBoletin(est, idxRank + 1, alumnosGrupo.length, puestosMaterias, config, historicosMap[est.zipgrade_id]);
+            const materiasContadas = config.length;
+            const forzarSuperior = materiasContadas > 6;
+
+            reportesHtml.push(`<div class="individual-report-wrapper ${forzarSuperior ? 'compact-superior' : ''}">${html}</div>`);
+          });
+        }
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Reportes Masivos ${desc} - Sede ${sede}</title>
+              <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
+              <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"><\/script>
+              <style>
+                @page { size: letter; margin: 0; }
+                body { margin: 0; padding: 0; background: #fff; -webkit-print-color-adjust: exact; font-family: 'Outfit', sans-serif; }
+                .individual-report-wrapper { 
+                  width: 100%; height: 139.7mm; position: relative; box-sizing: border-box;
+                  border-bottom: 1px dashed #cbd5e1; display: flex; flex-direction: column; justify-content: center;
+                  align-items: center; overflow: hidden;
+                }
+                .report-card { 
+                  transform: scale(1.0); 
+                  transform-origin: center center; 
+                  padding: 8px !important;
+                }
+                .chart-container { height: 75px !important; }
+                td, th { padding: 1.5px !important; font-size: 0.72rem !important; }
+                .individual-report-wrapper:nth-child(2n) { border-bottom: none; }
+                @media print {
+                  .individual-report-wrapper { page-break-inside: avoid; }
+                  .individual-report-wrapper:nth-child(2n) { page-break-after: always; }
+                }
+              </style>
+            </head>
+            <body>
+              ${reportesHtml.join('')}
+              <script>
+                const historicosData = JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(historicosMap))}"));
+                const currentP = ${parseInt(currentPeriodo) || 1};
+                function getValoration(p) {
+                  if (p >= 91) return { label: 'Superior', nivel: 'N4', color: '#7e22ce' };
+                  if (p >= 71) return { label: 'Alto', nivel: 'N3', color: '#15803d' };
+                  if (p >= 51) return { label: 'Básico', nivel: 'N2', color: '#b45309' };
+                  return { label: 'Bajo', nivel: 'N1', color: '#b91c1c' };
+                }
+                function initCharts() {
+                  try {
+                    Object.keys(historicosData).forEach(zipId => {
+                      const histAll = historicosData[zipId];
+                      const hist = histAll.filter(h => h.periodo <= currentP).sort((a,b) => a.periodo - b.periodo);
+                      if (!hist || hist.length < 1) return;
+                      const canvas = document.getElementById('chart-tendencia-' + zipId);
+                      if (!canvas) return;
+                      new Chart(canvas, {
+                        type: 'line', plugins: [ChartDataLabels],
+                        data: {
+                          labels: hist.map(h => h.periodo === 3 ? 'EF' : 'E' + h.periodo),
+                          datasets: [{
+                            data: hist.map(h => Math.round(h.porcentaje)),
+                            borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                            pointBackgroundColor: hist.map(h => getValoration(Math.round(h.porcentaje)).color),
+                            pointRadius: 5, borderWidth: 2, tension: 0.3, fill: true
+                          }]
+                        },
+                        options: {
+                          responsive: true, maintainAspectRatio: false, animation: false,
+                          plugins: { legend: { display: false }, datalabels: { align: 'top', font: { weight: 'bold', size: 9 } } },
+                          scales: { y: { display: false, min: 0, max: 115 }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } }
+                        }
+                      });
+                    });
+                  } catch(e) { console.error(e); }
+                  setTimeout(() => window.print(), 1000);
+                }
+                window.onload = initCharts;
+              <\/script>
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+      } catch (e) {
+        console.error("Error en impresión masiva de sede:", e);
+        alert("Ocurrió un error: " + e.message);
+      }
+      showLoading(false);
+    }
+
+    // --- LÓGICA DE ESTADÍSTICAS ---
+    async function cargarEstadisticas() {
+      showLoading(true);
+      try {
+        const { data, error } = await supabaseClient.from('eval_estudiantes_notas')
+          .select('*')
+          .eq('periodo', currentPeriodo);
+
+        if (error) throw error;
+        dataPeriodoActual = data || [];
+
+        if (dataPeriodoActual.length === 0) {
+          alert("No hay datos suficientes para generar estadísticas en este periodo.");
+          showLoading(false);
+          return;
+        }
+
+        // 1. Población de los selectores de grupos para estadísticas
+        const gruposUnicos = [...new Set(dataPeriodoActual.map(d => extraerGrupo(d.zipgrade_id)))]
+          .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+        const gradosUnicos = [...new Set(dataPeriodoActual.map(d => extraerGradoBase(d.grado)))]
+          .filter(g => g > 0)
+          .sort((a, b) => a - b);
+
+        const selM = $('est-sel-grado');
+        selM.innerHTML = gruposUnicos.map(g => `<option value="${g}">${g}</option>`).join('');
+
+        const selC = $('comp-sel-grado');
+        selC.innerHTML = gradosUnicos.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
+
+        // 2. Renderizar Gráfico de Grupos
+        renderizarGraficoGrupos(dataPeriodoActual);
+
+        // 3. Renderizar Gráfico de Sedes (Eliminado por solicitud de diseño)
+        // renderizarGraficoSedes(dataPeriodoActual);
+
+        // 4. Renderizar Detalle de Materias (primer grado por defecto)
+        if (gruposUnicos.length > 0) {
+          actualizarGraficoAsignaturas();
+          actualizarGraficoComparativoGrupos();
+        }
+
+      } catch (e) {
+        console.error("Error cargando estadísticas:", e);
+      }
+      showLoading(false);
+    }
+
+    function renderizarGraficoGrupos(data) {
+      const promedios = {};
+      data.forEach(d => {
+        let groupLabel = extraerGrupo(d.zipgrade_id);
+        if (!promedios[groupLabel]) promedios[groupLabel] = { suma: 0, cont: 0 };
+        promedios[groupLabel].suma += (d.porcentaje || 0);
+        promedios[groupLabel].cont++;
+      });
+
+      // Ordenar alfanuméricamente
+      const labels = Object.keys(promedios).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+      const values = labels.map(l => Math.round(promedios[l].suma / promedios[l].cont));
+
+      const colorsArr = labels.map(l => {
+        const g = extraerGradoBase(l);
+        if (g <= 5) return 'rgba(59, 130, 246, 0.8)'; // Primaria - Azul
+        if (g <= 9) return 'rgba(16, 185, 129, 0.8)'; // Básica - Verde
+        return 'rgba(245, 158, 11, 0.8)'; // Media - Naranja
+      });
+
+      if (chartGrados) chartGrados.destroy();
+      const ctx = $('chart-grados').getContext('2d');
+      chartGrados = new Chart(ctx, {
+        type: 'bar',
+        plugins: [ChartDataLabels],
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Promedio %',
+            data: values,
+            backgroundColor: colorsArr,
+            borderColor: colorsArr.map(c => c.replace('0.8', '1')),
+            borderWidth: 2,
+            borderRadius: 10
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              color: '#fff',
+              anchor: 'center',
+              align: 'center',
+              font: { weight: 'bold', size: 14 },
+              formatter: (v) => v
+            }
+          },
+          scales: {
+            y: { beginAtZero: true, max: 100 },
+            x: { ticks: { font: { weight: 'bold', size: 11 }, autoSkip: false, maxRotation: 45, minRotation: 45 } }
+          }
+        }
+      });
+    }
+
+    function renderizarGraficoSedes(data) {
+      const sedes = ['Central', 'Yanaconas', 'Pisoje Bajo', 'Pueblillo', 'Sendero'];
+      const niveles = {
+        'Primaria (3-5)': [3, 4, 5],
+        'Básica (6-9)': [6, 7, 8, 9],
+        'Media (10-11)': [10, 11]
+      };
+
+      const stats = {};
+      sedes.forEach(s => {
+        stats[s] = {};
+        Object.keys(niveles).forEach(n => { stats[s][n] = { suma: 0, cont: 0 }; });
+      });
+
+      data.forEach(d => {
+        const sede = d.sede || 'Central';
+        if (!stats[sede]) stats[sede] = {};
+
+        Object.entries(niveles).forEach(([lvlName, gList]) => {
+          if (gList.includes(extraerGradoBase(d.grado))) {
+            if (!stats[sede][lvlName]) stats[sede][lvlName] = { suma: 0, cont: 0 };
+            stats[sede][lvlName].suma += (d.porcentaje || 0);
+            stats[sede][lvlName].cont++;
+          }
+        });
+      });
+
+      const datasets = Object.keys(niveles).map((lvl, idx) => {
+        const colors = ['#4f46e5', '#10b981', '#f59e0b'];
+        return {
+          label: lvl,
+          data: sedes.map(s => stats[s] && stats[s][lvl] && stats[s][lvl].cont > 0 ? Math.round(stats[s][lvl].suma / stats[s][lvl].cont) : 0),
+          backgroundColor: colors[idx],
+          borderRadius: 5
+        };
+      });
+
+      if (chartSedes) chartSedes.destroy();
+      const ctx = $('chart-sedes').getContext('2d');
+      chartSedes = new Chart(ctx, {
+        type: 'bar',
+        plugins: [ChartDataLabels],
+        data: { labels: sedes, datasets: datasets },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom' },
+            datalabels: {
+              color: '#fff',
+              font: { weight: 'bold' },
+              formatter: (v) => v > 0 ? v : ''
+            }
+          },
+          scales: { y: { beginAtZero: true, max: 100 } }
+        }
+      });
+    }
+
+    async function actualizarGraficoAsignaturas() {
+      const grupo = $('est-sel-grado').value;
+      if (!grupo) return;
+
+      const gNum = extraerGradoBase(grupo);
+      let mKey = '6-9';
+      if (gNum <= 4) mKey = '3-4';
+      else if (gNum === 5) mKey = '5';
+      else if (gNum >= 10) mKey = '10-11';
+      const config = MATRIZ_RANGOS[mKey];
+
+      const filtrados = dataPeriodoActual.filter(d => extraerGrupo(d.zipgrade_id) === grupo);
+      const materiasStats = config.map(subj => {
+        let sumaPct = 0, totalEst = 0;
+        filtrados.forEach(est => {
+          let ok = 0, totalPreg = 0;
+          for (let i = subj.start; i <= subj.end; i++) {
+            totalPreg++;
+            if (est.respuestas && est.respuestas[i] === 1) ok++;
+          }
+          sumaPct += (ok / totalPreg) * 100;
+          totalEst++;
+        });
+        return { label: subj.label, val: totalEst > 0 ? Math.round(sumaPct / totalEst) : 0 };
+      });
+
+      if (chartMaterias) chartMaterias.destroy();
+      const ctx = $('chart-materias').getContext('2d');
+      const M_COLORS = config.map(c => obtenerColorAsignatura(c.label));
+      chartMaterias = new Chart(ctx, {
+        type: 'bar',
+        plugins: [ChartDataLabels],
+        data: {
+          labels: materiasStats.map(m => m.label),
+          datasets: [{
+            label: 'Promedio por Materia',
+            data: materiasStats.map(m => m.val),
+            backgroundColor: M_COLORS,
+            borderRadius: 10
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            datalabels: { color: '#000', anchor: 'end', align: 'right', font: { weight: 'bold' }, formatter: (v) => v }
+          },
+          scales: { x: { beginAtZero: true, max: 100 } }
+        }
+      });
+    }
+
+    async function actualizarGraficoComparativoGrupos() {
+      const gNum = parseInt($('comp-sel-grado').value);
+      if (!gNum) return;
+
+      let mKey = '6-9';
+      if (gNum <= 4) mKey = '3-4';
+      else if (gNum === 5) mKey = '5';
+      else if (gNum >= 10) mKey = '10-11';
+      const config = MATRIZ_RANGOS[mKey];
+
+      const filtrados = dataPeriodoActual.filter(d => extraerGradoBase(d.grado) === gNum);
+      const gruposDelNivel = [...new Set(filtrados.map(f => extraerGrupo(f.zipgrade_id)))].sort();
+
+      const datasets = gruposDelNivel.map((grupo, idx) => {
+        const colors = ['rgba(79, 70, 229, 0.7)', 'rgba(16, 185, 129, 0.7)', 'rgba(245, 158, 11, 0.7)', 'rgba(239, 68, 68, 0.7)', 'rgba(107, 114, 128, 0.7)'];
+        const dataForGrupo = config.map(subj => {
+          const alumnosGrupo = filtrados.filter(f => extraerGrupo(f.zipgrade_id) === grupo);
+          if (alumnosGrupo.length === 0) return 0;
+
+          let sumaPct = 0;
+          alumnosGrupo.forEach(est => {
+            let ok = 0, totalPreg = 0;
+            for (let i = subj.start; i <= subj.end; i++) {
+              totalPreg++;
+              if (est.respuestas && est.respuestas[i] === 1) ok++;
+            }
+            sumaPct += (ok / totalPreg) * 100;
+          });
+          return Math.round(sumaPct / alumnosGrupo.length);
+        });
+
+        return {
+          label: grupo,
+          data: dataForGrupo,
+          backgroundColor: colors[idx % colors.length],
+          borderRadius: 5
+        };
+      });
+
+      if (chartComparativo) chartComparativo.destroy();
+      const ctx = $('chart-comparativo-grupos').getContext('2d');
+      chartComparativo = new Chart(ctx, {
+        type: 'bar',
+        plugins: [ChartDataLabels],
+        data: {
+          labels: config.map(m => m.label),
+          datasets: datasets
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top' },
+            tooltip: { mode: 'index', intersect: false },
+            datalabels: {
+              labels: {
+                value: {
+                  color: '#fff',
+                  anchor: 'center',
+                  align: 'center',
+                  font: { weight: 'bold', size: 11 },
+                  formatter: (v) => v
+                },
+                group: {
+                  color: '#444',
+                  anchor: 'start',
+                  align: 'bottom',
+                  offset: 8,
+                  font: { weight: 'bold', size: 10 },
+                  formatter: (v, context) => context.dataset.label
+                }
+              }
+            }
+          },
+          scales: {
+            y: { beginAtZero: true, max: 115, title: { display: true, text: 'Promedio' } },
+            x: {
+              grid: { display: false },
+              ticks: {
+                padding: 30,
+                font: { size: 10, weight: 'bold' },
+                maxRotation: 0,
+                minRotation: 0
+              }
+            }
+          }
+        }
+      });
+    }
 
     checkSession();
 
@@ -2438,8 +4697,7 @@
       <span class="material-symbols-outlined">person</span>
       <span>Reporte</span>
     </a>
-    <a href="javascript:void(0)" class="mobile-nav-item" id="m-nav-estadisticas"
-      onclick="switchMainTab('estadisticas')">
+    <a href="javascript:void(0)" class="mobile-nav-item" id="m-nav-estadisticas" onclick="switchMainTab('estadisticas')">
       <span class="material-symbols-outlined">bar_chart</span>
       <span>Dashboard</span>
     </a>
