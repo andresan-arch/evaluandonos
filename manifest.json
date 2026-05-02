@@ -8,13 +8,13 @@
   "theme_color": "#4f46e5",
   "icons": [
     {
-      "src": "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png",
+      "src": "https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/andresanbordessinfondo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png",
+      "src": "https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/andresanbordessinfondo.png",
       "sizes": "512x512",
       "type": "image/png"
     }
