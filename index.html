@@ -3754,7 +3754,7 @@
         if (error) throw error;
 
         const alumnosGrupo = todosData.filter(t => extraerGrupo(t.zipgrade_id) === grupo)
-          .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre));
+          .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre, 'es', { sensitivity: 'base' }));
 
         if (alumnosGrupo.length === 0) {
           $('grupal-content').innerHTML = '<p style="text-align:center; padding:2rem;">No hay datos para este grupo.</p>';
@@ -3973,7 +3973,7 @@
         if (error) throw error;
 
         const alumnosGrupo = todosData.filter(t => extraerGrupo(t.zipgrade_id) === grupo)
-          .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre));
+          .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre, 'es', { sensitivity: 'base' }));
 
         if (alumnosGrupo.length === 0) {
           $('asignatura-content').innerHTML = '<p style="text-align:center; padding:2rem;">No hay datos.</p>';
