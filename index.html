@@ -139,9 +139,16 @@
     }
 
     .container {
-      max-width: 96%;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 0 1rem;
+      padding: 0 2rem;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 0 1rem;
+        max-width: 100%;
+      }
     }
 
     /* Selectores */
@@ -256,41 +263,52 @@
 
       .period-tabs {
         display: flex;
-        /* En lugar de inline-flex para que se adapte */
-        flex-wrap: wrap;
-        /* Para que bajen si no caben */
-        justify-content: center;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.05);
+        padding: 4px;
+        border-radius: 14px;
+        margin: 10px 0;
       }
 
       .period-tab {
         flex: 1;
         text-align: center;
-        padding: 10px 15px;
-        font-size: 0.8rem;
+        padding: 8px 5px;
+        font-size: 0.75rem;
+        border-radius: 10px;
       }
 
       .controls {
         grid-template-columns: 1fr !important;
-        padding: 1.2rem;
-        margin-top: -1.5rem;
-        gap: 1rem;
+        padding: 1rem;
+        margin-top: 0;
+        gap: 0.8rem;
+        border-radius: 20px;
       }
 
       .card {
-        padding: 1.5rem;
+        padding: 1.2rem;
+        border-radius: 20px;
+      }
+
+      .dashboard-grid {
+        gap: 1rem;
       }
 
       #user-badge {
-        top: 8px !important;
-        right: 8px !important;
-        padding: 6px 10px 6px 6px !important;
+        top: 10px !important;
+        right: 10px !important;
+        padding: 4px 12px !important;
+        transform: scale(0.9);
+        transform-origin: right top;
       }
 
-      #user-badge #user-nombre {
-        max-width: 100px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+      /* Fix visibility of tables and content */
+      div[style*="overflow-x: auto"] {
+        margin: 0 -1.2rem;
+        padding: 0 1.2rem;
+        width: calc(100% + 2.4rem);
+        -webkit-overflow-scrolling: touch;
       }
     }
 
@@ -992,48 +1010,29 @@
         -webkit-overflow-scrolling: touch;
       }
 
-      /* Bottom Nav Bar */
-      .mobile-nav {
-        display: flex !important;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-top: 1px solid rgba(255, 255, 255, 0.3);
-        padding: 12px 0 24px 0;
-        justify-content: space-around;
-        align-items: center;
-        z-index: 4000;
-        box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.05);
-      }
 
-      .mobile-nav-item {
-        display: flex;
-        flex-direction: column;
-    /* 📱 Barra de Navegación Móvil */
+    }
+    
+    /* 📱 Barra de Navegación Móvil (Solo visible en móviles) */
     .mobile-nav {
       display: none;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border-top: 1px solid rgba(255, 255, 255, 0.3);
-      display: flex;
-      justify-content: space-around;
-      padding: 12px 10px 25px;
-      z-index: 4000;
-      box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.05);
     }
 
     @media (max-width: 600px) {
       .mobile-nav {
         display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+        justify-content: space-around;
+        padding: 12px 10px 25px;
+        z-index: 4000;
+        box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.05);
       }
 
       .mobile-nav-item {
@@ -1042,17 +1041,26 @@
         align-items: center;
         gap: 4px;
         color: var(--gray);
-        text-decoration: none;
-        font-size: 0.65rem;
+        text-decoration: none !important;
+        font-size: 0.7rem;
         font-weight: 700;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         flex: 1;
+        outline: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .mobile-nav-item:hover, .mobile-nav-item:active, .mobile-nav-item:visited {
+        text-decoration: none !important;
+        color: var(--gray);
       }
 
       .mobile-nav-item.active {
-        color: var(--primary);
+        color: var(--primary) !important;
         transform: translateY(-4px);
       }
+
+
 
       .mobile-nav-item .material-symbols-outlined {
         font-size: 26px;
@@ -1081,6 +1089,28 @@
       .card > div[style*="display: flex"] > div {
         width: 100% !important;
         justify-content: space-between !important;
+      }
+
+      .top-nav-container {
+        padding: 0.5rem 0 !important;
+        margin-bottom: 0.5rem !important;
+      }
+
+      .top-nav-container .container > div:first-child {
+        justify-content: center !important;
+      }
+
+      .top-nav-container img {
+        height: 50px !important;
+      }
+
+      .print-btn {
+        width: 100% !important;
+        margin-top: 10px;
+      }
+
+      select, button, input {
+        font-size: 16px !important;
       }
     }
   </style>
@@ -1129,8 +1159,8 @@
 
   <main class="container">
     <!-- Contenedor Principal de Filtros y Navegación -->
-    <div style="background: white; border-bottom: 2px solid #f1f5f9; padding: 1.5rem 0; margin-bottom: 2rem;">
-      <div class="container" style="display: flex; flex-direction: column; gap: 1.5rem;">
+    <div class="top-nav-container" style="background: white; border-bottom: 2px solid #f1f5f9; padding: 1rem 0; margin-bottom: 1rem;">
+      <div class="container" style="display: flex; flex-direction: column; gap: 0.5rem;">
 
         <!-- Navegación Superior y Logo -->
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
