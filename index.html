@@ -3151,7 +3151,7 @@
           if (matchG) gradoLimpio = matchG[1];
         }
 
-        const nombre = ((row[fNameIdx] || "") + " " + (row[lNameIdx] || "")).trim();
+        const nombre = ((row[lNameIdx] || "").trim() + " " + (row[fNameIdx] || "").trim()).trim();
 
         let periodoDetectado = detectarPeriodo(quizName);
         if (fileName && (periodoDetectado === currentPeriodo || periodoDetectado === 1)) {
