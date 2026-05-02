@@ -1627,8 +1627,11 @@
                 <p style="font-size:0.8rem; color:#64748b;">Usa esta opción para LIMPIAR TODO (Resultados, Banco de
                   Preguntas y Notas) y empezar de cero.</p>
                 <button onclick="resetearBaseDeDatos()"
-                  style="background:#ef4444; color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; width:100%;">🔥
+                  style="background:#ef4444; color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; width:100%; margin-bottom: 10px;">🔥
                   BORRADO TOTAL (RESET)</button>
+                <button onclick="corregirNombresBaseDeDatos()"
+                  style="background:#f59e0b; color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; width:100%;">🔧
+                  CORREGIR NOMBRES (FIRST -> LAST)</button>
                 <p style="font-size:0.65rem; color:#94a3b8; text-align:center; margin-top:10px;">Versión 2.5 - Soporte
                   TSV
                   Consolidado Activo</p>
@@ -3258,6 +3261,52 @@
       } catch (e) {
         console.error(e);
         alert("Error al resetear: " + e.message);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function corregirNombresBaseDeDatos() {
+      const resp = confirm("⚠️ ¿Quieres corregir el formato de los nombres?\n\nEsto buscará nombres como 'ANA CRISTINA MUÑOZ SANABRIA' y los convertirá en 'MUÑOZ SANABRIA ANA CRISTINA' para que el orden alfabético sea correcto.");
+      if (!resp) return;
+
+      showLoading(true);
+      try {
+        const { data, error } = await supabaseClient.from('eval_estudiantes_notas').select('zipgrade_id, estudiante_nombre, quiz_name, periodo, grado');
+        if (error) throw error;
+
+        let total = data.length;
+        let actualizados = 0;
+
+        for (let i = 0; i < total; i++) {
+          const rec = data[i];
+          const original = rec.estudiante_nombre;
+          if (!original) continue;
+
+          const parts = original.trim().split(/\s+/);
+          if (parts.length < 3) continue;
+
+          const apellidos = parts.slice(-2).join(' ');
+          const nombres = parts.slice(0, -2).join(' ');
+          const nuevoNombre = (apellidos + " " + nombres).toUpperCase();
+
+          if (nuevoNombre === original.toUpperCase()) continue;
+
+          const { error: updErr } = await supabaseClient.from('eval_estudiantes_notas')
+            .update({ estudiante_nombre: nuevoNombre })
+            .eq('zipgrade_id', rec.zipgrade_id)
+            .eq('quiz_name', rec.quiz_name)
+            .eq('periodo', rec.periodo)
+            .eq('grado', rec.grado);
+
+          if (!updErr) actualizados++;
+        }
+
+        alert(`✅ ¡Proceso completado!\n\nSe han corregido ${actualizados} nombres. La página se recargará.`);
+        location.reload();
+      } catch (e) {
+        console.error(e);
+        alert("Error al corregir nombres: " + e.message);
       } finally {
         showLoading(false);
       }
