@@ -484,6 +484,23 @@
       width: 100%;
       height: 100%;
       z-index: 5000;
+      overflow: hidden;
+    }
+
+    #login-mask::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 80% auto;
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 0;
     }
 
     @keyframes gradientMove {
@@ -493,6 +510,8 @@
     }
 
     .login-card {
+      position: relative;
+      z-index: 1;
       width: 90%;
       max-width: 400px;
       background: rgba(255, 255, 255, 0.15);
@@ -1008,9 +1027,37 @@
       [id$="-content"] {
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch;
+        margin-bottom: 1rem;
       }
 
+      /* Fix sticky columns on mobile */
+      .estudiante-col-base, 
+      th[style*="position:sticky"],
+      td[style*="position:sticky"] {
+        position: sticky !important;
+        left: 0 !important;
+        background-color: white !important;
+        z-index: 20 !important;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+      }
 
+      th[style*="position:sticky"] {
+        z-index: 30 !important;
+        background-color: #f8fafc !important;
+      }
+
+      /* Narrower sticky column on very small screens */
+      @media (max-width: 480px) {
+        .estudiante-col-base,
+        th[style*="position:sticky"],
+        td[style*="position:sticky"] {
+          min-width: 130px !important;
+          max-width: 130px !important;
+          font-size: 0.7rem !important;
+          white-space: normal !important;
+          word-break: break-word;
+        }
+      }
     }
     
     /* 📱 Barra de Navegación Móvil (Solo visible en móviles) */
@@ -3749,7 +3796,7 @@
           let sumaPct = 0;
           html += `
                     <tr style="border-bottom:1px solid #f1f5f9;">
-                        <td class="estudiante-col-base" style="padding:10px 12px; font-weight:700; position:sticky; left:0; background:white; border-right:1px solid #f1f5f9; white-space:nowrap;">${est.estudiante_nombre}</td>
+                        <td class="estudiante-col-base" style="padding:10px 12px; font-weight:700; position:sticky; left:0; background:white; border-right:1px solid #f1f5f9; white-space:nowrap; z-index:5;">${est.estudiante_nombre}</td>
                 `;
 
           config.forEach(subj => {
@@ -3780,7 +3827,7 @@
         // Fila de Promedios del Grupo
         html += `
                 <tr style="background:#f8fafc; font-weight:800; border-top:2px solid #e2e8f0;">
-                    <td style="padding:12px; position:sticky; left:0; background:#f8fafc;">PROMEDIO GRUPAL</td>
+                    <td style="padding:12px; position:sticky; left:0; background:#f8fafc; z-index:5;">PROMEDIO GRUPAL</td>
             `;
 
         let totalGrupo = 0;
@@ -3970,7 +4017,7 @@
         alumnosGrupo.forEach(est => {
           let sumaPct = 0;
           html += `<tr style="border-bottom:1px solid #f1f5f9;">
-                    <td class="estudiante-col-base" style="padding:10px 12px; font-weight:700; position:sticky; left:0; background:white; white-space:nowrap;">${est.estudiante_nombre}</td>`;
+                    <td class="estudiante-col-base" style="padding:10px 12px; font-weight:700; position:sticky; left:0; background:white; white-space:nowrap; z-index:5;">${est.estudiante_nombre}</td>`;
 
           config.forEach(subj => {
             let ok = 0, totalSub = 0;
