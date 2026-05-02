@@ -4754,11 +4754,37 @@
 
     checkSession();
 
-    // Registrar Service Worker para PWA
+    // --- Lógica de Instalación PWA ---
+    let deferredPrompt;
+    const installBtn = document.createElement('button');
+    installBtn.id = 'pwa-install-btn';
+    installBtn.innerHTML = '<span class="material-symbols-outlined">download</span> Instalar App';
+    installBtn.style.cssText = 'position:fixed; bottom:100px; right:20px; z-index:1000; display:none; background:#4f46e5; color:white; border:none; padding:10px 20px; border-radius:30px; font-weight:bold; box-shadow:0 10px 20px rgba(0,0,0,0.2); cursor:pointer; align-items:center; gap:8px;';
+    document.body.appendChild(installBtn);
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'flex';
+      console.log('PWA: Ready to install');
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          installBtn.style.display = 'none';
+        }
+        deferredPrompt = null;
+      }
+    });
+
+    // Registrar Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').then(registration => {
-          console.log('SW registrado con éxito:', registration.scope);
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+          console.log('SW registrado con éxito');
         }).catch(err => {
           console.log('Registro de SW falló:', err);
         });

@@ -1,7 +1,8 @@
 {
-  "name": "Evaluándonos",
+  "name": "Evaluándonos - Análisis Estadístico",
   "short_name": "Evaluándonos",
-  "start_url": "./index.html",
+  "description": "Plataforma de análisis de resultados académicos",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#4f46e5",
@@ -15,8 +16,7 @@
     {
       "src": "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
