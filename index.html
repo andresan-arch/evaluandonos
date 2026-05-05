@@ -2102,9 +2102,10 @@
       if (currentPeriodo == 2) examen = "E2";
       if (currentPeriodo == 3) examen = "EF";
 
-      // Soporte para múltiples imágenes (_2, _3, etc.)
-      // La primera imagen (index 1) no lleva sufijo para mantener compatibilidad
-      const suffix = (index > 1) ? `_${index}` : "";
+      // Soporte para múltiples imágenes (_1, _2, etc.)
+      // La primera imagen (index 1) no lleva sufijo.
+      // La segunda imagen (index 2) llevará _1, la tercera _2, etc.
+      const suffix = (index > 1) ? `_${index - 1}` : "";
 
       // Formato de archivo: [Num][Cod][Grado][Opcion][Suffix].png
       const fileName = `${num}${cod}${gNum}${opcion.toUpperCase()}${suffix}.png`;
@@ -2261,23 +2262,20 @@
         const { data: sedesRes } = await supabaseClient.from('eval_resultados')
           .select('*').eq('grado', g).eq('periodo', currentPeriodo).eq('pregunta_num', n);
 
-        if (!sedesRes || sedesRes.length === 0) {
-          showLoading(false);
-          alert(`🔔 No se han cargado resultados de ZipGrade para la Pregunta #${n} (Grado ${g}, Periodo ${currentPeriodo}).`);
-          $('resultado-container').style.display = 'none';
-          return;
-        }
-
-        const stats = sedesRes[0]; // Referencia para key principal
+        const hasStats = (sedesRes && sedesRes.length > 0);
+        const stats = hasStats ? sedesRes[0] : { key: " " }; 
+        
         let totalCorrectas = 0, rA = 0, rB = 0, rC = 0, rD = 0;
 
-        sedesRes.forEach(r => {
-          totalCorrectas += (r.cant_correctas || 0);
-          rA += (r.resp_a_count || 0);
-          rB += (r.resp_b_count || 0);
-          rC += (r.resp_c_count || 0);
-          rD += (r.resp_d_count || 0);
-        });
+        if (hasStats) {
+          sedesRes.forEach(r => {
+            totalCorrectas += (r.cant_correctas || 0);
+            rA += (r.resp_a_count || 0);
+            rB += (r.resp_b_count || 0);
+            rC += (r.resp_c_count || 0);
+            rD += (r.resp_d_count || 0);
+          });
+        }
 
         const totalRespuestas = rA + rB + rC + rD;
         const porcGlobal = totalRespuestas > 0 ? Math.round((totalCorrectas / totalRespuestas) * 100) : 0;
@@ -2287,7 +2285,15 @@
         $('stat-correctas').innerText = totalCorrectas;
         $('stat-porcentaje').innerText = porcGlobal + "%";
 
-        updateChart([rA, rB, rC, rD], stats.key);
+        // Si no hay estadísticas, ocultamos o vaciamos la gráfica
+        if (!hasStats) {
+           if (myChart) myChart.destroy();
+           $('stat-p-box').style.opacity = "0.3";
+           console.warn("No hay resultados de ZipGrade para esta pregunta.");
+        } else {
+           $('stat-p-box').style.opacity = "1";
+           updateChart([rA, rB, rC, rD], stats.key);
+        }
 
         const mapping = preg || {
           pregunta_num: n, texto_pregunta: `Pregunta #${n} (Sin texto en banco)`,
@@ -2330,25 +2336,29 @@
       if (!textElem || !mediaElem) return;
 
       if (!content) {
-        textElem.innerText = "";
+        textElem.innerHTML = "";
         mediaElem.innerHTML = "";
         return;
       }
 
-      const str = content.toString();
+      const str = content.toString().trim();
       let parts = [];
-      const separator = str.includes(" // ") ? " // " : (str.includes(" ||| ") ? " ||| " : null);
-
-      if (separator) {
-        parts = str.split(separator);
-      } else if (str.startsWith("http")) {
-        parts = ["", str]; // Imagen sola (primer bloque de texto vacío)
+      
+      // Separador avanzado: detecta // siempre que NO sea parte de un link (ej. https://)
+      // O detecta el símbolo |||
+      const separatorRegex = /(?<!:)\/\/|\|\|\|/;
+      const hasSeparator = str.match(separatorRegex);
+      
+      if (hasSeparator) {
+        // Dividimos usando la misma lógica (protegiendo links)
+        parts = str.split(/(?<!:)\s*\/\/|\|\|\|\s*/);
+      } else if (str.toLowerCase().startsWith("http")) {
+        parts = ["", str]; // Imagen sola
       } else {
         parts = [str]; // Texto solo
       }
 
-      // Limpiamos los contenedores originales
-      // Ahora usaremos principalmente mediaElem para todo para mantener el orden secuencial
+      // Limpiamos contenedores
       textElem.innerHTML = "";
       mediaElem.innerHTML = "";
 
@@ -2363,11 +2373,10 @@
           // Bloque de TEXTO
           if (contentPart) {
             let style = 'width:100%; text-align:left; color:var(--text); font-size:1.1rem; line-height:1.6; font-weight:500;';
-            
-            // Detección de Contexto (Recuadro especial para preguntas en cadena)
             const isContext = /^(RESPONDA|CON LA|SEGUN|DE ACUERDO|BAJO)/i.test(contentPart);
+            
             if (isContext) {
-              style = 'width:100%; text-align:left; color:var(--primary); font-size:1rem; line-height:1.4; font-weight:700; background:rgba(79, 70, 229, 0.08); border-left:5px solid var(--primary); padding:15px; border-radius:0 12px 12px 0; margin-bottom:15px; font-family:"Outfit", sans-serif;';
+              style = 'width:100%; text-align:left; color:var(--primary); font-size:1rem; line-height:1.4; font-weight:700; background:rgba(79, 70, 229, 0.08); border-left:5px solid var(--primary); padding:15px; border-radius:0 12px 12px 0; margin-bottom:10px; font-family:"Outfit", sans-serif;';
               finalHtml += `<div style="${style}"><span style="display:block; font-size:0.7rem; text-transform:uppercase; opacity:0.7; margin-bottom:5px;">📋 Contexto de Evaluación</span>${contentPart}</div>`;
             } else {
               finalHtml += `<div style="${style}">${contentPart}</div>`;
@@ -2378,9 +2387,8 @@
           imageCounter++;
           let imgUrl = contentPart;
 
-          // Si no es una URL completa, intentamos predecir (adivinación)
-          if (!imgUrl.startsWith("http")) {
-            // Predecimos siempre para bloques impares (1, 3, 5...)
+          // Si el bloque está vacío o no es URL, usamos nomenclatura automática
+          if (!imgUrl.toLowerCase().startsWith("http")) {
             imgUrl = obtenerUrlPredictiva(grado, asig, num, opcion, imageCounter);
           }
 
@@ -2389,7 +2397,8 @@
               <div style="display:flex; flex-direction:column; gap:8px; align-items:center; width:100%;">
                 <img src="${imgUrl}" 
                      style="max-width:100%; border-radius:12px; border:1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);" 
-                     onerror="this.style.display='none';">
+                     title="Imagen ${imageCounter}"
+                     onerror="this.parentElement.style.display='none';">
               </div>`;
           }
         }
