@@ -2091,7 +2091,7 @@
       "INGLES": "I"
     };
 
-    function obtenerUrlPredictiva(grado, materia, num, opcion = "") {
+    function obtenerUrlPredictiva(grado, materia, num, opcion = "", index = 1) {
       const normalizar = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
       const cod = MATERIA_ADIVINAR[normalizar(materia)] || "X";
       const gNum = parseInt(grado) || 0;
@@ -2102,12 +2102,15 @@
       if (currentPeriodo == 2) examen = "E2";
       if (currentPeriodo == 3) examen = "EF";
 
-      // Formato de archivo: [Num][Cod][Grado][Opcion].png -> Ej: 25M7A.png
-      const fileName = `${num}${cod}${gNum}${opcion.toUpperCase()}.png`;
+      // Soporte para múltiples imágenes (_2, _3, etc.)
+      // La primera imagen (index 1) no lleva sufijo para mantener compatibilidad
+      const suffix = (index > 1) ? `_${index}` : "";
 
-      // Ruta: preguntas/2026/E1/25M7A.png
+      // Formato de archivo: [Num][Cod][Grado][Opcion][Suffix].png
+      const fileName = `${num}${cod}${gNum}${opcion.toUpperCase()}${suffix}.png`;
+
       const url = `${AUTO_IMG_BASE_URL}${anio}/${examen}/${fileName}`;
-      console.log("🔍 Intentando cargar imagen:", url);
+      console.log(`🔍 Intentando cargar imagen (Pos ${index}):`, url);
       return url;
     }
 
@@ -2334,64 +2337,66 @@
 
       const str = content.toString();
       let parts = [];
+      const separator = str.includes(" // ") ? " // " : (str.includes(" ||| ") ? " ||| " : null);
 
-      // Soporte para formato Texto // Imagen // Texto o Texto // // Texto
-      if (str.includes(" // ")) {
-        parts = str.split(" // ");
-      } else if (str.includes(" ||| ")) {
-        parts = str.split(" ||| ");
-      }
-
-      let textBefore = "", imgPart = "", textAfter = "";
-
-      if (parts.length > 0) {
-        textBefore = parts[0] || "";
-        imgPart = parts[1] || "";
-        textAfter = parts[2] || "";
+      if (separator) {
+        parts = str.split(separator);
       } else if (str.startsWith("http")) {
-        imgPart = str;
+        parts = ["", str]; // Imagen sola (primer bloque de texto vacío)
       } else {
-        textBefore = str;
+        parts = [str]; // Texto solo
       }
 
-      // Limpiar y Renderizar Texto Superior
-      textElem.innerHTML = textBefore ? `<div style="margin-bottom:10px;">${textBefore}</div>` : "";
+      // Limpiamos los contenedores originales
+      // Ahora usaremos principalmente mediaElem para todo para mantener el orden secuencial
+      textElem.innerHTML = "";
+      mediaElem.innerHTML = "";
 
-      // Determinar la imagen a usar
-      let finalImgUrl = "";
-      let isGuess = false;
+      let finalHtml = `<div style="display:flex; flex-direction:column; gap:15px; width:100%;">`;
+      let imageCounter = 0;
 
-      if (imgPart && imgPart.trim().startsWith("http")) {
-        finalImgUrl = imgPart.trim();
-      } else {
-        // Lógica de adivinación:
-        // 1. Si es la pregunta principal (opcion ""), adivinamos siempre.
-        // 2. Si es una opción (A, B, C, D), SOLO adivinamos si el usuario usó el separador //
-        if (opcion === "" || parts.length > 0) {
-          finalImgUrl = obtenerUrlPredictiva(grado, asig, num, opcion);
-          isGuess = true;
-        }
-      }
+      parts.forEach((part, index) => {
+        const isEven = (index % 2 === 0);
+        const contentPart = part.trim();
 
-      // Renderizar Imagen y Texto Inferior
-      if (finalImgUrl) {
-        mediaElem.innerHTML = `
-          <div style="display:flex; flex-direction:column; gap:10px; align-items:center; width:100%;">
-            <img src="${finalImgUrl}" 
-                 style="max-width:100%; border-radius:12px; border:1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05);" 
-                 onerror="this.style.display='none'; if(parseInt('${parts.length}') > 0) document.getElementById('err-${mediaId}').style.display='block';">
+        if (isEven) {
+          // Bloque de TEXTO
+          if (contentPart) {
+            let style = 'width:100%; text-align:left; color:var(--text); font-size:1.1rem; line-height:1.6; font-weight:500;';
             
-            <div id="err-${mediaId}" style="display:none; padding:15px; background:#fff1f2; border:1px solid #fda4af; border-radius:12px; color:#991b1b; font-size:0.8rem; text-align:center; width:100%;">
-               <p style="margin:0; font-weight:800;">⚠️ Imagen no encontrada</p>
-               <p style="margin:5px 0 0 0; font-family:monospace; opacity:0.7; font-size:0.7rem; word-break:break-all;">URL: ${finalImgUrl}</p>
-            </div>
+            // Detección de Contexto (Recuadro especial para preguntas en cadena)
+            const isContext = /^(RESPONDA|CON LA|SEGUN|DE ACUERDO|BAJO)/i.test(contentPart);
+            if (isContext) {
+              style = 'width:100%; text-align:left; color:var(--primary); font-size:1rem; line-height:1.4; font-weight:700; background:rgba(79, 70, 229, 0.08); border-left:5px solid var(--primary); padding:15px; border-radius:0 12px 12px 0; margin-bottom:15px; font-family:"Outfit", sans-serif;';
+              finalHtml += `<div style="${style}"><span style="display:block; font-size:0.7rem; text-transform:uppercase; opacity:0.7; margin-bottom:5px;">📋 Contexto de Evaluación</span>${contentPart}</div>`;
+            } else {
+              finalHtml += `<div style="${style}">${contentPart}</div>`;
+            }
+          }
+        } else {
+          // Bloque de IMAGEN
+          imageCounter++;
+          let imgUrl = contentPart;
 
-            ${textAfter ? `<div style="width:100%; text-align:left; color:#475569; font-style:italic; font-size:0.95rem;">${textAfter}</div>` : ""}
-          </div>
-        `;
-      } else {
-        mediaElem.innerHTML = "";
-      }
+          // Si no es una URL completa, intentamos predecir (adivinación)
+          if (!imgUrl.startsWith("http")) {
+            // Predecimos siempre para bloques impares (1, 3, 5...)
+            imgUrl = obtenerUrlPredictiva(grado, asig, num, opcion, imageCounter);
+          }
+
+          if (imgUrl) {
+            finalHtml += `
+              <div style="display:flex; flex-direction:column; gap:8px; align-items:center; width:100%;">
+                <img src="${imgUrl}" 
+                     style="max-width:100%; border-radius:12px; border:1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);" 
+                     onerror="this.style.display='none';">
+              </div>`;
+          }
+        }
+      });
+
+      finalHtml += `</div>`;
+      mediaElem.innerHTML = finalHtml;
     }
 
     function updateChart(counts, key) {
@@ -2480,7 +2485,7 @@
         return;
       }
 
-      $('aimg-title').innerText = `🎨 Pregunta #${num} - ${a}`;
+      if ($('aimg-title')) $('aimg-title').innerText = `🎨 Pregunta #${num} - ${a}`;
       const fields = [
         { key: 'texto_pregunta', label: 'Texto/Imagen Pregunta' },
         { key: 'opcion_a', label: 'Opción A' },
@@ -2492,50 +2497,64 @@
       let html = '';
       fields.forEach(f => {
         const val = data[f.key] || '';
-        let textDisplay = "";
-        let imgUrl = "";
-
-        if (val.includes(" ||| ")) {
-          const parts = val.split(" ||| ");
-          textDisplay = parts[0];
-          imgUrl = parts[1];
-        } else if (val.startsWith("http")) {
-          imgUrl = val;
-        } else {
-          textDisplay = val;
-        }
-
-        let previewHtml = '';
-        if (imgUrl) {
-          previewHtml = `
-            <div style="margin-top:5px; position:relative; display:inline-block;">
-              <img src="${imgUrl}" style="max-height:60px; border-radius:4px; border:1px solid #ddd;">
-              <button onclick="removerImagenMapeo('${data.id}', '${f.key}')" 
-                style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; border:none; width:20px; height:20px; border-radius:50%; font-size:12px; cursor:pointer;" title="Eliminar Imagen">×</button>
-            </div>`;
-        } else {
-          previewHtml = `<span style="color:#64748b; font-size:0.65rem;">(Sin Imagen)</span>`;
-        }
-
-        // Sugerencia Automática GitHub
         const opcLetra = (f.key.length === 8 && f.key.startsWith('opcion_')) ? f.key.slice(-1).toUpperCase() : '';
+        
+        // Generalizar visualización de múltiples partes
+        const separator = val.includes(" // ") ? " // " : (val.includes(" ||| ") ? " ||| " : null);
+        const parts = separator ? val.split(separator) : [val];
+        
+        let textDisplay = "";
+        let previewHtml = '';
+        let imageCounter = 0;
+
+        parts.forEach((pPart, idx) => {
+          if (idx % 2 === 0) {
+            if (pPart.trim()) textDisplay += (textDisplay ? " | " : "") + pPart.trim();
+          } else {
+            imageCounter++;
+            let url = pPart.trim();
+            if (!url.startsWith("http")) {
+              url = obtenerUrlPredictiva(g, a, num, opcLetra, imageCounter);
+            }
+            if (url) {
+                previewHtml += `
+                    <div style="margin-top:5px; position:relative; display:inline-block; margin-right:5px;">
+                      <img src="${url}" style="max-height:45px; border-radius:4px; border:1px solid #ddd;" onerror="this.style.opacity='0.3'">
+                      <button onclick="removerImagenMapeo('${data.id}', '${f.key}')" 
+                        style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; border:none; width:18px; height:18px; border-radius:50%; font-size:10px; cursor:pointer;" title="Eliminar Imagen">×</button>
+                    </div>`;
+            }
+          }
+        });
+
+        // Caso especial: si es una URL directa sin separadores
+        if (!separator && val.startsWith("http")) {
+            previewHtml = `
+                <div style="margin-top:5px; position:relative; display:inline-block;">
+                  <img src="${val}" style="max-height:45px; border-radius:4px; border:1px solid #ddd;">
+                  <button onclick="removerImagenMapeo('${data.id}', '${f.key}')" 
+                    style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; border:none; width:18px; height:18px; border-radius:50%; font-size:10px; cursor:pointer;" title="Eliminar Imagen">×</button>
+                </div>`;
+        }
+
+        if (!previewHtml) previewHtml = `<span style="color:#64748b; font-size:0.65rem;">(Sin Imagen)</span>`;
+
+        // Sugerencia Base
         const sugerenciaNombre = `${num}${MATERIA_ADIVINAR[a.toUpperCase()] || 'X'}${g}${opcLetra}.png`;
-        const urlSugerida = obtenerUrlPredictiva(g, a, num, opcLetra);
 
         html += `
-          <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:8px;">
+          <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:8px; margin-bottom:8px;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:5px;">
               <div style="display:flex; flex-direction:column;">
                 <span style="font-weight:bold; color:#1e293b; font-size:0.75rem;">${f.label}</span>
-                <span style="color:#64748b; font-size:0.65rem; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">📝 ${textDisplay || 'Sin texto'}</span>
+                <span style="color:#64748b; font-size:0.65rem; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">📝 ${textDisplay || 'Sin texto'}</span>
                 
                 <div style="margin-top:4px; padding:2px 5px; background:#f5f3ff; border-radius:4px; border:1px dashed #6366f1;">
-                   <span style="font-size:0.6rem; color:#6366f1; font-weight:bold;">🔍 GitHub: <code>${sugerenciaNombre}</code></span>
+                   <span style="font-size:0.6rem; color:#6366f1; font-weight:bold;">🔍 Base: <code>${sugerenciaNombre}</code></span>
                 </div>
               </div>
-              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:5px;">
+              <div style="display:flex; align-items:flex-end; gap:5px;">
                 ${previewHtml}
-                <img src="${urlSugerida}" style="height:30px; border-radius:4px; opacity:0.4;" onerror="this.style.display='none'" title="Previsualización de carga automática">
               </div>
             </div>
             <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
@@ -2544,10 +2563,10 @@
                   <button onclick="subirImagenMapeo('${data.id}', '${f.key}')" 
                     style="background:#10b981; color:white; border:none; border-radius:6px; padding:4px 8px; font-weight:bold; font-size:0.7rem; cursor:pointer;" title="Subir a Supabase">Subir</button>
                </div>
-               <div style="display:flex; gap:5px; align-items:center; border-top:1px solid #f1f5f9; pt-5">
-                  <input type="text" id="url-${f.key}" placeholder="Paste GitHub Raw Link..." style="font-size:0.7rem; flex:1; padding:4px; border:1px solid #e2e8f0; border-radius:6px;">
+               <div style="display:flex; gap:5px; align-items:center; border-top:1px solid #f1f5f9; padding-top:5px;">
+                  <input type="text" id="url-${f.key}" placeholder="Vincular URL..." style="font-size:0.7rem; flex:1; padding:4px; border:1px solid #e2e8f0; border-radius:6px;">
                   <button onclick="guardarUrlExterna('${data.id}', '${f.key}')" 
-                    style="background:#6366f1; color:white; border:none; border-radius:6px; padding:4px 8px; font-weight:bold; font-size:0.7rem; cursor:pointer;" title="Vincular link externo">Vincular</button>
+                    style="background:#6366f1; color:white; border:none; border-radius:6px; padding:4px 8px; font-weight:bold; font-size:0.7rem; cursor:pointer;">OK</button>
                </div>
             </div>
           </div>
