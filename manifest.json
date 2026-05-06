@@ -1,6 +1,7 @@
 {
   "name": "Evaluándonos - Análisis Estadístico",
   "short_name": "Evaluándonos",
+  "id": "evaluandonos-app-2026",
   "description": "Plataforma de análisis de resultados académicos",
   "start_url": "index.html",
   "display": "standalone",
