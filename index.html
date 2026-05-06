@@ -30,6 +30,13 @@
       },
       options: {
         skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      },
+      startup: {
+        pageReady: () => {
+          return MathJax.startup.defaultPageReady().then(() => {
+            console.log('MathJax inicializado');
+          });
+        }
       }
     };
   </script>
@@ -2297,6 +2304,10 @@
         const porcGlobal = totalRespuestas > 0 ? Math.round((totalCorrectas / totalRespuestas) * 100) : 0;
 
         $('resultado-container').style.display = 'block';
+        // Forzar a MathJax a procesar el nuevo contenido
+        if (window.MathJax && MathJax.typesetPromise) {
+          MathJax.typesetPromise();
+        }
         $('stat-total').innerText = totalRespuestas;
         $('stat-correctas').innerText = totalCorrectas;
         $('stat-porcentaje').innerText = porcGlobal + "%";
@@ -3517,6 +3528,11 @@
           ${printActions}
           <div id="report-print-area">${html}</div>
         `;
+        
+        // Forzar a MathJax a procesar el reporte individual
+        if (window.MathJax && MathJax.typesetPromise) {
+          MathJax.typesetPromise();
+        }
 
         // Renderizar gráfico comparativo después de inyectar el HTML
         if (historico && historico.length > 0) {
