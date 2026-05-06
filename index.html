@@ -22,15 +22,66 @@
     rel="stylesheet">
   <script>
     window.MathJax = {
-      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], processEscapes: true },
-      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] }
-    };
-    // Vigilante de matemáticas: Escanea la pantalla cada vez que algo cambia
-    setInterval(() => {
-      if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise();
+      tex: { 
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        packages: {'[+]': ['base', 'ams', 'noerrors', 'noundefined']}
+      },
+      options: { 
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        enableMenu: false
+      },
+      startup: {
+        pageReady: () => {
+          return MathJax.startup.defaultPageReady();
+        }
       }
-    }, 2000);
+    };
+
+    // Función global para procesar matemáticas en texto plano
+    function formatMath(text) {
+      if (!text) return "";
+      let str = text.toString();
+      
+      // Si ya tiene delimitadores, no hacemos nada
+      if (str.includes('$') || str.includes('\\(')) return str;
+
+      // Convertir símbolos literales a comandos LaTeX y envolver si parece haber matemática
+      const hasMath = /[\^_\{\}\\]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[\+\-\*\/=]|∪|∩|∈|⊂|∀|∃|α|β|γ|δ|ε|ζ|η|θ|ι|κ|λ|μ|ν|ξ|ο|π|ρ|σ|τ|υ|φ|χ|ψ|ω/.test(str);
+      
+      if (hasMath) {
+        // Reemplazos comunes
+        str = str.replace(/²/g, "^{2}");
+        str = str.replace(/³/g, "^{3}");
+        str = str.replace(/∪/g, "\\cup");
+        str = str.replace(/∩/g, "\\cap");
+        str = str.replace(/∈/g, "\\in");
+        str = str.replace(/⊂/g, "\\subset");
+        str = str.replace(/α/g, "\\alpha").replace(/β/g, "\\beta").replace(/γ/g, "\\gamma").replace(/δ/g, "\\delta");
+        str = str.replace(/π/g, "\\pi").replace(/θ/g, "\\theta").replace(/μ/g, "\\mu").replace(/ω/g, "\\omega");
+        
+        // Si después de los reemplazos parece LaTeX, lo envolvemos
+        if (str.includes('^') || str.includes('_') || str.includes('\\')) {
+          return `$${str}$`;
+        }
+      }
+      return str;
+    }
+
+    // Vigilante de matemáticas optimizado
+    let mathTimeout;
+    function triggerMath() {
+      clearTimeout(mathTimeout);
+      mathTimeout = setTimeout(() => {
+        if (window.MathJax && MathJax.typesetPromise) {
+          MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+      }, 100);
+    }
+    
+    setInterval(triggerMath, 3000);
+
   </script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
@@ -1258,10 +1309,15 @@
             <div id="tab-3" class="period-tab" onclick="setPeriodo(3)">Evaluándonos Final</div>
           </div>
 
+          <button onclick="installApp()" id="install-button"
+            style="background:#10b981; color:white; border:none; padding:8px 16px; border-radius:12px; font-weight:700; cursor:pointer; font-size:0.85rem; display:flex; align-items:center; gap:8px;">
+            📲 Instalar App
+          </button>
           <button onclick="toggleAdmin()" class="admin-trigger"
             style="display:none; background:#1e293b; color:white; border:none; padding:8px 16px; border-radius:12px; font-weight:700; cursor:pointer; font-size:0.85rem; align-items:center; gap:8px;">
             ⚙️ Panel Admin
           </button>
+
         </div>
 
         <!-- Resultados -->
@@ -2087,6 +2143,26 @@
       await cargarGrados();
     }
 
+    // --- LÓGICA DE INSTALACIÓN PWA ---
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installBtn = document.getElementById('install-button');
+      if (installBtn) installBtn.style.display = 'flex';
+    });
+
+    async function installApp() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+      } else {
+        alert('Para instalar:\n1. Toca los tres puntos (⋮) o el icono de compartir.\n2. Busca "Instalar aplicación" o "Agregar a pantalla de inicio".\n\nNota: En modo incógnito, el navegador bloquea esta función por seguridad.');
+      }
+    }
+
+
     // --- CONFIGURACIÓN DE CARGA AUTOMÁTICA DE IMÁGENES ---
     const AUTO_IMG_BASE_URL = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/Preguntas/";
     const MATERIA_ADIVINAR = {
@@ -2394,11 +2470,14 @@
             let style = 'width:100%; text-align:left; color:var(--text); font-size:1.1rem; line-height:1.6; font-weight:500;';
             const isContext = /^(RESPONDA|CON LA|SEGUN|DE ACUERDO|BAJO)/i.test(contentPart);
             
+            // Aplicar formato matemático al texto
+            const formattedContent = formatMath(contentPart);
+            
             if (isContext) {
               style = 'width:100%; text-align:left; color:var(--primary); font-size:1rem; line-height:1.4; font-weight:700; background:rgba(79, 70, 229, 0.08); border-left:5px solid var(--primary); padding:15px; border-radius:0 12px 12px 0; margin-bottom:10px; font-family:"Outfit", sans-serif;';
-              finalHtml += `<div style="${style}"><span style="display:block; font-size:0.7rem; text-transform:uppercase; opacity:0.7; margin-bottom:5px;">📋 Contexto de Evaluación</span>${contentPart}</div>`;
+              finalHtml += `<div style="${style}"><span style="display:block; font-size:0.7rem; text-transform:uppercase; opacity:0.7; margin-bottom:5px;">📋 Contexto de Evaluación</span>${formattedContent}</div>`;
             } else {
-              finalHtml += `<div style="${style}">${contentPart}</div>`;
+              finalHtml += `<div style="${style}">${formattedContent}</div>`;
             }
           }
         } else {
@@ -2425,7 +2504,11 @@
 
       finalHtml += `</div>`;
       mediaElem.innerHTML = finalHtml;
+      
+      // Disparar renderizado de MathJax inmediatamente después de actualizar el DOM
+      triggerMath();
     }
+
 
     function updateChart(counts, key) {
       if (myChart) myChart.destroy();
