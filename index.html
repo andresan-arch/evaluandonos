@@ -2468,7 +2468,7 @@
           // Bloque de TEXTO
           if (contentPart) {
             let style = 'width:100%; text-align:left; color:var(--text); font-size:1.1rem; line-height:1.6; font-weight:500;';
-            const isContext = /^(RESPONDA|CON LA|SEGUN|DE ACUERDO|BAJO)/i.test(contentPart);
+            const isContext = /^(RESPONDA|RESPONDE|RESOLVER|RESUELVE|CON LA|SEGUN|DE ACUERDO|BAJO|EN BASE|LEE EL)/i.test(contentPart);
             
             // Aplicar formato matemático al texto
             const formattedContent = formatMath(contentPart);
