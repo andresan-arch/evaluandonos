@@ -2439,12 +2439,20 @@
       let parts = [];
       if (str.includes('|||')) {
         parts = str.split('|||');
-      } else if (str.match(/(?<!:)\/\//)) {
-        parts = str.split(/(?<!:)\/\//);
-      } else if (str.toLowerCase().startsWith("http")) {
-        parts = ["", str]; // Imagen sola
       } else {
-        parts = [str]; // Texto solo
+        // Dividir por // pero protegiendo protocolos http:// y https://
+        const temp = str.split('//');
+        for (let i = 0; i < temp.length; i++) {
+          if (i > 0 && parts[parts.length - 1].trim().match(/https?:$/i)) {
+            parts[parts.length - 1] += '//' + temp[i];
+          } else {
+            parts.push(temp[i]);
+          }
+        }
+        // Caso especial: si es una URL sola, tratarla como imagen
+        if (parts.length === 1 && parts[0].trim().toLowerCase().startsWith("http")) {
+          parts = ["", parts[0]];
+        }
       }
 
 
