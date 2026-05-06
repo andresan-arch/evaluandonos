@@ -9,9 +9,9 @@
   <!-- PWA Meta Tags -->
   <link rel="manifest" href="app-manifest.json">
   <meta name="theme-color" content="#4f46e5">
-  <link rel="apple-touch-icon" href="icon.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png?v=2026">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon.png?v=2026">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon.png?v=2026">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
@@ -44,25 +44,30 @@
       if (!text) return "";
       let str = text.toString();
       
-      // Si ya tiene delimitadores, no hacemos nada
+      // Si ya tiene delimitadores ($ o \(), no hacemos nada
       if (str.includes('$') || str.includes('\\(')) return str;
 
-      // Convertir símbolos literales a comandos LaTeX y envolver si parece haber matemática
-      const hasMath = /[\^_\{\}\\]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[\+\-\*\/=]|∪|∩|∈|⊂|∀|∃|α|β|γ|δ|ε|ζ|η|θ|ι|κ|λ|μ|ν|ξ|ο|π|ρ|σ|τ|υ|φ|χ|ψ|ω|[<>≤≥≠]/.test(str);
+      // Lista extendida de símbolos que indican presencia de matemáticas
+      const mathSymbols = [
+        '\\^', '_', '\\{', '\\}', '\\\\', '[0-9][a-zA-Z]', '[a-zA-Z][0-9]', 
+        '[\\+\\-\\*\\/=]', '∪', '∩', '∈', '⊂', '∀', '∃', 
+        'α', 'β', 'γ', 'δ', 'ε', 'ζ', 'η', 'θ', 'ι', 'κ', 'λ', 'μ', 'ν', 'ξ', 'ο', 'π', 'ρ', 'σ', 'τ', 'υ', 'φ', 'χ', 'ψ', 'ω',
+        '<', '>', '≤', '≥', '≠', '±', '∞', '√', '∫', '∑', '∏'
+      ];
+      const hasMath = new RegExp(mathSymbols.join('|')).test(str);
       
       if (hasMath) {
-        // Reemplazos comunes
-        str = str.replace(/²/g, "^{2}").replace(/³/g, "^{3}");
-        str = str.replace(/∪/g, "\\cup").replace(/∩/g, "\\cap");
-        str = str.replace(/∈/g, "\\in").replace(/⊂/g, "\\subset");
-        str = str.replace(/≤/g, "\\le").replace(/≥/g, "\\ge").replace(/≠/g, "\\ne");
-        str = str.replace(/α/g, "\\alpha").replace(/β/g, "\\beta").replace(/γ/g, "\\gamma").replace(/δ/g, "\\delta");
-        str = str.replace(/π/g, "\\pi").replace(/θ/g, "\\theta").replace(/μ/g, "\\mu").replace(/ω/g, "\\omega");
+        // Reemplazos comunes de caracteres especiales a LaTeX
+        str = str.replace(/²/g, "^{2}").replace(/³/g, "^{3}")
+                 .replace(/∪/g, "\\cup").replace(/∩/g, "\\cap")
+                 .replace(/∈/g, "\\in").replace(/⊂/g, "\\subset")
+                 .replace(/≤/g, "\\le").replace(/≥/g, "\\ge").replace(/≠/g, "\\ne")
+                 .replace(/α/g, "\\alpha").replace(/β/g, "\\beta").replace(/γ/g, "\\gamma").replace(/δ/g, "\\delta")
+                 .replace(/π/g, "\\pi").replace(/θ/g, "\\theta").replace(/μ/g, "\\mu").replace(/ω/g, "\\omega")
+                 .replace(/±/g, "\\pm").replace(/∞/g, "\\infty").replace(/√/g, "\\sqrt");
         
-        // Si después de los reemplazos parece LaTeX o contiene operadores, lo envolvemos
-        if (str.includes('^') || str.includes('_') || str.includes('\\') || /[<>≤≥≠\+\-\*\/=]/.test(str)) {
-          return `$${str}$`;
-        }
+        // Envolver en delimitadores de MathJax
+        return `$${str}$`;
       }
       return str;
     }
@@ -2397,9 +2402,8 @@
 
         $('resultado-container').style.display = 'block';
         // Forzar a MathJax a procesar el nuevo contenido
-        if (window.MathJax && MathJax.typesetPromise) {
-          MathJax.typesetPromise();
-        }
+        // Re-renderizado de MathJax después de cargar estadísticas
+        triggerMath();
         $('stat-total').innerText = totalRespuestas;
         $('stat-correctas').innerText = totalCorrectas;
         $('stat-porcentaje').innerText = porcGlobal + "%";
@@ -5045,7 +5049,7 @@
   </nav>
   <footer>
     <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
-      <img src="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/andresanbordessinfondo.png"
+      <img src="icon.png"
         class="footer-logo" alt="AndréSán Footer">
       <p class="footer-copy">© 2026 SGA AndréSán - Sistema Integrado de Gestión Académica</p>
     </div>
