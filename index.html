@@ -67,23 +67,19 @@
       return str;
     }
 
-    // Vigilante de matemáticas optimizado
+    // Vigilante de matemáticas optimizado con debounce para evitar bucles infinitos
     let mathTimeout;
     function triggerMath() {
-      if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
-      }
+      clearTimeout(mathTimeout);
+      mathTimeout = setTimeout(() => {
+        if (window.MathJax && MathJax.typesetPromise) {
+          MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+      }, 300); // 300ms de espera para agrupar cambios
     }
     
-    // Ejecutar cada vez que el DOM cambie significativamente
-    const observer = new MutationObserver((mutations) => {
-      triggerMath();
-    });
-    
-    window.addEventListener('load', () => {
-      observer.observe(document.body, { childList: true, subtree: true });
-      triggerMath();
-    });
+    // Ejecutar al cargar la página
+    window.addEventListener('load', triggerMath);
   </script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
