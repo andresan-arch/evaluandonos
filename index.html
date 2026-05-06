@@ -9,7 +9,7 @@
   <!-- PWA Meta Tags -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4f46e5">
-  <link rel="apple-touch-icon" href="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/andresanbordessinfondo.png">
+  <link rel="apple-touch-icon" href="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
@@ -2704,22 +2704,40 @@
 
       status.innerText = '⏳ Creando usuario...';
       try {
-        // 1. Crear cuenta en Supabase Auth
+        let userId = null;
+
+        // 1. Intentar crear cuenta en Supabase Auth
         const { data, error } = await supabaseClient.auth.signUp({
           email,
           password: pass,
           options: { data: { nombre: nombre, name: nombre } }
         });
-        if (error) throw error;
+
+        if (error) {
+          // Si el error es que ya existe, intentamos recuperar el ID si ya tiene perfil
+          if (error.message.includes('already registered') || error.status === 422) {
+             const { data: existing } = await supabaseClient.from('perfiles').select('id').eq('email', email).maybeSingle();
+             if (existing) {
+               userId = existing.id;
+               status.innerText = '⏳ Usuario detectado en Auth, actualizando perfil...';
+             } else {
+               throw new Error('El usuario ya existe en Supabase Auth pero no tiene un perfil creado. Para vincularlo, bórralo de la sección de Autenticación de Supabase e inténtalo de nuevo.');
+             }
+          } else {
+            throw error;
+          }
+        } else {
+          userId = data.user.id;
+        }
 
         const gradoAsig = $('nu-grado').value.trim();
 
-        // 2. Insertar en perfiles con el UUID del usuario
+        // 2. Insertar o actualizar en perfiles
         const { error: pErr } = await supabaseClient.from('perfiles')
           .upsert({ id: userId, email, nombre, rol, grado_asignado: gradoAsig }, { onConflict: 'id' });
         if (pErr) throw pErr;
 
-        status.innerText = `✅ Usuario creado: ${nombre} (${email}) — ${rol} [${gradoAsig || 'Todo'}]`;
+        status.innerText = `✅ Usuario ${data?.user ? 'creado' : 'actualizado'}: ${nombre} (${email}) — ${rol} [${gradoAsig || 'Todo'}]`;
         $('nu-grado').value = '';
         $('nu-email').value = '';
         $('nu-nombre').value = '';
@@ -2771,8 +2789,13 @@
 
                   if (sErr && !sErr.message.includes('registered')) throw sErr;
 
-                  const userId = signData?.user?.id;
+                  let userId = signData?.user?.id;
                   const perData = { email, nombre, rol, grado_asignado: gradoAsig };
+
+                  if (!userId) {
+                    const { data: existing } = await supabaseClient.from('perfiles').select('id').eq('email', email).maybeSingle();
+                    if (existing) userId = existing.id;
+                  }
 
                   if (userId) {
                     const { error: pErr } = await supabaseClient.from('perfiles').upsert({ id: userId, ...perData }, { onConflict: 'id' });
