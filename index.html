@@ -934,6 +934,7 @@
       #report-print-area,
       #report-print-area * {
         visibility: visible;
+      }
       #report-print-area {
         position: absolute;
         left: 0;
@@ -1536,7 +1537,7 @@
                   style="width: auto; padding: 8px 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
                   <option value="">Seleccione grupo...</option>
                 </select>
-                <button onclick="imprimirInformeGrupal()" class="print-btn admin-only"
+                <button id="btn-print-grupal" onclick="imprimirInformeGrupal()" 
                   style="display:none; background:#4036e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer; align-items:center; gap:8px;">
                   🖨️ Imprimir
                 </button>
@@ -1558,20 +1559,14 @@
               <h2 style="color:var(--primary); margin:0;">Análisis por Asignatura</h2>
               <div style="display: flex; gap: 10px; align-items: center;">
                 <label style="font-weight: 700; font-size: 0.85rem;">GRUPO:</label>
-                <select id="asig-sel-grado" onchange="generarInformeAsignatura()"
+                <select id="asig-sel-grado" onchange="cargarMateriasInformeAsignatura()"
                   style="width: auto; padding: 8px 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
                   <option value="">Seleccione grupo...</option>
                 </select>
                 <label style="font-weight: 700; font-size: 0.85rem; margin-left:10px;">ASIGNATURA:</label>
                 <select id="asig-sel-materia" onchange="generarInformeAsignatura()"
                   style="width: auto; padding: 8px 15px; border-radius: 10px; border: 1px solid #e2e8f0; font-weight:700;">
-                  <option value="">Seleccione asignatura...</option>
-                  <option value="Matemáticas">Matemáticas</option>
-                  <option value="Lenguaje">Lenguaje</option>
-                  <option value="Sociales">Sociales</option>
-                  <option value="Ciudadanas">Ciudadanas</option>
-                  <option value="Inglés">Inglés</option>
-                  <option value="Naturales">Naturales (Ciencias)</option>
+                  <option value="">Seleccione grupo primero...</option>
                 </select>
                 <button onclick="imprimirInformeAsignatura()" class="print-btn admin-only"
                   style="display:none; background:#4036e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">
@@ -1804,6 +1799,14 @@
       if (p >= 51) return { label: 'Básico', nivel: 'N2', initial: 'B', color: '#eab308', icon: '🟡' };
       return { label: 'Bajo', nivel: 'N1', initial: 'Bj', color: '#b91c1c', icon: '🔴' };
     };
+
+    function normalizeText(text) {
+      if (!text) return "";
+      return text.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim();
+    }
 
     function detectarSede(gradoStr) {
       if (!gradoStr) return 'Central';
@@ -2105,8 +2108,13 @@
 
         // --- Nueva Lgica de Privacidad 2026 ---
         try {
-          const { data: privData } = await supabaseClient.from('docentes_privacidad').select('*').eq('nombre', userName);
+          // Bsqueda flexible por nombre
+          const { data: privData } = await supabaseClient.from('docentes_privacidad')
+            .select('*')
+            .ilike('nombre', `%${userName.trim()}%`);
+            
           userPermissions = privData || [];
+          console.log("🔒 Permisos cargados para", userName, ":", userPermissions);
           
           // Buscar si tiene permiso explcito de SEDE
           const sedePerm = userPermissions.find(p => p.tipo === 'SEDE');
@@ -2116,6 +2124,9 @@
             // Fallback: detectar sede del grado asignado si existe
             userSede = assignedGrade ? detectarSede(assignedGrade) : null;
           }
+
+          // --- CONTROL DE VISIBILIDAD DE INFORMES ---
+          window.assignedGrade = assignedGrade;
         } catch (privErr) {
           console.error("Error al cargar privacidad:", privErr);
           userPermissions = [];
@@ -2135,61 +2146,46 @@
         const grupalTab = $('tab-grupal-item');
         const asigTab = $('tab-asignatura-item');
 
-        // Reset inicial de visibilidad
-        if (adminBtn) adminBtn.style.display = 'none';
-        adminElements.forEach(el => el.style.display = 'none');
-        printButtons.forEach(el => el.style.display = 'none');
-
+        // Solo el botón de panel administrador para superadmin
         if (currentRole === 'superadmin') {
           if (adminBtn) adminBtn.style.display = 'flex';
           adminElements.forEach(el => el.style.display = 'inline-block');
-          printButtons.forEach(el => el.style.display = 'inline-block');
-          if (individualTab) individualTab.style.display = 'block';
-          if (grupalTab) grupalTab.style.display = 'block';
-          if (asigTab) asigTab.style.display = 'block';
-          if ($('m-nav-individual')) $('m-nav-individual').style.display = 'flex';
-          if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'flex';
-          if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'flex';
+        } else {
+          if (adminBtn) adminBtn.style.display = 'none';
+          adminElements.forEach(el => el.style.display = 'none');
         }
-        else if (currentRole === 'admin') {
+
+        // --- RESTRICCIÓN DE IMPRESIÓN ---
+        if (currentRole === 'admin' || currentRole === 'superadmin') {
           printButtons.forEach(el => el.style.display = 'inline-block');
-          if (individualTab) individualTab.style.display = 'block';
-          if (grupalTab) grupalTab.style.display = 'block';
-          if (asigTab) asigTab.style.display = 'block';
-          if ($('m-nav-individual')) $('m-nav-individual').style.display = 'flex';
-          if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'flex';
-          if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'flex';
+        } else {
+          printButtons.forEach(el => el.style.display = 'none');
         }
-        else {
-          // Caso Lectores
+
+        // --- RESTRICCIONES DE ROL LECTOR (BLOQUEO ESTRICTO POR REQUERIMIENTO) ---
+        if (currentRole === 'lector') {
+          const isDirector = assignedGrade && assignedGrade.length > 0;
+          
+          // 1. Ocultar Informe Individual SIEMPRE para lectores
           if (individualTab) individualTab.style.display = 'none';
           if ($('m-nav-individual')) $('m-nav-individual').style.display = 'none';
-          
-          if (assignedGrade) {
-            // Director de grupo: Ve Grupal y Asignatura de su grado
-            if (grupalTab) grupalTab.style.display = 'block';
-            if (asigTab) asigTab.style.display = 'block';
-            if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'flex';
-            if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'flex';
 
-            printButtons.forEach(el => {
-              if (el.closest('#grupal-container') || el.closest('#asignatura-container')) {
-                el.style.display = 'inline-block';
-              }
-            });
-          } else {
-            // Lector sin grado: Solo ve Asignatura (y puede ver todos los grados en el selector)
+          // 2. Ocultar Informe Grupal si NO es director
+          if (!isDirector) {
             if (grupalTab) grupalTab.style.display = 'none';
-            if (asigTab) asigTab.style.display = 'block';
             if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'none';
-            if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'flex';
+          } else {
+            // Es director: mostrar grupal pero la lgica de carga (cargarGradosReporte) filtrar solo su grupo
+            if (grupalTab) grupalTab.style.display = 'block';
+            if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'flex';
             
-            printButtons.forEach(el => {
-              if (el.closest('#asignatura-container')) {
-                el.style.display = 'inline-block';
-              }
-            });
+            // Habilitar botn de impresin grupal para directores
+            if ($('btn-print-grupal')) $('btn-print-grupal').style.display = 'flex';
           }
+
+          // 3. El Informe Asignatura y Análisis General quedan visibles pero filtrados por materia/grado
+          if (asigTab) asigTab.style.display = 'block';
+          if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'flex';
         }
       } catch (e) {
         console.error("Error cargando perfil:", e);
@@ -2289,6 +2285,15 @@
         let dataCombined = (resResults.data || []).concat(resPreguntas.data || []);
         let uniqueGrados = [...new Set(dataCombined.map(d => d.grado))].sort((a, b) => a.toString().localeCompare(b.toString(), undefined, { numeric: true }));
 
+        // --- Filtro de Privacidad: Solo mostrar grados permitidos ---
+        if (currentRole === 'lector' || (currentRole !== 'superadmin' && currentRole !== 'admin')) {
+          // En Análisis General, solo ven grupos donde DICTAN clase (tienen ASIGNACION)
+          const allowedGrados = userPermissions.filter(p => p.tipo === 'ASIGNACION').map(p => p.grado.toString());
+          console.log("🎯 Grados permitidos en Anlisis:", allowedGrados);
+          uniqueGrados = uniqueGrados.filter(g => allowedGrados.includes(g.toString()));
+        }
+        // ----------------------------------------------------------
+
         if (silent) return uniqueGrados;
         const sel = $('sel-grado');
         if (uniqueGrados.length === 0) {
@@ -2310,6 +2315,25 @@
       try {
         const { data } = await supabaseClient.from('eval_preguntas').select('asignatura').eq('grado', grado).eq('periodo', currentPeriodo);
         let unique = data ? [...new Set(data.map(d => d.asignatura))].sort() : [];
+
+        // --- Filtro de Privacidad: Solo mostrar asignaturas permitidas para ESTE grado ---
+        if (currentRole === 'lector' || (currentRole !== 'superadmin' && currentRole !== 'admin')) {
+          const allowedAsig = userPermissions
+            .filter(p => p.tipo === 'ASIGNACION' && (p.grado.toString() === grado.toString()))
+            .map(p => normalizeText(p.asignatura));
+          
+          console.log("🎯 Materias permitidas (normalizadas):", allowedAsig);
+          
+          unique = unique.filter(a => {
+            const normalizedA = normalizeText(a);
+            // Coincidencia por palabra completa para evitar que "Fisica" coincida con "EduFisica"
+            return allowedAsig.some(p => {
+              const regex = new RegExp(`\\b${p}\\b`, 'i');
+              return regex.test(normalizedA) || p === normalizedA;
+            });
+          });
+        }
+        // --------------------------------------------------------------------------------
 
         const sel = $('sel-asig');
         sel.innerHTML = '<option value="">Seleccione asignatura...</option>' + unique.map(a => `<option value="${a}">${a}</option>`).join('');
@@ -3536,6 +3560,25 @@
         // Obtener todos los grupos únicos
         let allGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))] : [];
 
+        // --- Filtro de Privacidad: Solo mostrar grupos permitidos ---
+        if (currentRole === 'lector' || (currentRole !== 'superadmin' && currentRole !== 'admin')) {
+          const isDirector = window.assignedGrade && window.assignedGrade.length > 0;
+          const isEnPestañaGrupal = ($('tab-grupal-item') && $('tab-grupal-item').classList.contains('active')) || 
+                                    ($('grupal-container') && $('grupal-container').style.display === 'block');
+          
+          if (isEnPestañaGrupal) {
+             // Estamos en Informe Grupal: SOLO ver su grupo asignado
+             allGroups = isDirector ? [window.assignedGrade.toString()] : [];
+             console.log("🔒 Filtro Grupal Activo. Solo se permite:", allGroups);
+          } else {
+             // En otros informes (Asignatura), mostramos los grupos donde dicta clase
+             const allowedGrados = userPermissions.filter(p => p.tipo === 'ASIGNACION').map(p => p.grado.toString());
+             allGroups = allGroups.filter(g => allowedGrados.includes(g.toString()));
+          }
+          console.log("🎯 Grupos permitidos final:", allGroups);
+        }
+        // ----------------------------------------------------------
+
         // Filtrar por sede seleccionada manualmente (si existe)
         const uniqueGroups = sedeManual ? allGroups.filter(g => detectarSede(g) === sedeManual) : allGroups;
         uniqueGroups.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
@@ -3986,11 +4029,16 @@
 
         let uniqueGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))] : [];
 
-        // --- Filtro de Privacidad ---
+        // --- Filtro de Privacidad Estricto 2026 ---
         if (rol !== 'superadmin' && rol !== 'admin') {
-        // Filtro de Privacidad (Removido)
+          if (window.assignedGrade) {
+            uniqueGroups = [window.assignedGrade.toString()];
+          } else {
+            uniqueGroups = [];
+          }
+          console.log("🔒 [SEGURIDAD] Filtrando Informe Grupal para Director:", uniqueGroups);
         }
-        // ---------------------------
+        // -------------------------------------------
         uniqueGroups.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
         const sel = $('gru-sel-grado');
@@ -4135,6 +4183,7 @@
 
       const logoEvaluandonos = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/evaluandonos.png";
       const logoLiceo = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png";
+      const logoEscudo = "https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/Escudo%20liceo.png";
 
       const printWindow = window.open('', '_blank');
       printWindow.document.write(`
@@ -4145,19 +4194,22 @@
                     <style>
                         @page { size: letter; margin: 4mm; }
                         body { font-family: 'Outfit', sans-serif; color: #1e293b; margin: 0; padding: 0; line-height: 1; display: flex; flex-direction: column; align-items: center; }
-                        .header-print { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; border-bottom: 1px solid #4f46e5; padding: 2px 0; }
-                        table { width: auto; border-collapse: collapse; border: 1px solid #cbd5e1; margin: 0 auto; }
-                        th { background: #f8fafc; padding: 1px 0 !important; border: 1px solid #cbd5e1; font-size: 0.5rem; text-transform: uppercase; height: 12px; line-height: 1; }
-                        td { padding: 1px 0 !important; border: 1px solid #cbd5e1; font-size: 0.58rem; text-align: center; height: 12px; overflow: hidden; line-height: 1; vertical-align: middle; }
-                        .estudiante-col { text-align: left; font-weight: 700; white-space: nowrap; padding-left: 3px !important; width: 1%; border-right: 2px solid #cbd5e1; }
-                        .subject-col { width: 22px; }
-                        .val-box { font-weight: 800; font-size: 0.55rem; color: white; display: inline-block; width: 14px; height: 10px; border-radius: 1px; line-height: 10px; }
                         
-                        .header-logos { display: flex; align-items: center; gap: 5px; }
-                        .header-info-text { text-align: right; font-size: 0.6rem; line-height: 1.1; }
+                        .header-print-info { width: 100%; max-width: 800px; background: rgba(255, 255, 255, 0.85); border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 15px; margin-bottom: 12px; box-sizing: border-box; }
+                        .header-logos { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+                        .header-sub { display: flex; justify-content: space-between; align-items: center; }
+                        .tag-reporte { background: #f1f5f9; border: 1px solid #2563eb; padding: 2px 12px; border-radius: 8px; color: #16a34a; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; }
+                        .tag-periodo { font-size: 0.75rem; font-weight: 700; }
+
+                        table { width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1; margin: 0 auto; }
+                        th { background: #f8fafc; padding: 2px 0 !important; border: 1px solid #cbd5e1; font-size: 0.45rem; text-transform: uppercase; line-height: 1.1; }
+                        td { padding: 2px 0 !important; border: 1px solid #cbd5e1; font-size: 0.55rem; text-align: center; overflow: hidden; line-height: 1.1; vertical-align: middle; }
+                        .estudiante-col { text-align: left; font-weight: 700; white-space: nowrap; padding-left: 5px !important; width: 1%; border-right: 2px solid #cbd5e1; }
+                        .subject-col { width: 20px; }
+                        .val-box { font-weight: 800; font-size: 0.5rem; color: white; display: inline-block; width: 12px; height: 10px; border-radius: 1px; line-height: 10px; }
                         
-                        h1 { color: #4f46e5; font-size: 0.85rem; margin: 0; font-weight: 900; }
-                        .director-tag { background: #f1f5f9; padding: 0px 4px; border-radius: 2px; font-weight: 700; color: #475569; display: inline-block; font-size: 0.6rem; }
+                        h1 { color: #16a34a; font-size: 1.1rem; margin: 0; font-weight: 900; text-transform: uppercase; }
+                        .director-tag { background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-weight: 700; color: #475569; display: inline-block; font-size: 0.7rem; border: 1px solid #e2e8f0; margin-top: 5px; }
 
                         @media print {
                             body { zoom: 1; }
@@ -4166,26 +4218,50 @@
                     </style>
                 </head>
                 <body>
-                    <div class="header-print">
-                        <div class="header-logos">
-                            <img src="${logoLiceo}" style="height: 32px;">
-                            <img src="${logoEvaluandonos}" style="height: 18px;">
+                    <div class="header-print-info" style="background:rgba(255, 255, 255, 0.85); border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 15px; margin-bottom: 12px; width: 100%; max-width: 800px; box-sizing: border-box;">
+                        
+                        <!-- Encabezado en 3 Columnas para Alineacin Perfecta -->
+                        <div style="display:grid; grid-template-columns: 200px 1fr 200px; gap:10px; align-items: flex-end; margin-bottom: 10px;">
+                            
+                            <!-- Bloque Izquierdo: Logo Liceo + Informe de Grupo -->
+                            <div style="display:flex; flex-direction:column; align-items:center;">
+                                <img src="${logoLiceo}" style="height:60px; margin-bottom:8px;">
+                                <div style="background:#f1f5f9; border:1px solid #2563eb; padding:2px 10px; border-radius:15px; color:#16a34a; font-weight:900; font-size:0.75rem; white-space:nowrap; width: 100%; text-align:center;">
+                                    INFORME DE GRUPO: ${grupo}
+                                </div>
+                            </div>
+
+                            <!-- Bloque Central: Ttulo + Logo Grande -->
+                            <div style="text-align:center; padding-bottom: 5px;">
+                                <h1 style="margin:0 0 5px 0; font-size:1rem; color:#16a34a; font-weight:900; text-transform:uppercase;">I.E. Liceo Alejandro de Humboldt</h1>
+                                <img src="${logoEvaluandonos}" style="height:75px;">
+                            </div>
+
+                            <!-- Bloque Derecho: Escudo + Periodo -->
+                            <div style="display:flex; flex-direction:column; align-items:center;">
+                                <img src="${logoEscudo}" style="height:60px; margin-bottom:8px;">
+                                <div style="text-align:center; font-size:0.75rem; width: 100%; white-space:nowrap;">
+                                    <span style="color:#2563eb; font-weight:900;">PRUEBA ${currentPeriodo === 3 ? 'EF' : 'E' + currentPeriodo}</span> 
+                                    <span style="color:#64748b; margin:0 3px;">|</span> 
+                                    <span style="color:#64748b;">AÑO 2026</span>
+                                </div>
+                            </div>
                         </div>
-                        <div style="text-align: center; flex: 1;">
-                            <h1 style="display:inline-block; margin-right:10px;">INFORME GRUPAL</h1>
-                            <div class="director-tag">Director: ${directorNombre}</div>
-                        </div>
-                        <div class="header-info-text">
-                            <strong>GRUPO:</strong> ${grupo} | <strong>PER:</strong> ${currentPeriodo} | <strong>2026</strong>
+
+                        <!-- Director (Centrado abajo) -->
+                        <div style="text-align:center; margin-top:5px;">
+                            <div class="director-tag" style="font-size:0.7rem; padding:2px 12px; border-radius:6px; background:#f8fafc; border:1px solid #e2e8f0; display:inline-block; font-weight:700; color:#64748b;">
+                                Director de Grupo: ${directorNombre}
+                            </div>
                         </div>
                     </div>
                     ${content.replace(/position:sticky; left:0; background:#f8fafc; z-index:10;/g, '')
-          .replace(/class="estudiante-col-base"/g, 'class="estudiante-col"')
-          .replace(/class="subject-col-base"/g, 'class="subject-col"')
-          .replace(/class="promedio-col-base"/g, 'class="subject-col"')
-          .replace(/background:#f0f9ff;/g, '')
-          .replace(/background:#e0f2fe;/g, '')
-          .replace(/font-weight:900;/g, 'font-weight:800;')}
+                      .replace(/class="estudiante-col-base"/g, 'class="estudiante-col"')
+                      .replace(/class="subject-col-base"/g, 'class="subject-col"')
+                      .replace(/class="promedio-col-base"/g, 'class="subject-col"')
+                      .replace(/background:#f0f9ff;/g, '')
+                      .replace(/background:#e0f2fe;/g, '')
+                      .replace(/font-weight:900;/g, 'font-weight:800;')}
                 </body>
             </html>
         `);
@@ -4200,12 +4276,54 @@
         const { data } = await supabaseClient.from('eval_estudiantes_notas').select('zipgrade_id').eq('periodo', currentPeriodo);
         
         let uniqueGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))] : [];
-
         uniqueGroups.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+        // --- Filtro de Privacidad: Solo mostrar grados permitidos ---
+        if (currentRole === 'lector' || (currentRole !== 'superadmin' && currentRole !== 'admin')) {
+          const allowedGrados = userPermissions.filter(p => p.tipo === 'ASIGNACION').map(p => p.grado.toString());
+          uniqueGroups = uniqueGroups.filter(g => allowedGrados.includes(g.toString()));
+        }
+        // ----------------------------------------------------------
+
         const sel = $('asig-sel-grado');
         sel.innerHTML = '<option value="">Seleccione grupo...</option>' + uniqueGroups.map(g => `<option value="${g}">${g}</option>`).join('');
+        
+        // Resetear materias
+        $('asig-sel-materia').innerHTML = '<option value="">Seleccione grupo primero...</option>';
       } catch (e) { console.error(e); }
       showLoading(false);
+    }
+
+    async function cargarMateriasInformeAsignatura() {
+      const grupo = $('asig-sel-grado').value;
+      if (!grupo) return;
+
+      const gNum = extraerGradoBase(grupo);
+      let mKey = '6-9';
+      if (gNum <= 4) mKey = '3-4'; else if (gNum === 5) mKey = '5'; else if (gNum >= 10) mKey = '10-11';
+      
+      const configFull = MATRIZ_RANGOS[mKey];
+      let uniqueAsig = [...new Set(configFull.map(m => m.label))];
+
+      // --- Filtro de Privacidad: Solo mostrar asignaturas permitidas ---
+      if (currentRole === 'lector' || (currentRole !== 'superadmin' && currentRole !== 'admin')) {
+        const allowedAsig = userPermissions
+          .filter(p => p.tipo === 'ASIGNACION' && p.grado.toString() === grupo)
+          .map(p => normalizeText(p.asignatura));
+        
+        uniqueAsig = uniqueAsig.filter(a => {
+          const normalizedA = normalizeText(a);
+          return allowedAsig.some(p => {
+            const regex = new RegExp(`\\b${p}\\b`, 'i');
+            return regex.test(normalizedA) || p === normalizedA;
+          });
+        });
+      }
+      // -----------------------------------------------------------------
+
+      const sel = $('asig-sel-materia');
+      sel.innerHTML = '<option value="">Seleccione asignatura...</option>' + 
+                    uniqueAsig.map(a => `<option value="${a}">${a}</option>`).join('');
     }
 
     async function generarInformeAsignatura() {
@@ -4716,12 +4834,22 @@
         }
 
         // 1. Población de los selectores de grupos para estadísticas
-        const gruposUnicos = [...new Set(dataPeriodoActual.map(d => extraerGrupo(d.zipgrade_id)))]
+        let gruposUnicos = [...new Set(dataPeriodoActual.map(d => extraerGrupo(d.zipgrade_id)))]
           .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
-        const gradosUnicos = [...new Set(dataPeriodoActual.map(d => extraerGradoBase(d.grado)))]
+        let gradosUnicos = [...new Set(dataPeriodoActual.map(d => extraerGradoBase(d.grado)))]
           .filter(g => g > 0)
           .sort((a, b) => a - b);
+
+        // --- Filtro de Privacidad: Solo mostrar lo permitido ---
+        if (currentRole !== 'superadmin' && currentRole !== 'admin') {
+          const allowedG = userPermissions.filter(p => p.tipo === 'GRADO' || p.tipo === 'ASIGNACION').map(p => p.grado);
+          if (window.assignedGrade) allowedG.push(window.assignedGrade);
+          
+          gruposUnicos = gruposUnicos.filter(g => allowedG.includes(g.toString()));
+          gradosUnicos = gradosUnicos.filter(g => allowedG.some(p => p.startsWith(g.toString())));
+        }
+        // -----------------------------------------------------
 
         const selM = $('est-sel-grado');
         selM.innerHTML = gruposUnicos.map(g => `<option value="${g}">${g}</option>`).join('');
