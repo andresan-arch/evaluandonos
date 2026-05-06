@@ -1,8 +1,9 @@
-const CACHE_NAME = 'evaluandonos-v18';
+const CACHE_NAME = 'evaluandonos-v19';
 const urlsToCache = [
   './',
   './index.html',
-  './manifest.json'
+  './app-manifest.json',
+  './icon.png'
 ];
 
 self.addEventListener('install', event => {
