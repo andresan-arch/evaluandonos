@@ -44,31 +44,19 @@
       if (!text) return "";
       let str = text.toString();
       
-      // Si ya tiene delimitadores ($ o \(), no hacemos nada
+      // Si ya tiene delimitadores, no tocamos nada
       if (str.includes('$') || str.includes('\\(')) return str;
 
-      // Lista extendida de símbolos que indican presencia de matemáticas
-      const mathSymbols = [
-        '\\^', '_', '\\{', '\\}', '\\\\', '[0-9][a-zA-Z]', '[a-zA-Z][0-9]', 
-        '[\\+\\-\\*\\/=]', '∪', '∩', '∈', '⊂', '∀', '∃', 
-        'α', 'β', 'γ', 'δ', 'ε', 'ζ', 'η', 'θ', 'ι', 'κ', 'λ', 'μ', 'ν', 'ξ', 'ο', 'π', 'ρ', 'σ', 'τ', 'υ', 'φ', 'χ', 'ψ', 'ω',
-        '<', '>', '≤', '≥', '≠', '±', '∞', '√', '∫', '∑', '∏'
-      ];
-      const hasMath = new RegExp(mathSymbols.join('|')).test(str);
+      // Reemplazos de caracteres especiales a sus equivalentes LaTeX
+      // Nota: El usuario debe usar $...$ para que MathJax los renderice correctamente
+      str = str.replace(/²/g, "^{2}").replace(/³/g, "^{3}")
+               .replace(/∪/g, "\\cup").replace(/∩/g, "\\cap")
+               .replace(/∈/g, "\\in").replace(/⊂/g, "\\subset")
+               .replace(/≤/g, "\\le").replace(/≥/g, "\\ge").replace(/≠/g, "\\ne")
+               .replace(/α/g, "\\alpha").replace(/β/g, "\\beta").replace(/γ/g, "\\gamma").replace(/δ/g, "\\delta")
+               .replace(/π/g, "\\pi").replace(/θ/g, "\\theta").replace(/μ/g, "\\mu").replace(/ω/g, "\\omega")
+               .replace(/±/g, "\\pm").replace(/∞/g, "\\infty").replace(/√/g, "\\sqrt");
       
-      if (hasMath) {
-        // Reemplazos comunes de caracteres especiales a LaTeX
-        str = str.replace(/²/g, "^{2}").replace(/³/g, "^{3}")
-                 .replace(/∪/g, "\\cup").replace(/∩/g, "\\cap")
-                 .replace(/∈/g, "\\in").replace(/⊂/g, "\\subset")
-                 .replace(/≤/g, "\\le").replace(/≥/g, "\\ge").replace(/≠/g, "\\ne")
-                 .replace(/α/g, "\\alpha").replace(/β/g, "\\beta").replace(/γ/g, "\\gamma").replace(/δ/g, "\\delta")
-                 .replace(/π/g, "\\pi").replace(/θ/g, "\\theta").replace(/μ/g, "\\mu").replace(/ω/g, "\\omega")
-                 .replace(/±/g, "\\pm").replace(/∞/g, "\\infty").replace(/√/g, "\\sqrt");
-        
-        // Envolver en delimitadores de MathJax
-        return `$${str}$`;
-      }
       return str;
     }
 
@@ -2451,22 +2439,8 @@
       let parts = [];
       if (str.includes('|||')) {
         parts = str.split('|||');
-      } else if (str.includes('//')) {
-        const tempParts = str.split('//');
-        let current = "";
-        tempParts.forEach((p, i) => {
-          if (i === 0) {
-            current = p;
-          } else {
-            if (current.trim().endsWith(':')) {
-              current += '//' + p;
-            } else {
-              parts.push(current);
-              current = p;
-            }
-          }
-        });
-        parts.push(current);
+      } else if (str.match(/(?<!:)\/\//)) {
+        parts = str.split(/(?<!:)\/\//);
       } else if (str.toLowerCase().startsWith("http")) {
         parts = ["", str]; // Imagen sola
       } else {
