@@ -1326,10 +1326,7 @@
             <div id="tab-3" class="period-tab" onclick="setPeriodo(3)">Evaluándonos Final</div>
           </div>
 
-          <button onclick="installApp()" id="install-button"
-            style="background:#10b981; color:white; border:none; padding:8px 16px; border-radius:12px; font-weight:700; cursor:pointer; font-size:0.85rem; display:flex; align-items:center; gap:8px;">
-            📲 Instalar App
-          </button>
+
           <button onclick="toggleAdmin()" class="admin-trigger"
             style="display:none; background:#1e293b; color:white; border:none; padding:8px 16px; border-radius:12px; font-weight:700; cursor:pointer; font-size:0.85rem; align-items:center; gap:8px;">
             ⚙️ Panel Admin
@@ -4963,31 +4960,7 @@
 
     checkSession();
 
-    // --- Lógica de Instalación PWA ---
-    let deferredPrompt;
-    const installBtn = document.createElement('button');
-    installBtn.id = 'pwa-install-btn';
-    installBtn.innerHTML = '<span class="material-symbols-outlined">download</span> Instalar App';
-    installBtn.style.cssText = 'position:fixed; bottom:100px; right:20px; z-index:1000; display:none; background:#4f46e5; color:white; border:none; padding:10px 20px; border-radius:30px; font-weight:bold; box-shadow:0 10px 20px rgba(0,0,0,0.2); cursor:pointer; align-items:center; gap:8px;';
-    document.body.appendChild(installBtn);
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.style.display = 'flex';
-      console.log('PWA: Ready to install');
-    });
-
-    installBtn.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          installBtn.style.display = 'none';
-        }
-        deferredPrompt = null;
-      }
-    });
 
     // Registrar Service Worker
     if ('serviceWorker' in navigator) {
