@@ -1,4 +1,4 @@
-const CACHE_NAME = 'evaluandonos-v19';
+const CACHE_NAME = 'evaluandonos-v2026-final';
 const urlsToCache = [
   './',
   './index.html',
@@ -40,3 +40,4 @@ self.addEventListener('fetch', event => {
       })
   );
 });
+
