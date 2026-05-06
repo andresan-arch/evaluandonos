@@ -2172,24 +2172,7 @@
       await cargarGrados();
     }
 
-    // --- LÓGICA DE INSTALACIÓN PWA ---
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      const installBtn = document.getElementById('install-button');
-      if (installBtn) installBtn.style.display = 'flex';
-    });
 
-    async function installApp() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-      } else {
-        alert('Para instalar:\n1. Toca los tres puntos (⋮) o el icono de compartir.\n2. Busca "Instalar aplicación" o "Agregar a pantalla de inicio".\n\nNota: En modo incógnito, el navegador bloquea esta función por seguridad.');
-      }
-    }
 
 
     // --- CONFIGURACIÓN DE CARGA AUTOMÁTICA DE IMÁGENES ---
@@ -2466,20 +2449,30 @@
 
       const str = content.toString().trim();
       let parts = [];
-      
-      // Separador avanzado: detecta // siempre que NO sea parte de un link (ej. https://)
-      // O detecta el símbolo |||
-      const separatorRegex = /(?<!:)\/\/|\|\|\|/;
-      const hasSeparator = str.match(separatorRegex);
-      
-      if (hasSeparator) {
-        // Dividimos usando la misma lógica (protegiendo links)
-        parts = str.split(/(?<!:)\s*\/\/|\|\|\|\s*/);
+      if (str.includes('|||')) {
+        parts = str.split('|||');
+      } else if (str.includes('//')) {
+        const tempParts = str.split('//');
+        let current = "";
+        tempParts.forEach((p, i) => {
+          if (i === 0) {
+            current = p;
+          } else {
+            if (current.trim().endsWith(':')) {
+              current += '//' + p;
+            } else {
+              parts.push(current);
+              current = p;
+            }
+          }
+        });
+        parts.push(current);
       } else if (str.toLowerCase().startsWith("http")) {
         parts = ["", str]; // Imagen sola
       } else {
         parts = [str]; // Texto solo
       }
+
 
       // Limpiamos contenedores
       textElem.innerHTML = "";
