@@ -48,21 +48,19 @@
       if (str.includes('$') || str.includes('\\(')) return str;
 
       // Convertir símbolos literales a comandos LaTeX y envolver si parece haber matemática
-      const hasMath = /[\^_\{\}\\]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[\+\-\*\/=]|∪|∩|∈|⊂|∀|∃|α|β|γ|δ|ε|ζ|η|θ|ι|κ|λ|μ|ν|ξ|ο|π|ρ|σ|τ|υ|φ|χ|ψ|ω/.test(str);
+      const hasMath = /[\^_\{\}\\]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[\+\-\*\/=]|∪|∩|∈|⊂|∀|∃|α|β|γ|δ|ε|ζ|η|θ|ι|κ|λ|μ|ν|ξ|ο|π|ρ|σ|τ|υ|φ|χ|ψ|ω|[<>≤≥≠]/.test(str);
       
       if (hasMath) {
         // Reemplazos comunes
-        str = str.replace(/²/g, "^{2}");
-        str = str.replace(/³/g, "^{3}");
-        str = str.replace(/∪/g, "\\cup");
-        str = str.replace(/∩/g, "\\cap");
-        str = str.replace(/∈/g, "\\in");
-        str = str.replace(/⊂/g, "\\subset");
+        str = str.replace(/²/g, "^{2}").replace(/³/g, "^{3}");
+        str = str.replace(/∪/g, "\\cup").replace(/∩/g, "\\cap");
+        str = str.replace(/∈/g, "\\in").replace(/⊂/g, "\\subset");
+        str = str.replace(/≤/g, "\\le").replace(/≥/g, "\\ge").replace(/≠/g, "\\ne");
         str = str.replace(/α/g, "\\alpha").replace(/β/g, "\\beta").replace(/γ/g, "\\gamma").replace(/δ/g, "\\delta");
         str = str.replace(/π/g, "\\pi").replace(/θ/g, "\\theta").replace(/μ/g, "\\mu").replace(/ω/g, "\\omega");
         
-        // Si después de los reemplazos parece LaTeX, lo envolvemos
-        if (str.includes('^') || str.includes('_') || str.includes('\\')) {
+        // Si después de los reemplazos parece LaTeX o contiene operadores, lo envolvemos
+        if (str.includes('^') || str.includes('_') || str.includes('\\') || /[<>≤≥≠\+\-\*\/=]/.test(str)) {
           return `$${str}$`;
         }
       }
@@ -72,16 +70,20 @@
     // Vigilante de matemáticas optimizado
     let mathTimeout;
     function triggerMath() {
-      clearTimeout(mathTimeout);
-      mathTimeout = setTimeout(() => {
-        if (window.MathJax && MathJax.typesetPromise) {
-          MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
-        }
-      }, 100);
+      if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+      }
     }
     
-    setInterval(triggerMath, 3000);
-
+    // Ejecutar cada vez que el DOM cambie significativamente
+    const observer = new MutationObserver((mutations) => {
+      triggerMath();
+    });
+    
+    window.addEventListener('load', () => {
+      observer.observe(document.body, { childList: true, subtree: true });
+      triggerMath();
+    });
   </script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
@@ -1224,6 +1226,32 @@
       select, button, input {
         font-size: 16px !important;
       }
+    }
+    /* ── Footer ── */
+    footer {
+      background: white;
+      padding: 40px 0;
+      text-align: center;
+      margin-top: 50px;
+      border-top: 1px solid #e5e7eb;
+      position: relative;
+      z-index: 1;
+    }
+    .footer-logo {
+      height: 60px;
+      opacity: 0.8;
+      transition: opacity 0.3s, transform 0.3s;
+      margin-bottom: 15px;
+    }
+    .footer-logo:hover { 
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    .footer-copy {
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 600;
+      letter-spacing: 0.5px;
     }
   </style>
 </head>
@@ -5019,6 +5047,13 @@
       <span>Materia</span>
     </a>
   </nav>
+  <footer>
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+      <img src="https://pmfrdrihzdhhjxokabjm.supabase.co/storage/v1/object/public/assets/andresanbordessinfondo.png"
+        class="footer-logo" alt="AndréSán Footer">
+      <p class="footer-copy">© 2026 SGA AndréSán - Sistema Integrado de Gestión Académica</p>
+    </div>
+  </footer>
 </body>
 
 </html>
