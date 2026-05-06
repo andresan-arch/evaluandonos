@@ -934,6 +934,7 @@
       #report-print-area,
       #report-print-area * {
         visibility: visible;
+      }
       #report-print-area {
         position: absolute;
         left: 0;
@@ -2140,56 +2141,25 @@
         adminElements.forEach(el => el.style.display = 'none');
         printButtons.forEach(el => el.style.display = 'none');
 
+        // --- VISIBILIDAD PARA TODOS ---
+        if (individualTab) individualTab.style.display = 'block';
+        if (grupalTab) grupalTab.style.display = 'block';
+        if (asigTab) asigTab.style.display = 'block';
+        if ($('m-nav-individual')) $('m-nav-individual').style.display = 'flex';
+        if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'flex';
+        if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'flex';
+
+        // Solo el botón de panel administrador para superadmin
         if (currentRole === 'superadmin') {
           if (adminBtn) adminBtn.style.display = 'flex';
           adminElements.forEach(el => el.style.display = 'inline-block');
-          printButtons.forEach(el => el.style.display = 'inline-block');
-          if (individualTab) individualTab.style.display = 'block';
-          if (grupalTab) grupalTab.style.display = 'block';
-          if (asigTab) asigTab.style.display = 'block';
-          if ($('m-nav-individual')) $('m-nav-individual').style.display = 'flex';
-          if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'flex';
-          if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'flex';
         }
-        else if (currentRole === 'admin') {
-          printButtons.forEach(el => el.style.display = 'inline-block');
-          if (individualTab) individualTab.style.display = 'block';
-          if (grupalTab) grupalTab.style.display = 'block';
-          if (asigTab) asigTab.style.display = 'block';
-          if ($('m-nav-individual')) $('m-nav-individual').style.display = 'flex';
-          if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'flex';
-          if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'flex';
-        }
-        else {
-          // Caso Lectores
-          if (individualTab) individualTab.style.display = 'none';
-          if ($('m-nav-individual')) $('m-nav-individual').style.display = 'none';
-          
-          if (assignedGrade) {
-            // Director de grupo: Ve Grupal y Asignatura de su grado
-            if (grupalTab) grupalTab.style.display = 'block';
-            if (asigTab) asigTab.style.display = 'block';
-            if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'flex';
-            if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'flex';
 
-            printButtons.forEach(el => {
-              if (el.closest('#grupal-container') || el.closest('#asignatura-container')) {
-                el.style.display = 'inline-block';
-              }
-            });
-          } else {
-            // Lector sin grado: Solo ve Asignatura (y puede ver todos los grados en el selector)
-            if (grupalTab) grupalTab.style.display = 'none';
-            if (asigTab) asigTab.style.display = 'block';
-            if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'none';
-            if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'flex';
-            
-            printButtons.forEach(el => {
-              if (el.closest('#asignatura-container')) {
-                el.style.display = 'inline-block';
-              }
-            });
-          }
+        // --- RESTRICCIÓN DE IMPRESIÓN ---
+        if (currentRole === 'admin' || currentRole === 'superadmin') {
+          printButtons.forEach(el => el.style.display = 'inline-block');
+        } else {
+          printButtons.forEach(el => el.style.display = 'none');
         }
       } catch (e) {
         console.error("Error cargando perfil:", e);
