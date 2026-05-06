@@ -6,6 +6,7 @@
 *.png
 !fondo.png
 !fondo1.png
+!icon.png
 .xlsx
 evaluandonos.sg
 backticks.txt
