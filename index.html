@@ -1855,6 +1855,13 @@
     }
 
     async function switchMainTab(tab) {
+      showLoading(true);
+      try {
+        const [resG, resD] = await Promise.all([
+          supabaseClient.from('eval_resultados').select('grado').eq('periodo', currentPeriodo),
+          supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo)
+        ]);
+        
         let rawData = resD.data || [];
         dataPeriodoActual = rawData;
 
@@ -3599,12 +3606,20 @@
         const est = historico.find(t => t.periodo === parseInt(currentPeriodo)) || historico[historico.length - 1];
         if (!est) throw new Error("No se encontró el registro del estudiante.");
 
-        // Filtrar todos los alumnos que pertenecen al mismo grupo del seleccionado
         const alumnosGrupo = todos.filter(t => extraerGrupo(t.zipgrade_id) === grupo);
         if (alumnosGrupo.length === 0) throw new Error("No se encontraron resultados para el grupo en este periodo.");
 
-        const sortedGlobal = [...alumnosGrupo].sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
-        const puestoGlobal = sortedGlobal.findIndex(t => t.zipgrade_id === zipId) + 1;
+        const gradoBase = extraerGradoBase(grupo);
+        const alumnosNivel = todos.filter(t => extraerGradoBase(extraerGrupo(t.zipgrade_id)) === gradoBase);
+        const sortedGrupo = [...alumnosGrupo].sort((a, b) => {
+          if ((b.porcentaje || 0) !== (a.porcentaje || 0)) return (b.porcentaje || 0) - (a.porcentaje || 0);
+          return (b.porcentaje || 0) - (a.porcentaje || 0); // No tie-breaker here yet, but sorting is stable
+        });
+        const puestoGrupo = sortedGrupo.findIndex(t => t.zipgrade_id === zipId) + 1;
+
+        // Puesto Global en el NIVEL (ej: Grado 9°)
+        const sortedNivel = [...alumnosNivel].sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
+        const puestoNivel = sortedNivel.findIndex(t => t.zipgrade_id === zipId) + 1;
 
         const gNum = extraerGradoBase(grupo);
         let mKey = '6-9';
@@ -3613,7 +3628,7 @@
         else if (gNum >= 10) mKey = '10-11';
         const config = MATRIZ_RANGOS[mKey];
 
-        // Calcular puestos por cada asignatura (DENTRO DEL GRUPO SOLAMENTE)
+        // Calcular puestos por cada asignatura (DENTRO DEL GRUPO)
         const puestosMaterias = {};
         config.forEach(subj => {
           const rankings = alumnosGrupo.map(student => {
@@ -3621,13 +3636,16 @@
             for (let i = subj.start; i <= subj.end; i++) {
               if (student.respuestas && student.respuestas[i] === 1) ok++;
             }
-            return { id: student.zipgrade_id, ok };
-          }).sort((a, b) => b.ok - a.ok);
+            return { id: student.zipgrade_id, ok, promedioGlobal: student.porcentaje || 0 };
+          }).sort((a, b) => {
+            if (b.ok !== a.ok) return b.ok - a.ok;
+            return b.promedioGlobal - a.promedioGlobal; // Tie-breaker: promedio global
+          });
 
           puestosMaterias[subj.label] = rankings.findIndex(r => r.id === zipId) + 1;
         });
 
-        const html = construirHTMLBoletin(est, puestoGlobal, alumnosGrupo.length, puestosMaterias, config, historico);
+        const html = construirHTMLBoletin(est, puestoGrupo, alumnosGrupo.length, puestosMaterias, config, historico, puestoNivel, alumnosNivel.length);
 
         const printActions = `
           <div class="no-print" style="margin-bottom:1rem; display:flex; gap:10px; justify-content: flex-end;">
@@ -3659,9 +3677,11 @@
       }
     }
 
-    function construirHTMLBoletin(est, puesto, total, puestosMaterias, config, historico = []) {
+    function construirHTMLBoletin(est, puesto, total, puestosMaterias, config, historico = [], puestoNivel = null, totalNivel = null) {
 
       const curP = parseInt(est.periodo) || 1;
+      const gBase = extraerGradoBase(extraerGrupo(est.zipgrade_id));
+      const gNombre = gBase <= 5 ? "Primaria" : (gBase <= 9 ? "Básica" : "Media");
 
       // Mapeo histórico por materia
       const histMaterias = {}; // { 'Matemáticas': { 1: 60, 2: 70 } }
@@ -3747,14 +3767,8 @@
 
           <!-- Datos Estudiante -->
           <div style="border:1px solid #cbd5e1; border-radius:12px; padding:6px 12px; margin-bottom:8px; background:rgba(255, 255, 255, 0.8); backdrop-filter: blur(4px);">
-             <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
-                <div><span style="font-weight:700; color:#64748b;">ESTUDIANTE:</span> <span style="font-weight:900;">${est.estudiante_nombre}</span></div>
-                <div><span style="font-weight:700; color:#64748b;">GRADO:</span> <span style="font-weight:900;">${est.grado}°</span></div>
-                <div><span style="font-weight:700; color:#64748b;">CÓDIGO:</span> <span style="font-weight:900;">${est.zipgrade_id}</span></div>
-             </div>
-          </div>
-
-          <!-- Resultado General -->
+            <!-- Resultado General -->
+          <div class="result-general-box" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
           <div class="result-general-box" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
              <div style="border:1px solid #2563eb; border-radius:12px; padding:8px; display:flex; justify-content:space-between; align-items:center; background:rgba(255, 255, 255, 0.8); backdrop-filter: blur(4px);">
                 <div>
@@ -3762,11 +3776,20 @@
                    <div style="font-size:1rem;"><span style="font-weight:700;">Promedio:</span> <span style="font-weight:900; color:#2563eb; font-size:1.3rem;">${roundedPct}</span><span style="color:#94a3b8; font-weight:700;">/100</span></div>
                    <div style="margin-top:1px;"><span style="font-weight:700; font-size:0.8rem;">Nivel:</span> <span style="font-weight:900; color:#f97316; font-size:0.8rem;">${general.nivel}</span></div>
                 </div>
-                <div style="text-align:center; border-left:1px solid #e2e8f0; padding-left:12px;">
-                   <span style="font-size:0.65rem; font-weight:800; color:#f97316; display:block; margin-bottom:2px;">DESEMPEÑO</span>
-                   <div style="border:2px solid #2563eb; padding:4px 12px; border-radius:8px; background:white;">
-                      <div style="font-size:0.6rem; font-weight:700; color:#64748b;">PUESTO GRADO</div>
-                      <div style="font-size:1.3rem; font-weight:900; color:#ef4444; line-height:1;">${puesto}</div>
+                <div style="display:flex; gap:8px;">
+                   <div style="text-align:center; border-left:1px solid #e2e8f0; padding-left:8px;">
+                      <span style="font-size:0.5rem; font-weight:800; color:#64748b; display:block;">PUESTO GRUPO</span>
+                      <div style="border:2px solid #2563eb; padding:2px 8px; border-radius:6px; background:white;">
+                         <div style="font-size:1.1rem; font-weight:900; color:#ef4444; line-height:1;">${puesto}</div>
+                         <div style="font-size:0.5rem; color:#94a3b8;">/ ${total}</div>
+                      </div>
+                   </div>
+                   <div style="text-align:center; border-left:1px solid #e2e8f0; padding-left:8px;">
+                      <span style="font-size:0.5rem; font-weight:800; color:#64748b; display:block;">PUESTO NIVEL</span>
+                      <div style="border:2px solid #4f46e5; padding:2px 8px; border-radius:6px; background:white;">
+                         <div style="font-size:1.1rem; font-weight:900; color:#4f46e5; line-height:1;">${puestoNivel || '-'}</div>
+                         <div style="font-size:0.5rem; color:#94a3b8;">/ ${totalNivel || '-'}</div>
+                      </div>
                    </div>
                 </div>
              </div>
