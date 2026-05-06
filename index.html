@@ -934,8 +934,6 @@
       #report-print-area,
       #report-print-area * {
         visibility: visible;
-      }
-
       #report-print-area {
         position: absolute;
         left: 0;
@@ -943,7 +941,7 @@
         width: 100%;
       }
 
-      .no-print {
+      .no-print, .admin-only:not(.is-admin *) {
         display: none !important;
       }
 
@@ -967,6 +965,14 @@
         margin: 0 !important;
         padding: 0 !important;
       }
+    }
+
+    .admin-only {
+      display: none !important;
+    }
+
+    body.is-admin .admin-only {
+      display: inline-block !important;
     }
 
     .level-stairs {
@@ -1456,12 +1462,12 @@
                   <option value="">Seleccione estudiante...</option>
                 </select>
               </div>
-              <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
-                <button id="btn-print-basica" onclick="imprimirTodaLaSede('basica')" class="print-btn"
-                  style="display:none; width:200px; padding:10px; background:#10b981; color:white; border:none; border-radius:10px; font-weight:700; cursor:pointer; font-size:0.75rem;">🖨️
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button id="btn-print-basica" onclick="imprimirTodaLaSede('basica')" class="print-btn admin-only"
+                  style="background:#4f46e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">
                   IMPRIMIR SEDE (3° a 9°)</button>
-                <button id="btn-print-superior" onclick="imprimirTodaLaSede('superior')" class="print-btn"
-                  style="display:none; width:200px; padding:10px; background:#f59e0b; color:white; border:none; border-radius:10px; font-weight:700; cursor:pointer; font-size:0.75rem;">🖨️
+                <button id="btn-print-superior" onclick="imprimirTodaLaSede('superior')" class="print-btn admin-only"
+                  style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">
                   IMPRIMIR SEDE (10° y 11°)</button>
               </div>
             </div>
@@ -1530,7 +1536,7 @@
                   style="width: auto; padding: 8px 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
                   <option value="">Seleccione grupo...</option>
                 </select>
-                <button onclick="imprimirInformeGrupal()" class="print-btn"
+                <button onclick="imprimirInformeGrupal()" class="print-btn admin-only"
                   style="display:none; background:#4036e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer; align-items:center; gap:8px;">
                   🖨️ Imprimir
                 </button>
@@ -1567,7 +1573,7 @@
                   <option value="Inglés">Inglés</option>
                   <option value="Naturales">Naturales (Ciencias)</option>
                 </select>
-                <button onclick="imprimirInformeAsignatura()" class="print-btn"
+                <button onclick="imprimirInformeAsignatura()" class="print-btn admin-only"
                   style="display:none; background:#4036e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">
                   🖨️ Imprimir
                 </button>
@@ -1841,16 +1847,17 @@
       return parseInt(currentPeriodo) || 1;
     }
 
+    function filtrarMateriasEstaticas() {
+      const sel = $('asig-sel-materia');
+      if (!sel) return;
+      const options = sel.querySelectorAll('option');
+      options.forEach(opt => opt.style.display = 'block');
+    }
+
     async function switchMainTab(tab) {
-      // 1. Re-frescar datos de Supabase para que los cambios externos se vean (Auto-refresco)
-      // Solo si no es el tab de "analisis" inicial (para optimizar carga inicial) o si se desea total
-      showLoading(true);
-      try {
-        const [resG, resD] = await Promise.all([
-          supabaseClient.from('eval_resultados').select('grado').eq('periodo', currentPeriodo),
-          supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo)
-        ]);
-        dataPeriodoActual = resD.data || [];
+        let rawData = resD.data || [];
+        dataPeriodoActual = rawData;
+
         // Cargar grados silenciosamente para los selectores
         await cargarGrados(true);
       } catch (e) { console.error("Error en auto-refresco:", e); }
@@ -1903,7 +1910,10 @@
       if (tab === 'individual') cargarGradosReporte();
       if (tab === 'estadisticas') cargarEstadisticas();
       if (tab === 'grupal') cargarGruposInformeGrupal();
-      if (tab === 'asignatura') cargarGruposInformeAsignatura();
+      if (tab === 'asignatura') {
+        cargarGruposInformeAsignatura();
+        filtrarMateriasEstaticas(); // Filtra las opciones del select estático
+      }
       if (tab === 'analisis' && $('sel-grado').value && $('sel-pregunta').value) mostrarAnalisis();
 
       // Update Mobile Nav
@@ -1958,7 +1968,7 @@
       const firstDigit = parseInt(s.substring(0, 1));
       return isNaN(firstDigit) ? 0 : firstDigit;
     }
-    // NOTA: Para que 1002 no se vea como 102, nos aseguramos de no tratarlo como número puramente si tiene ceros significativos
+
 
     async function cargarGradosAdminSelects() {
       // Poblar el selector de grados del panel de imágenes
@@ -1975,6 +1985,8 @@
     let myChart = null;
     let chartGrados = null, chartMaterias = null, chartSedes = null, chartComparativo = null;
     let dataPeriodoActual = [];
+    let userPermissions = [];
+    let userSede = null;
     let currentUser = null;
     let currentRole = 'lector';
 
@@ -2069,17 +2081,46 @@
 
       try {
         const { data: perfil } = await supabaseClient.from('perfiles').select('rol, nombre, grado_asignado').eq('email', user.email).maybeSingle();
-        const nombre = perfil?.nombre || user.user_metadata?.full_name || user.email.split('@')[0];
+        const userName = perfil?.nombre || user.user_metadata?.full_name || user.email.split('@')[0];
         const assignedGrade = perfil?.grado_asignado || "";
-        localStorage.setItem('eval_user_grade', assignedGrade);
-        currentRole = (perfil && perfil.rol) ? perfil.rol.toLowerCase() : 'lector';
+        const role = (perfil && perfil.rol) ? perfil.rol.toLowerCase() : 'lector';
+        
+        // Gestión de permisos de impresión
+        if (role === 'admin' || role === 'superadmin') {
+          document.body.classList.add('is-admin');
+        } else {
+          document.body.classList.remove('is-admin');
+        }
+
+        const res = await supabaseClient.from('docentes_privacidad').select('*').eq('nombre', userName);
+        
+        currentRole = role;
+
+        // --- Nueva Lgica de Privacidad 2026 ---
+        try {
+          const { data: privData } = await supabaseClient.from('docentes_privacidad').select('*').eq('nombre', userName);
+          userPermissions = privData || [];
+          
+          // Buscar si tiene permiso explcito de SEDE
+          const sedePerm = userPermissions.find(p => p.tipo === 'SEDE');
+          if (sedePerm) {
+            userSede = sedePerm.sede;
+          } else {
+            // Fallback: detectar sede del grado asignado si existe
+            userSede = assignedGrade ? detectarSede(assignedGrade) : null;
+          }
+        } catch (privErr) {
+          console.error("Error al cargar privacidad:", privErr);
+          userPermissions = [];
+          userSede = assignedGrade ? detectarSede(assignedGrade) : null;
+        }
+        // --------------------------------------
 
         if ($('user-badge')) $('user-badge').style.display = 'flex';
-        if ($('user-nombre')) $('user-nombre').innerText = nombre;
+        if ($('user-nombre')) $('user-nombre').innerText = userName;
         if ($('user-email')) $('user-email').innerText = user.email;
-        if ($('user-avatar')) $('user-avatar').innerText = nombre.charAt(0).toUpperCase();
+        if ($('user-avatar')) $('user-avatar').innerText = userName.charAt(0).toUpperCase();
 
-        const rol = currentRole;
         const adminBtn = document.querySelector('.admin-trigger');
         const adminElements = document.querySelectorAll('.admin-only');
         const printButtons = document.querySelectorAll('.print-btn');
@@ -2092,7 +2133,7 @@
         adminElements.forEach(el => el.style.display = 'none');
         printButtons.forEach(el => el.style.display = 'none');
 
-        if (rol === 'superadmin') {
+        if (currentRole === 'superadmin') {
           if (adminBtn) adminBtn.style.display = 'flex';
           adminElements.forEach(el => el.style.display = 'inline-block');
           printButtons.forEach(el => el.style.display = 'inline-block');
@@ -2103,7 +2144,7 @@
           if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'flex';
           if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'flex';
         }
-        else if (rol === 'admin') {
+        else if (currentRole === 'admin') {
           printButtons.forEach(el => el.style.display = 'inline-block');
           if (individualTab) individualTab.style.display = 'block';
           if (grupalTab) grupalTab.style.display = 'block';
@@ -2233,29 +2274,20 @@
     async function cargarGrados(silent = false) {
       if (!silent) showLoading(true);
       try {
-        // Consultamos en ambas tablas para que el grado aparezca si hay resultados O si hay mapeo de preguntas
         const [resResults, resPreguntas] = await Promise.all([
           supabaseClient.from('eval_resultados').select('grado').eq('periodo', currentPeriodo),
           supabaseClient.from('eval_preguntas').select('grado').eq('periodo', currentPeriodo)
         ]);
 
-        if (resResults.error || resPreguntas.error) {
-          const err = resResults.error || resPreguntas.error;
-          console.error("Error RLS/Supabase:", err);
-          alert("Error al cargar grados: " + err.message + "\n\nVerifica los permisos (RLS) en Supabase.");
-        }
+        let dataCombined = (resResults.data || []).concat(resPreguntas.data || []);
+        let uniqueGrados = [...new Set(dataCombined.map(d => d.grado))].sort((a, b) => a.toString().localeCompare(b.toString(), undefined, { numeric: true }));
 
-        const data1 = resResults.data || [];
-        const data2 = resPreguntas.data || [];
-
-        const merged = [...data1, ...data2];
-        const unique = [...new Set(merged.map(d => d.grado))].sort((a, b) => a - b);
-
+        if (silent) return uniqueGrados;
         const sel = $('sel-grado');
-        if (unique.length === 0) {
+        if (uniqueGrados.length === 0) {
           sel.innerHTML = '<option value="">Sin datos...</option>';
         } else {
-          sel.innerHTML = '<option value="">Grado...</option>' + unique.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
+          sel.innerHTML = '<option value="">Grado...</option>' + uniqueGrados.map(g => `<option value="${g}">${g}° Grado</option>`).join('');
         }
       } catch (e) {
         console.error("Error fatal al cargar grados:", e);
@@ -2270,9 +2302,9 @@
       showLoading(true);
       try {
         const { data } = await supabaseClient.from('eval_preguntas').select('asignatura').eq('grado', grado).eq('periodo', currentPeriodo);
-        const unique = data ? [...new Set(data.map(d => d.asignatura))].sort() : [];
-        const sel = $('sel-asig');
+        let unique = data ? [...new Set(data.map(d => d.asignatura))].sort() : [];
 
+        const sel = $('sel-asig');
         sel.innerHTML = '<option value="">Seleccione asignatura...</option>' + unique.map(a => `<option value="${a}">${a}</option>`).join('');
 
         // Reset styles
@@ -3490,48 +3522,32 @@
     async function cargarGradosReporte() {
       showLoading(true);
       try {
-        const sede = $('rep-sede').value;
+        const sedeManual = $('rep-sede').value;
         const { data } = await supabaseClient.from('eval_estudiantes_notas').select('zipgrade_id').eq('periodo', currentPeriodo);
-
-        const assigned = localStorage.getItem('eval_user_grade');
         const rol = currentRole;
 
         // Obtener todos los grupos únicos
         let allGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))] : [];
 
-        // FILTRO POR DOCENTE
-        if (rol === 'lector' && assigned) {
-          if (assigned.toLowerCase() === 'primaria') {
-            allGroups = allGroups.filter(g => {
-              const base = extraerGradoBase(g);
-              return base >= 1 && base <= 5;
-            });
-          } else {
-            allGroups = allGroups.filter(g => g === assigned);
-          }
-        }
-
-        // Filtrar por sede seleccionada
-        const uniqueGroups = allGroups.filter(g => detectarSede(g) === sede)
-          .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+        // Filtrar por sede seleccionada manualmente (si existe)
+        const uniqueGroups = sedeManual ? allGroups.filter(g => detectarSede(g) === sedeManual) : allGroups;
+        uniqueGroups.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
         const sel = $('rep-grado');
         sel.innerHTML = uniqueGroups.length > 0
-          ? uniqueGroups.map(g => `<option value="${g}">${g}</option>`).join('')
+          ? '<option value="">Seleccione grupo...</option>' + uniqueGroups.map(g => `<option value="${g}">${g}</option>`).join('')
           : '<option value="">Sin grupos...</option>';
 
-        // CONTROL DE BOTONES MASIVOS POR SEDE
+        // Control de botones masivos por sede
         const canPrint = currentRole === 'superadmin' || currentRole === 'admin';
         const btnBasica = $('btn-print-basica');
         const btnSuperior = $('btn-print-superior');
-
         if (canPrint) {
           if (btnBasica) btnBasica.style.display = 'block';
           if (btnSuperior) {
-            btnSuperior.style.display = (sede === 'Central') ? 'block' : 'none';
+            btnSuperior.style.display = (sedeManual === 'Central') ? 'block' : 'none';
           }
         }
-
         cargarEstudiantesReporte();
       } catch (e) {
         console.error("Error cargando grupos:", e);
@@ -3613,13 +3629,12 @@
 
         const html = construirHTMLBoletin(est, puestoGlobal, alumnosGrupo.length, puestosMaterias, config, historico);
 
-        const canPrint = currentRole === 'superadmin' || currentRole === 'admin';
-        const printActions = canPrint ? `
+        const printActions = `
           <div class="no-print" style="margin-bottom:1rem; display:flex; gap:10px; justify-content: flex-end;">
             <button onclick="window.print()" style="background:#4f46e5; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">🖨️ IMPRIMIR ESTE REPORTE</button>
-            <button onclick="imprimirTodoElGrado()" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">📋 IMPRIMIR TODO EL GRADO</button>
+            <button onclick="imprimirTodoElGrado()" class="admin-only" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:12px; font-weight:700; cursor:pointer;">📋 IMPRIMIR TODO EL GRADO</button>
           </div>
-        ` : '';
+        `;
 
         $('reporte-content').innerHTML = `
           ${printActions}
@@ -3944,21 +3959,15 @@
       showLoading(true);
       try {
         const { data } = await supabaseClient.from('eval_estudiantes_notas').select('zipgrade_id').eq('periodo', currentPeriodo);
-        const assigned = localStorage.getItem('eval_user_grade');
         const rol = currentRole;
 
         let uniqueGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))] : [];
 
-        if (rol === 'lector' && assigned) {
-          if (assigned.toLowerCase() === 'primaria') {
-            uniqueGroups = uniqueGroups.filter(g => {
-              const base = extraerGradoBase(g);
-              return base >= 1 && base <= 5;
-            });
-          } else {
-            uniqueGroups = uniqueGroups.filter(g => g === assigned);
-          }
+        // --- Filtro de Privacidad ---
+        if (rol !== 'superadmin' && rol !== 'admin') {
+        // Filtro de Privacidad (Removido)
         }
+        // ---------------------------
         uniqueGroups.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
         const sel = $('gru-sel-grado');
@@ -3995,7 +4004,7 @@
         if (gNum <= 4) mKey = '3-4';
         else if (gNum === 5) mKey = '5';
         else if (gNum >= 10) mKey = '10-11';
-        const config = MATRIZ_RANGOS[mKey];
+        let config = MATRIZ_RANGOS[mKey];
 
         let html = `
                 <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
@@ -4166,20 +4175,9 @@
       showLoading(true);
       try {
         const { data } = await supabaseClient.from('eval_estudiantes_notas').select('zipgrade_id').eq('periodo', currentPeriodo);
-        const assigned = localStorage.getItem('eval_user_grade');
-        const rol = currentRole;
-
+        
         let uniqueGroups = data ? [...new Set(data.map(d => extraerGrupo(d.zipgrade_id)))] : [];
-        if (rol === 'lector' && assigned) {
-          if (assigned.toLowerCase() === 'primaria') {
-            uniqueGroups = uniqueGroups.filter(g => {
-              const base = extraerGradoBase(g);
-              return base >= 1 && base <= 5;
-            });
-          } else {
-            uniqueGroups = uniqueGroups.filter(g => g === assigned);
-          }
-        }
+
         uniqueGroups.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
         const sel = $('asig-sel-grado');
         sel.innerHTML = '<option value="">Seleccione grupo...</option>' + uniqueGroups.map(g => `<option value="${g}">${g}</option>`).join('');
@@ -4684,10 +4682,12 @@
           .eq('periodo', currentPeriodo);
 
         if (error) throw error;
-        dataPeriodoActual = data || [];
+        let dataTemp = data || [];
+
+        dataPeriodoActual = dataTemp;
 
         if (dataPeriodoActual.length === 0) {
-          alert("No hay datos suficientes para generar estadísticas en este periodo.");
+          alert("No hay datos suficientes para generar estadísticas según sus permisos en este periodo.");
           showLoading(false);
           return;
         }
@@ -4708,9 +4708,6 @@
 
         // 2. Renderizar Gráfico de Grupos
         renderizarGraficoGrupos(dataPeriodoActual);
-
-        // 3. Renderizar Gráfico de Sedes (Eliminado por solicitud de diseño)
-        // renderizarGraficoSedes(dataPeriodoActual);
 
         // 4. Renderizar Detalle de Materias (primer grado por defecto)
         if (gruposUnicos.length > 0) {
@@ -4780,74 +4777,25 @@
       });
     }
 
-    function renderizarGraficoSedes(data) {
-      const sedes = ['Central', 'Yanaconas', 'Pisoje Bajo', 'Pueblillo', 'Sendero'];
-      const niveles = {
-        'Primaria (3-5)': [3, 4, 5],
-        'Básica (6-9)': [6, 7, 8, 9],
-        'Media (10-11)': [10, 11]
-      };
-
-      const stats = {};
-      sedes.forEach(s => {
-        stats[s] = {};
-        Object.keys(niveles).forEach(n => { stats[s][n] = { suma: 0, cont: 0 }; });
-      });
-
-      data.forEach(d => {
-        const sede = d.sede || 'Central';
-        if (!stats[sede]) stats[sede] = {};
-
-        Object.entries(niveles).forEach(([lvlName, gList]) => {
-          if (gList.includes(extraerGradoBase(d.grado))) {
-            if (!stats[sede][lvlName]) stats[sede][lvlName] = { suma: 0, cont: 0 };
-            stats[sede][lvlName].suma += (d.porcentaje || 0);
-            stats[sede][lvlName].cont++;
-          }
-        });
-      });
-
-      const datasets = Object.keys(niveles).map((lvl, idx) => {
-        const colors = ['#4f46e5', '#10b981', '#f59e0b'];
-        return {
-          label: lvl,
-          data: sedes.map(s => stats[s] && stats[s][lvl] && stats[s][lvl].cont > 0 ? Math.round(stats[s][lvl].suma / stats[s][lvl].cont) : 0),
-          backgroundColor: colors[idx],
-          borderRadius: 5
-        };
-      });
-
-      if (chartSedes) chartSedes.destroy();
-      const ctx = $('chart-sedes').getContext('2d');
-      chartSedes = new Chart(ctx, {
-        type: 'bar',
-        plugins: [ChartDataLabels],
-        data: { labels: sedes, datasets: datasets },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom' },
-            datalabels: {
-              color: '#fff',
-              font: { weight: 'bold' },
-              formatter: (v) => v > 0 ? v : ''
-            }
-          },
-          scales: { y: { beginAtZero: true, max: 100 } }
-        }
-      });
-    }
-
     async function actualizarGraficoAsignaturas() {
       const grupo = $('est-sel-grado').value;
       if (!grupo) return;
 
-      const gNum = extraerGradoBase(grupo);
       let mKey = '6-9';
       if (gNum <= 4) mKey = '3-4';
       else if (gNum === 5) mKey = '5';
       else if (gNum >= 10) mKey = '10-11';
-      const config = MATRIZ_RANGOS[mKey];
+      let config = MATRIZ_RANGOS[mKey];
+
+      // --- Filtro de Privacidad: Solo mostrar barras de materias asignadas ---
+      if (currentRole !== 'superadmin' && currentRole !== 'admin') {
+        const hasAssignment = userPermissions.length > 0 && userPermissions.some(p => p.tipo === 'ASIGNACION');
+        if (hasAssignment) {
+          const allowedAsig = userPermissions.filter(p => p.tipo === 'ASIGNACION').map(p => p.asignatura.toLowerCase());
+          config = config.filter(s => allowedAsig.some(a => s.label.toLowerCase().includes(a) || a.toLowerCase().includes(s.label.toLowerCase())));
+        }
+      }
+      // -----------------------------------------------------------------------
 
       const filtrados = dataPeriodoActual.filter(d => extraerGrupo(d.zipgrade_id) === grupo);
       const materiasStats = config.map(subj => {
@@ -4899,7 +4847,17 @@
       if (gNum <= 4) mKey = '3-4';
       else if (gNum === 5) mKey = '5';
       else if (gNum >= 10) mKey = '10-11';
-      const config = MATRIZ_RANGOS[mKey];
+      let config = MATRIZ_RANGOS[mKey];
+
+      // --- Filtro de Privacidad: Solo mostrar materias asignadas ---
+      if (currentRole !== 'superadmin' && currentRole !== 'admin') {
+        const hasAssignment = userPermissions.length > 0 && userPermissions.some(p => p.tipo === 'ASIGNACION');
+        if (hasAssignment) {
+          const allowedAsig = userPermissions.filter(p => p.tipo === 'ASIGNACION').map(p => p.asignatura.toLowerCase());
+          config = config.filter(s => allowedAsig.some(a => s.label.toLowerCase().includes(a) || a.toLowerCase().includes(s.label.toLowerCase())));
+        }
+      }
+      // -----------------------------------------------------------
 
       const filtrados = dataPeriodoActual.filter(d => extraerGradoBase(d.grado) === gNum);
       const gruposDelNivel = [...new Set(filtrados.map(f => extraerGrupo(f.zipgrade_id)))].sort();
