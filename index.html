@@ -4038,15 +4038,26 @@
                    </tr>
                 </thead>
                 <tbody>
-                   ${materias.map(m => `
-                    <tr style="border-bottom:1px solid #f1f5f9;">
-                       <td style="padding:2px 4px; font-weight:800; color:#1e293b; font-size:0.75rem;">${m.icon} ${m.name}</td>
-                       <td style="padding:2px 4px; text-align:center;"><span style="font-weight:900; color:#2563eb;">${m.pct}</span></td>
-                       <td style="padding:2px 4px; text-align:center; font-weight:900; color:#2563eb;">${m.val.nivel}</td>
-                       <td style="padding:2px 4px; text-align:center; font-weight:900; color:#1e293b;">${m.puesto}</td>
-                       <td style="padding:2px 4px; text-align:center;"><span style="color:${m.val.color}; font-weight:900; font-size:0.75rem;">${m.val.label}</span></td>
-                    </tr>
-                    `).join('')}
+                    ${materias.map(m => {
+                      const labelsMap = {
+                        'Competencias Ciudadanas': 'Competencias',
+                        'Ciudadanas': 'Competencias',
+                        'Ciencias Sociales': 'Sociales',
+                        'Sociales': 'Sociales',
+                        'Ciencias Naturales': 'Biología',
+                        'Biología': 'Biología'
+                      };
+                      const displayName = labelsMap[m.name] || m.name;
+                      return `
+                      <tr style="border-bottom:1px solid #f1f5f9;">
+                         <td style="padding:2px 4px; font-weight:800; color:#1e293b; font-size:0.75rem;">${m.icon} ${displayName}</td>
+                         <td style="padding:2px 4px; text-align:center;"><span style="font-weight:900; color:#2563eb;">${m.pct}</span></td>
+                         <td style="padding:2px 4px; text-align:center; font-weight:900; color:#2563eb;">${m.val.nivel}</td>
+                         <td style="padding:2px 4px; text-align:center; font-weight:900; color:#1e293b;">${m.puesto}</td>
+                         <td style="padding:2px 4px; text-align:center;"><span style="color:${m.val.color}; font-weight:900; font-size:0.75rem;">${m.val.label}</span></td>
+                      </tr>
+                      `;
+                    }).join('')}
                 </tbody>
              </table>
           </div>
@@ -4205,8 +4216,8 @@
                                 ${config.map(s => {
           const labelsMap = {
             'Matemáticas': 'Matemáticas',
-            'Competencias Ciudadanas': 'Ciudadanas',
-            'Ciudadanas': 'Ciudadanas',
+            'Competencias Ciudadanas': 'Competencias',
+            'Ciudadanas': 'Competencias',
             'Ciencias Sociales': 'Sociales',
             'Sociales': 'Sociales',
             'Lenguaje': 'Lenguaje',
@@ -4511,12 +4522,24 @@
           showLoading(false); return;
         }
 
+        const labelsMap = {
+          'Competencias Ciudadanas': 'Competencias',
+          'Ciudadanas': 'Competencias',
+          'Ciencias Sociales': 'Sociales',
+          'Sociales': 'Sociales',
+          'Ciencias Naturales': 'Biología',
+          'Biología': 'Biología'
+        };
+
         let html = `
                 <table style="width:100%; border-collapse:separate; border-spacing:0; font-size:0.85rem;">
                     <thead style="position:sticky; top:var(--header-top); z-index:99;">
                         <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
                             <th class="estudiante-col-base" style="padding:10px 8px; text-align:left; position:sticky; top:var(--header-top); left:0; background:#f8fafc; z-index:100; min-width:200px; border-bottom:2px solid #e2e8f0;">ESTUDIANTE</th>
-                            ${config.map(s => `<th class="subject-col-base" style="padding:10px; text-align:center; position:sticky; top:var(--header-top); background:#f8fafc; border-bottom:2px solid #e2e8f0;">${s.label.toUpperCase()}</th>`).join('')}
+                            ${config.map(s => {
+                               const displayLabel = (labelsMap[s.label] || s.label).toUpperCase();
+                               return `<th class="subject-col-base" style="padding:10px; text-align:center; position:sticky; top:var(--header-top); background:#f8fafc; border-bottom:2px solid #e2e8f0;">${displayLabel}</th>`;
+                             }).join('')}
                             <th class="promedio-col-base" style="padding:10px; text-align:center; font-weight:800; background:#f0f9ff; position:sticky; top:var(--header-top); border-bottom:2px solid #e2e8f0;">PROM.</th>
                         </tr>
                     </thead>
