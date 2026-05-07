@@ -167,6 +167,22 @@
       filter: blur(30px) contrast(90%) brightness(90%);
     }
 
+    /* Restricciones para el Modo Estudiante */
+    body.is-student .admin-only,
+    body.is-student #tab-analisis-item,
+    body.is-student #tab-grupal-item,
+    body.is-student #tab-asignatura-item,
+    body.is-student #tab-estadisticas-item,
+    body.is-student #tab-informes-parent,
+    body.is-student .admin-trigger,
+    body.is-student .mobile-nav-item:not(#m-nav-individual) {
+      display: none !important;
+    }
+    
+    body.is-student #tab-individual-item {
+      display: block !important;
+    }
+
     .val-box {
       padding: 5px 2px;
       border-radius: 5px;
@@ -1296,12 +1312,27 @@
   <div id="login-mask">
     <div class="login-card">
       <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png"
-        style="width: 120px; margin-bottom: 1rem;">
-      <h2>Evaluándonos</h2>
-      <input type="text" id="li-user" placeholder="Usuario">
-      <input type="password" id="li-pass" placeholder="Contraseña">
-      <div id="login-err" style="color: #ef4444; font-size: 0.8rem; margin-bottom: 1rem; display: none;"></div>
-      <button onclick="intentarLogin()" id="btn-login">Ingresar</button>
+        style="width: 100px; margin-bottom: 0.5rem;">
+      <h2 style="margin-bottom:1.5rem;">SGA AndréSán 2026</h2>
+      
+      <div style="display:flex; background:#f1f5f9; border-radius:12px; padding:4px; margin-bottom:1.5rem; width:100%; box-sizing:border-box;">
+        <button id="mode-docente" onclick="switchLoginMode('docente')" style="flex:1; border:none; padding:10px; border-radius:10px; font-weight:700; cursor:pointer; background:white; color:#4f46e5; box-shadow:0 2px 8px rgba(0,0,0,0.1); transition:0.3s;">Docentes</button>
+        <button id="mode-estudiante" onclick="switchLoginMode('estudiante')" style="flex:1; border:none; padding:10px; border-radius:10px; font-weight:700; cursor:pointer; background:transparent; color:#64748b; transition:0.3s;">Estudiantes</button>
+      </div>
+
+      <div id="form-docente">
+        <input type="text" id="li-user" placeholder="Usuario o Email">
+        <input type="password" id="li-pass" placeholder="Contraseña">
+        <button onclick="intentarLogin()" id="btn-login" style="width:100%;">Ingresar como Docente</button>
+      </div>
+
+      <div id="form-estudiante" style="display:none;">
+        <input type="text" id="li-est-id" placeholder="Número de Identificación">
+        <p style="font-size:0.75rem; color:#64748b; margin-bottom:1.5rem; line-height:1.4;">Consulta tu informe individual ingresando el documento registrado.</p>
+        <button onclick="intentarLoginEstudiante()" id="btn-login-est" style="width:100%; background:#10b981;">Consultar Reporte</button>
+      </div>
+
+      <div id="login-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 1rem; display: none; font-weight:600;"></div>
     </div>
   </div>
 
@@ -1732,16 +1763,19 @@
                     style="background:var(--primary); color:white; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">CREAR
                     USUARIO</button>
                 </div>
-                <hr style="border:0; border-top:1px solid #e2e8f0; margin:5px 0;">
-                <p style="font-size:0.75rem; color:#64748b;">O importa masivamente:</p>
-                <input type="file" id="users-csv" accept=".csv" multiple style="font-size:0.75rem;">
-                <button onclick="importarUsuariosCSV()"
-                  style="background:#10b981; color:white; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer;">IMPORTAR
-                  XLS</button>
-                <div id="users-status" style="font-size:0.7rem;"></div>
               </div>
 
-              <!-- CARD 4: SISTEMA -->
+              <!-- CARD 4: BASE DE DATOS ESTUDIANTES -->
+              <div class="admin-card">
+                <h5>🎓 Base de Datos Estudiantes</h5>
+                <p style="font-size:0.75rem; color:#64748b; margin-bottom:10px;">Sincroniza la lista oficial desde el archivo CSV (SEDE;Estudiante;Identificación).</p>
+                <input type="file" id="students-csv" accept=".csv" style="font-size:0.75rem; margin-bottom:10px; width:100%;">
+                <button onclick="importarBaseEstudiantes()" id="btn-sync-students"
+                  style="background:#8b5cf6; color:white; border:none; padding:10px; border-radius:8px; font-weight:700; cursor:pointer; width:100%;">SINCRONIZAR ESTUDIANTES</button>
+                <div id="students-sync-status" style="margin-top:8px; font-size:0.7rem; font-weight:700;"></div>
+              </div>
+
+              <!-- CARD 5: SISTEMA -->
               <div class="admin-card">
                 <h5>⚠️ Gestión de Datos y Reset</h5>
                 <p style="font-size:0.8rem; color:#64748b;">Usa esta opción para LIMPIAR TODO (Resultados, Banco de
@@ -2142,7 +2176,165 @@
 
     const $ = id => document.getElementById(id);
 
+    let isStudentMode = false;
+    let studentId = "";
+
+    function switchLoginMode(mode) {
+      const isEst = mode === 'estudiante';
+      $('form-docente').style.display = isEst ? 'none' : 'block';
+      $('form-estudiante').style.display = isEst ? 'block' : 'none';
+      
+      const btnDoc = $('mode-docente');
+      const btnEst = $('mode-estudiante');
+      
+      if (isEst) {
+        btnDoc.style.background = 'transparent'; btnDoc.style.color = '#64748b'; btnDoc.style.boxShadow = 'none';
+        btnEst.style.background = 'white'; btnEst.style.color = '#4f46e5'; btnEst.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+      } else {
+        btnEst.style.background = 'transparent'; btnEst.style.color = '#64748b'; btnEst.style.boxShadow = 'none';
+        btnDoc.style.background = 'white'; btnDoc.style.color = '#4f46e5'; btnDoc.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+      }
+      $('login-err').style.display = 'none';
+    }
+
+    async function intentarLoginEstudiante() {
+      const idVal = $('li-est-id').value.trim();
+      const btn = $('btn-login-est');
+      const err = $('login-err');
+
+      if (!idVal) return alert("Ingresa tu número de identificación");
+
+      err.style.display = 'none';
+      btn.disabled = true; btn.innerText = "Buscando...";
+
+      try {
+        // 1. Validar contra la tabla maestra de estudiantes
+        const { data, error } = await supabaseClient.from('maestro_estudiantes')
+          .select('nombre, identificacion')
+          .eq('identificacion', idVal)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (data) {
+          isStudentMode = true;
+          studentId = idVal;
+          localStorage.setItem('studentId', idVal);
+          localStorage.setItem('studentName', data.nombre);
+          loguearExitosoEstudiante(data.nombre, idVal);
+        } else {
+          // Fallback: Buscar en notas si no está en la maestra aún
+          const { data: dataNotas } = await supabaseClient.from('eval_estudiantes_notas')
+            .select('estudiante_nombre')
+            .eq('zipgrade_id', idVal)
+            .limit(1);
+          
+          if (dataNotas && dataNotas.length > 0) {
+            loguearExitosoEstudiante(dataNotas[0].estudiante_nombre, idVal);
+          } else {
+            err.innerText = "Identificación no encontrada en el sistema.";
+            err.style.display = 'block';
+            btn.disabled = false; btn.innerText = "Consultar Reporte";
+          }
+        }
+      } catch (e) {
+        console.error("Error login estudiante:", e);
+        err.innerText = "Error de conexión.";
+        err.style.display = 'block';
+        btn.disabled = false; btn.innerText = "Consultar Reporte";
+      }
+    }
+
+    async function importarBaseEstudiantes() {
+      const fileInput = $('students-csv');
+      const btn = $('btn-sync-students');
+      const status = $('students-sync-status');
+
+      if (!fileInput.files.length) return alert("Selecciona el archivo CSV");
+
+      btn.disabled = true; btn.innerText = "Procesando...";
+      status.innerText = "Leyendo archivo...";
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = async (e) => {
+        try {
+          const text = e.target.result;
+          const rows = text.split(/\r?\n/).filter(r => r.trim() !== "");
+          
+          // Saltar cabecera: SEDE;Estudiante;Identificación
+          const students = [];
+          for (let i = 1; i < rows.length; i++) {
+            const cols = rows[i].split(';');
+            if (cols.length >= 3) {
+              students.push({
+                sede: cols[0].trim(),
+                nombre: cols[1].trim(),
+                identificacion: cols[2].trim()
+              });
+            }
+          }
+
+          status.style.color = "var(--primary)";
+          status.innerText = `Subiendo ${students.length} estudiantes...`;
+          
+          // UPSERT para no duplicar
+          const { error } = await supabaseClient.from('maestro_estudiantes').upsert(students, { onConflict: 'identificacion' });
+
+          if (error) throw error;
+
+          status.style.color = "var(--success)";
+          status.innerText = `✅ ¡Éxito! ${students.length} estudiantes sincronizados.`;
+        } catch (err) {
+          console.error(err);
+          status.style.color = "#ef4444";
+          status.innerText = "❌ Error: ¿Creaste la tabla en Supabase?";
+        } finally {
+          btn.disabled = false; btn.innerText = "SINCRONIZAR ESTUDIANTES";
+        }
+      };
+
+      reader.readAsText(file);
+    }
+
+    function loguearExitosoEstudiante(nombre, id) {
+      if ($('login-mask')) $('login-mask').style.display = 'none';
+      if ($('loading')) $('loading').style.display = 'none';
+
+      currentUser = { email: 'estudiante@liceo.edu', isStudent: true };
+      currentRole = 'estudiante';
+      isStudentMode = true;
+      studentId = id;
+      
+      if ($('user-badge')) $('user-badge').style.display = 'flex';
+      if ($('user-nombre')) $('user-nombre').innerText = nombre;
+      if ($('user-avatar')) $('user-avatar').innerText = "ST";
+      
+      document.body.classList.add('is-student');
+      
+      switchMainTab('individual');
+      
+      setTimeout(() => {
+          const sel = $('rep-estudiante');
+          if (sel) {
+              sel.innerHTML = `<option value="${id}">${nombre}</option>`;
+              sel.value = id;
+              sel.disabled = true;
+              generarReporteIndividual();
+          }
+      }, 500);
+    }
+
     async function checkSession() {
+      // Prioridad a sesión de estudiante local
+      const sId = localStorage.getItem('studentId');
+      const sName = localStorage.getItem('studentName');
+      if (sId && sName) {
+        loguearExitosoEstudiante(sName, sId);
+        return;
+      }
+
       try {
         const { data: { session }, error } = await supabaseClient.auth.getSession();
         if (error) throw error;
@@ -2304,6 +2496,8 @@
     }
 
     async function logout() {
+      localStorage.removeItem('studentId');
+      localStorage.removeItem('studentName');
       await supabaseClient.auth.signOut();
       location.reload();
     }
@@ -4561,13 +4755,13 @@
             sumaPct += pct;
             const val = getValoration(pct);
             html += `<td class="subject-col-base" style="padding:8px; text-align:center;">
-                        <div class="val-box" style="background:${val.color}; color:${val.color === '#facc15' ? '#1e293b' : 'white'};">${val.initial}</div>
+                        <div class="val-box" title="${pct}%" style="background:${val.color}; color:${val.color === '#facc15' ? '#1e293b' : 'white'}; cursor:help;">${val.initial}</div>
                     </td>`;
           });
 
           const prom = Math.round(sumaPct / config.length);
           const valGen = getValoration(prom);
-          html += `<td class="promedio-col-base" style="padding:8px; text-align:center; background:#f0f9ff; font-weight:900; color:${valGen.color};">${prom}</td></tr>`;
+          html += `<td class="promedio-col-base" title="${prom}%" style="padding:8px; text-align:center; background:#f0f9ff; font-weight:900; color:${valGen.color}; cursor:help;">${prom}</td></tr>`;
         });
 
         // Resumen Grupal
