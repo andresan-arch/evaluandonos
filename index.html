@@ -4029,19 +4029,21 @@
         }
 
         const grupoEst = extraerGrupo(est.zipgrade_id);
+        const actualZipId = est.zipgrade_id; // USAR EL ID REAL DE LA TABLA DE NOTAS
+
         const alumnosGrupo = todos.filter(t => extraerGrupo(t.zipgrade_id) === grupoEst);
 
         const gradoBase = extraerGradoBase(grupoEst);
         const alumnosNivel = todos.filter(t => extraerGradoBase(extraerGrupo(t.zipgrade_id)) === gradoBase);
         const sortedGrupo = [...alumnosGrupo].sort((a, b) => {
           if ((b.porcentaje || 0) !== (a.porcentaje || 0)) return (b.porcentaje || 0) - (a.porcentaje || 0);
-          return (b.porcentaje || 0) - (a.porcentaje || 0); // No tie-breaker here yet, but sorting is stable
+          return (b.porcentaje || 0) - (a.porcentaje || 0);
         });
-        const puestoGrupo = sortedGrupo.findIndex(t => t.zipgrade_id === zipId) + 1;
+        const puestoGrupo = sortedGrupo.findIndex(t => t.zipgrade_id === actualZipId) + 1;
 
         // Puesto Global en el NIVEL (ej: Grado 9°)
         const sortedNivel = [...alumnosNivel].sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
-        const puestoNivel = sortedNivel.findIndex(t => t.zipgrade_id === zipId) + 1;
+        const puestoNivel = sortedNivel.findIndex(t => t.zipgrade_id === actualZipId) + 1;
 
         const gNum = extraerGradoBase(grupoEst);
         let mKey = '6-9';
@@ -4064,7 +4066,7 @@
             return b.promedioGlobal - a.promedioGlobal; // Tie-breaker: promedio global
           });
 
-          puestosMaterias[subj.label] = rankings.findIndex(r => r.id === zipId) + 1;
+          puestosMaterias[subj.label] = rankings.findIndex(r => r.id === actualZipId) + 1;
         });
 
         const html = construirHTMLBoletin(est, puestoGrupo, alumnosGrupo.length, puestosMaterias, config, historico, puestoNivel, alumnosNivel.length);
