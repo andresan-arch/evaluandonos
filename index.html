@@ -1860,12 +1860,15 @@
     }
 
     function checkSubjectPermission(allowedAsigs, targetAsig, gBase) {
+      if (!allowedAsigs || allowedAsigs.length === 0) return false;
       const subTerms = ["biologia", "fisica", "quimica"];
       const natTerms = ["ciencias naturales", "naturales"];
       const t = normalizeText(targetAsig);
       
       return allowedAsigs.some(perm => {
         const p = normalizeText(perm);
+        if (!p) return false;
+        
         const isP_Nat = natTerms.some(term => p.includes(term));
         const isT_Nat = natTerms.some(term => t.includes(term));
         const isP_Sub = subTerms.some(term => p.includes(term));
@@ -1879,11 +1882,14 @@
            if (isT_Sub && isP_Nat) return true;
         }
 
-        // Coincidencia estándar (regex o exacta)
+        // Coincidencia por subcadena o exacta para mayor flexibilidad
+        if (t.includes(p) || p.includes(t)) return true;
+
+        // Coincidencia estándar por palabras
         try {
           const regex = new RegExp(`\\b${p}\\b`, 'i');
-          return regex.test(t) || p === t;
-        } catch(e) { return p === t; }
+          return regex.test(t);
+        } catch(e) { return false; }
       });
     }
 
@@ -4435,9 +4441,10 @@
 
         if (!isDirectorDeEsteGrupo) {
            const myPermissions = userPermissions
-             .filter(p => p.tipo === 'ASIGNACION' && p.grado.toString() === grupo)
+             .filter(p => p.tipo === 'ASIGNACION' && p.grado.toString().trim() === grupo.toString().trim())
              .map(p => p.asignatura);
            
+           console.log("🔍 [DEBUG] Permisos para el grupo", grupo, ":", myPermissions);
            uniqueAsig = uniqueAsig.filter(a => checkSubjectPermission(myPermissions, a, gNum));
         } else {
            console.log("👑 [DIRECTOR] Acceso total a materias en Estadísticas para el grupo:", grupo);
