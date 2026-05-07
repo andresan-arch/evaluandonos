@@ -1793,14 +1793,14 @@
         { start: 1, end: 10, label: 'Matemáticas' },
         { start: 11, end: 20, label: 'Ciencias Sociales' },
         { start: 21, end: 30, label: 'Lenguaje' },
-        { start: 31, end: 40, label: 'Ciencias Naturales' },
+        { start: 31, end: 40, label: 'Biología' },
         { start: 41, end: 45, label: 'Inglés' }
       ],
       '5': [
         { start: 1, end: 20, label: 'Matemáticas' },
         { start: 21, end: 40, label: 'Ciencias Sociales' },
         { start: 41, end: 60, label: 'Lenguaje' },
-        { start: 61, end: 80, label: 'Ciencias Naturales' },
+        { start: 61, end: 80, label: 'Biología' },
         { start: 81, end: 90, label: 'Inglés' }
       ],
       '6-9': [
@@ -1808,7 +1808,7 @@
         { start: 21, end: 40, label: 'Competencias Ciudadanas' },
         { start: 41, end: 60, label: 'Ciencias Sociales' },
         { start: 61, end: 80, label: 'Lenguaje' },
-        { start: 81, end: 100, label: 'Ciencias Naturales' },
+        { start: 81, end: 100, label: 'Biología' },
         { start: 101, end: 120, label: 'Inglés' }
       ],
       '10-11': [
@@ -1836,6 +1836,55 @@
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .trim();
+    }
+
+    function isSubjectEvaluated(subject, grade) {
+      if (!subject) return false;
+      const gNum = extraerGradoBase(grade);
+      let mKey = '6-9';
+      if (gNum <= 4) mKey = '3-4';
+      else if (gNum === 5) mKey = '5';
+      else if (gNum >= 10) mKey = '10-11';
+      
+      const config = MATRIZ_RANGOS[mKey];
+      const normTarget = normalizeText(subject);
+      
+      return config.some(c => {
+        const normLabel = normalizeText(c.label);
+        // Mapping Naturales/Biologia
+        if ((normTarget.includes("naturales") || normTarget.includes("biologia")) && 
+            (normLabel.includes("naturales") || normLabel.includes("biologia"))) return true;
+        
+        return normLabel.includes(normTarget) || normTarget.includes(normLabel);
+      });
+    }
+
+    function checkSubjectPermission(allowedAsigs, targetAsig, gBase) {
+      const subTerms = ["biologia", "fisica", "quimica"];
+      const natTerms = ["ciencias naturales", "naturales"];
+      const t = normalizeText(targetAsig);
+      
+      return allowedAsigs.some(perm => {
+        const p = normalizeText(perm);
+        const isP_Nat = natTerms.some(term => p.includes(term));
+        const isT_Nat = natTerms.some(term => t.includes(term));
+        const isP_Sub = subTerms.some(term => p.includes(term));
+        const isT_Sub = subTerms.some(term => t.includes(term));
+
+        if (gBase < 10) {
+           // En grados 3-9, "Ciencias Naturales" o "Biología" (UI/Data) combinan con permisos de Nat o Sub-disciplinas
+           if ((isT_Nat || t.includes("biologia")) && (isP_Nat || isP_Sub)) return true;
+        } else {
+           // En grados 10-11, las sub-disciplinas individuales combinan con el permiso general de "Naturales"
+           if (isT_Sub && isP_Nat) return true;
+        }
+
+        // Coincidencia estándar (regex o exacta)
+        try {
+          const regex = new RegExp(`\\b${p}\\b`, 'i');
+          return regex.test(t) || p === t;
+        } catch(e) { return p === t; }
+      });
     }
 
     function detectarSede(gradoStr) {
@@ -2387,23 +2436,21 @@
         
         // Filtrar localmente las que pertenecen al nivel seleccionado (ej: 9 -> 9, 901, 902...)
         let filteredData = data ? data.filter(d => extraerGradoBase(d.grado).toString() === nivel.toString()) : [];
-        let unique = [...new Set(filteredData.map(d => d.asignatura))].sort();
+        
+        // --- Mapeo Visual: Ciencias Naturales -> Biología en 3-9 ---
+        let unique = [...new Set(filteredData.map(d => {
+          if (parseInt(nivel) < 10 && normalizeText(d.asignatura).includes("naturales")) return "Biología";
+          return d.asignatura;
+        }))].sort();
 
         // --- Filtro de Privacidad: Solo mostrar asignaturas que el docente DICTA en este nivel ---
         if (currentRole !== 'superadmin' && currentRole !== 'admin') {
-           const allowedAsig = userPermissions
+           const myPermissions = userPermissions
              .filter(p => p.tipo === 'ASIGNACION' && extraerGradoBase(p.grado).toString() === nivel.toString())
-             .map(p => normalizeText(p.asignatura));
+             .map(p => p.asignatura);
            
-           console.log("🎯 Materias permitidas para el nivel:", nivel, allowedAsig);
-           
-           unique = unique.filter(a => {
-             const normalizedA = normalizeText(a);
-             return allowedAsig.some(p => {
-               const regex = new RegExp(`\\b${p}\\b`, 'i');
-               return regex.test(normalizedA) || p === normalizedA;
-             });
-           });
+           console.log("🎯 Materias permitidas para el nivel:", nivel, myPermissions);
+           unique = unique.filter(a => checkSubjectPermission(myPermissions, a, parseInt(nivel)));
         }
         // --------------------------------------------------------------------------------
 
@@ -2439,7 +2486,13 @@
 
     async function onAsigChange(sel) {
       const g = $('sel-grado').value;
-      const a = sel.value;
+      let a = sel.value; // Esta es la asignatura de la UI (puede ser Biología)
+
+      // --- Mapeo Inverso para Consulta: Biología -> Ciencias Naturales en 3-9 ---
+      let queryAsig = a;
+      if (parseInt(g) < 10 && normalizeText(a) === "biologia") {
+        queryAsig = "CIENCIAS NATURALES";
+      }
 
       const card = $('card-asig');
       const colorBox = $('asig-color-box');
@@ -2464,8 +2517,11 @@
 
       showLoading(true);
       try {
+        // Consultar preguntas usando queryAsig (el nombre real en DB)
         const { data } = await supabaseClient.from('eval_preguntas')
-          .select('pregunta_num').eq('grado', g).eq('periodo', currentPeriodo).eq('asignatura', a).order('pregunta_num');
+          .select('pregunta_num').eq('grado', g).eq('periodo', currentPeriodo)
+          .or(`asignatura.eq."${queryAsig}",asignatura.eq."${a}"`) // Intentar ambos por si acaso
+          .order('pregunta_num');
 
         const pSel = $('sel-pregunta');
         const uniqueP = data ? [...new Set(data.map(d => d.pregunta_num))].sort((x, y) => x - y) : [];
@@ -2492,6 +2548,12 @@
         return;
       }
 
+      // --- Mapeo Inverso para Consulta: Biología -> Ciencias Naturales en 3-9 ---
+      let queryAsig = a;
+      if (parseInt(g) < 10 && normalizeText(a) === "biologia") {
+        queryAsig = "CIENCIAS NATURALES";
+      }
+
       showLoading(true);
       try {
         // Encontrar quiz_name asociado (opcional, pero útil si hay múltiples exámenes)
@@ -2500,7 +2562,9 @@
 
         // 1. Banco de preguntas (Protección contra duplicados con limit 1)
         const { data: pregData } = await supabaseClient.from('eval_preguntas')
-          .select('*').eq('grado', g).eq('periodo', currentPeriodo).eq('asignatura', a).eq('pregunta_num', n).limit(1);
+          .select('*').eq('grado', g).eq('periodo', currentPeriodo)
+          .or(`asignatura.eq."${queryAsig}",asignatura.eq."${a}"`)
+          .eq('pregunta_num', n).limit(1);
         const preg = (pregData && pregData.length > 0) ? pregData[0] : null;
 
         // 2. Resultados detallados (consolidados por todas las sedes)
@@ -3652,8 +3716,10 @@
              }
              console.log("🔒 Filtro Grupal Activo. Permitidos:", allGroups);
           } else {
-             // Informes Individuales / Asignatura: Ve lo que dicta + lo que dirige (o todo primaria)
-             const dictan = userPermissions.filter(p => p.tipo === 'ASIGNACION').map(p => p.grado.toString());
+             // Informes Individuales / Asignatura: Ve lo que dicta (EVALUADO) + lo que dirige (o todo primaria)
+             const dictan = userPermissions
+                .filter(p => p.tipo === 'ASIGNACION' && isSubjectEvaluated(p.asignatura, p.grado))
+                .map(p => p.grado.toString());
              const direccion = window.assignedGrade ? [window.assignedGrade.toString()] : [];
              const allowedPool = [...new Set([...dictan, ...direccion])];
 
@@ -4332,9 +4398,14 @@
         // --- Filtro de Privacidad: Solo mostrar grados permitidos ---
         if (currentRole === 'lector' || (currentRole !== 'superadmin' && currentRole !== 'admin')) {
           const assigned = window.assignedGrade ? [window.assignedGrade.toString()] : [];
-          const dictan = userPermissions.filter(p => p.tipo === 'ASIGNACION').map(p => p.grado.toString());
           
-          uniqueGroups = uniqueGroups.filter(g => [...new Set([...assigned, ...dictan])].includes(g.toString()));
+          // Solo incluimos grupos donde dicta una asignatura EVALUADA
+          const dictan = userPermissions
+            .filter(p => p.tipo === 'ASIGNACION' && isSubjectEvaluated(p.asignatura, p.grado))
+            .map(p => p.grado.toString());
+          
+          const allowedGroups = [...new Set([...assigned, ...dictan])];
+          uniqueGroups = uniqueGroups.filter(g => allowedGroups.includes(g.toString()));
         }
         // ----------------------------------------------------------
 
@@ -4363,19 +4434,13 @@
         const isDirectorDeEsteGrupo = window.assignedGrade && window.assignedGrade.toString() === grupo.toString();
 
         if (!isDirectorDeEsteGrupo) {
-           const allowedAsig = userPermissions
+           const myPermissions = userPermissions
              .filter(p => p.tipo === 'ASIGNACION' && p.grado.toString() === grupo)
-             .map(p => normalizeText(p.asignatura));
+             .map(p => p.asignatura);
            
-           uniqueAsig = uniqueAsig.filter(a => {
-             const normalizedA = normalizeText(a);
-             return allowedAsig.some(p => {
-               const regex = new RegExp(`\\b${p}\\b`, 'i');
-               return regex.test(normalizedA) || p === normalizedA;
-             });
-           });
+           uniqueAsig = uniqueAsig.filter(a => checkSubjectPermission(myPermissions, a, gNum));
         } else {
-           console.log("👑 [DIRECTOR] Acceso total a materias en Estadsticas para el grupo:", grupo);
+           console.log("👑 [DIRECTOR] Acceso total a materias en Estadísticas para el grupo:", grupo);
         }
       }
       // -----------------------------------------------------------------
@@ -4413,11 +4478,12 @@
 
         // Mapeo de materias seleccionadas
         let config = [];
-        if (materiaFiltro === 'Naturales') {
+        if (materiaFiltro === 'Naturales' || (gNum < 10 && materiaFiltro === 'Biología')) {
           if (gNum >= 10) {
             config = configFull.filter(c => ['Biología', 'Física', 'Química'].includes(c.label));
           } else {
-            config = configFull.filter(c => c.label.includes('Naturales'));
+            // En 3-9, Biología es el nuevo nombre de Ciencias Naturales
+            config = configFull.filter(c => c.label === 'Biología' || c.label.includes('Naturales'));
           }
         } else {
           config = configFull.filter(c => c.label.includes(materiaFiltro));
