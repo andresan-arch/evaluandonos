@@ -1303,6 +1303,14 @@
       font-weight: 600;
       letter-spacing: 0.5px;
     }
+
+    /* Ocultar filtros para estudiantes de forma estricta */
+    body.is-student #rep-filters {
+      display: none !important;
+    }
+    body.is-student #student-portal-info {
+      display: block !important;
+    }
   </style>
 </head>
 
@@ -1343,7 +1351,8 @@
       <div class="header-sub">
         Evaluándonos — Análisis Estadístico
       </div>
-    </header>
+    </div>
+  </header>
 
   <!-- Badge flotante de usuario (siempre visible) -->
   <div id="user-badge" style="display:none; position:fixed; top:12px; right:12px; z-index:3000;
@@ -2321,18 +2330,15 @@
       if ($('st-display-name')) $('st-display-name').innerText = nombre;
       
       document.body.classList.add('is-student');
-      if ($('student-portal-info')) $('student-portal-info').style.display = 'block';
-      if ($('rep-filters')) $('rep-filters').style.display = 'none';
+      if ($('student-portal-info')) $('student-portal-info').style.setProperty('display', 'block', 'important');
+      if ($('rep-filters')) $('rep-filters').style.setProperty('display', 'none', 'important');
       
       switchMainTab('individual');
       
+      // Auto-generar reporte
       setTimeout(() => {
-          const sel = $('rep-estudiante');
-          if (sel) {
-              sel.innerHTML = `<option value="${id}">${nombre}</option>`;
-              sel.value = id;
-          }
-      }, 500);
+          generarReporteIndividual(id);
+      }, 800);
     }
 
     async function checkSession() {
