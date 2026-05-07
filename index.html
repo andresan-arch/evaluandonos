@@ -113,6 +113,13 @@
       --bg: #f8fafc;
       --card: #ffffff;
       --text: #1e293b;
+      --header-top: 160px;
+    }
+
+    @media (max-width: 768px) {
+      :root {
+        --header-top: 120px;
+      }
     }
 
     * {
@@ -547,7 +554,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(255, 255, 255, 0.8);
+      background: white;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -1116,8 +1123,8 @@
         font-size: 1rem;
       }
 
-      /* Scroll horizontal para tablas de reportes */
-      [id$="-content"] {
+      /* Scroll horizontal para tablas de reportes (excepto los que usan sticky) */
+      [id$="-content"]:not(#grupal-content):not(#asignatura-content) {
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch;
         margin-bottom: 1rem;
@@ -1325,7 +1332,7 @@
 
   <main class="container">
     <!-- Contenedor Principal de Filtros y Navegación -->
-    <div class="top-nav-container" style="background: white; border-bottom: 2px solid #f1f5f9; padding: 1rem 0; margin-bottom: 1rem;">
+    <div class="top-nav-container" style="background: white; border-bottom: 2px solid #f1f5f9; padding: 1rem 0; margin-bottom: 1rem; position: sticky; top: 0; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
       <div class="container" style="display: flex; flex-direction: column; gap: 0.5rem;">
 
         <!-- Navegación Superior y Logo -->
@@ -1575,7 +1582,7 @@
             </div>
 
             <div id="grupal-content"
-              style="overflow-x: auto; background: white; border-radius: 12px; border: 1px solid #e2e8f0;">
+              style="overflow: visible; background: white; border-radius: 12px; border: 1px solid #e2e8f0;">
               <p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un grupo para generar el informe
                 detallado.</p>
             </div>
@@ -4187,10 +4194,10 @@
         let config = MATRIZ_RANGOS[mKey];
 
         let html = `
-                <table style="width:100%; border-collapse:collapse; font-size:0.85rem; border-spacing:0;">
-                        <thead style="position:sticky; top:68px; z-index:90; background:white;">
+                <table style="width:100%; border-collapse:separate; border-spacing:0; font-size:0.85rem;">
+                        <thead style="position:sticky; top:var(--header-top); z-index:99;">
                             <tr>
-                                <th style="padding:12px 8px; text-align:left; position:sticky; top:68px; left:0; background:#f8fafc; z-index:100; min-width:180px; border-bottom:2px solid #e2e8f0; box-shadow: 0 2px 4px -2px rgba(0,0,0,0.1);">ESTUDIANTE</th>
+                                <th style="padding:12px 8px; text-align:left; position:sticky; top:var(--header-top); left:0; background:white; z-index:100; min-width:180px; border-bottom:2px solid #e2e8f0; box-shadow: 0 4px 6px -2px rgba(0,0,0,0.1);">ESTUDIANTE</th>
                                 ${config.map(s => {
           const labelsMap = {
             'Matemáticas': 'Matemáticas',
@@ -4207,15 +4214,15 @@
           };
           const displayLabel = labelsMap[s.label] || s.label;
           return `
-                                    <th style="padding:12px 4px; text-align:center; min-width:60px; font-size:0.75rem; color:#1e293b; border-bottom:2px solid #e2e8f0; position:sticky; top:68px; background:white; z-index:90; box-shadow: 0 2px 4px -2px rgba(0,0,0,0.1);">
+                                    <th style="padding:12px 4px; text-align:center; min-width:60px; font-size:0.75rem; color:#1e293b; border-bottom:2px solid #e2e8f0; position:sticky; top:var(--header-top); background:white; z-index:99; box-shadow: 0 4px 6px -2px rgba(0,0,0,0.1);">
                                         ${displayLabel}
                                     </th>
                                 `;
         }).join('')}
-                                <th style="padding:12px 8px; text-align:center; min-width:70px; background:#f1f5ff; border-bottom:2px solid #e2e8f0; position:sticky; top:68px; z-index:90; box-shadow: 0 2px 4px -2px rgba(0,0,0,0.1);">PROM.</th>
+                                <th style="padding:12px 8px; text-align:center; min-width:70px; background:white; border-bottom:2px solid #e2e8f0; position:sticky; top:var(--header-top); z-index:99; box-shadow: 0 4px 6px -2px rgba(0,0,0,0.1);">PROM.</th>
                             </tr>
                         </thead>
-                    <tbody style="position:relative; z-index:10;">
+                    <tbody style="position:relative; z-index:1;">
             `;
 
         alumnosGrupo.forEach(est => {
@@ -4501,12 +4508,12 @@
         }
 
         let html = `
-                <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
-                    <thead>
+                <table style="width:100%; border-collapse:separate; border-spacing:0; font-size:0.85rem;">
+                    <thead style="position:sticky; top:var(--header-top); z-index:99;">
                         <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
-                            <th class="estudiante-col-base" style="padding:10px 8px; text-align:left; position:sticky; left:0; background:#f8fafc; z-index:10; min-width:200px;">ESTUDIANTE</th>
-                            ${config.map(s => `<th class="subject-col-base" style="padding:10px; text-align:center;">${s.label.toUpperCase()}</th>`).join('')}
-                            <th class="promedio-col-base" style="padding:10px; text-align:center; font-weight:800; background:#f0f9ff;">PROM.</th>
+                            <th class="estudiante-col-base" style="padding:10px 8px; text-align:left; position:sticky; top:var(--header-top); left:0; background:#f8fafc; z-index:100; min-width:200px; border-bottom:2px solid #e2e8f0;">ESTUDIANTE</th>
+                            ${config.map(s => `<th class="subject-col-base" style="padding:10px; text-align:center; position:sticky; top:var(--header-top); background:#f8fafc; border-bottom:2px solid #e2e8f0;">${s.label.toUpperCase()}</th>`).join('')}
+                            <th class="promedio-col-base" style="padding:10px; text-align:center; font-weight:800; background:#f0f9ff; position:sticky; top:var(--header-top); border-bottom:2px solid #e2e8f0;">PROM.</th>
                         </tr>
                     </thead>
                     <tbody>
