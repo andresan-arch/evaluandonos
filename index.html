@@ -1813,7 +1813,8 @@
         { start: 21, end: 40, label: 'Competencias Ciudadanas' },
         { start: 41, end: 60, label: 'Ciencias Sociales' },
         { start: 61, end: 80, label: 'Lenguaje' },
-        { start: 81, end: 100, label: 'Biología' },
+        { start: 81, end: 90, label: 'Biología' },
+        { start: 91, end: 100, label: 'Física' },
         { start: 101, end: 120, label: 'Inglés' }
       ],
       '10-11': [
@@ -1846,19 +1847,24 @@
     function isSubjectEvaluated(subject, grade) {
       if (!subject) return false;
       const gNum = extraerGradoBase(grade);
+      
+      // Caso especial: Física/Química en secundaria se consideran parte de Naturales si no están explícitas
+      const normTarget = normalizeText(subject);
+      if (gNum >= 6 && (normTarget.includes("fisica") || normTarget.includes("quimica"))) {
+          return true;
+      }
+
       let mKey = '6-9';
       if (gNum <= 4) mKey = '3-4';
       else if (gNum === 5) mKey = '5';
       else if (gNum >= 10) mKey = '10-11';
       
       const config = MATRIZ_RANGOS[mKey];
-      const normTarget = normalizeText(subject);
-      
       return config.some(c => {
         const normLabel = normalizeText(c.label);
-        // Mapping Naturales/Biologia
-        if ((normTarget.includes("naturales") || normTarget.includes("biologia")) && 
-            (normLabel.includes("naturales") || normLabel.includes("biologia"))) return true;
+        // Mapping Naturales/Biologia/Fisica/Quimica
+        if ((normTarget.includes("naturales") || normTarget.includes("biologia") || normTarget.includes("fisica") || normTarget.includes("quimica")) && 
+            (normLabel.includes("naturales") || normLabel.includes("biologia") || normLabel.includes("fisica") || normLabel.includes("quimica"))) return true;
         
         return normLabel.includes(normTarget) || normTarget.includes(normLabel);
       });
@@ -1879,12 +1885,13 @@
         const isP_Sub = subTerms.some(term => p.includes(term));
         const isT_Sub = subTerms.some(term => t.includes(term));
 
-        if (gBase < 10) {
-           // En grados 3-9, "Ciencias Naturales" o "Biología" (UI/Data) combinan con permisos de Nat o Sub-disciplinas
+        if (gBase < 6) {
+           // Primaria (1-5): Solo Biología/Naturales combinados
            if ((isT_Nat || t.includes("biologia")) && (isP_Nat || isP_Sub)) return true;
         } else {
-           // En grados 10-11, las sub-disciplinas individuales combinan con el permiso general de "Naturales"
-           if (isT_Sub && isP_Nat) return true;
+           // Secundaria (6-11): las sub-disciplinas individuales combinan con el permiso general de "Naturales"
+           // y viceversa (si tiene permiso de sub-disciplina puede ver Naturales/Biología)
+           if ((isT_Sub || isT_Nat || t.includes("biologia")) && (isP_Nat || isP_Sub)) return true;
         }
 
         // Coincidencia por subcadena o exacta para mayor flexibilidad
@@ -4199,8 +4206,8 @@
                                 ${config.map(s => {
           const labelsMap = {
             'Matemáticas': 'Matemáticas',
-            'Competencias Ciudadanas': 'Socilaes',
-            'Ciudadanas': 'Socilaes',
+            'Competencias Ciudadanas': 'Ciudadanas',
+            'Ciudadanas': 'Ciudadanas',
             'Ciencias Sociales': 'Sociales',
             'Sociales': 'Sociales',
             'Lenguaje': 'Lenguaje',
