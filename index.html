@@ -1292,8 +1292,8 @@
         -webkit-overflow-scrolling: touch;
       }
       .individual-report-wrapper {
-        width: 820px !important; /* Ancho fijo para mantener integridad */
-        zoom: 0.44;
+        width: 820px !important; 
+        zoom: 0.42; /* Reducir un poco más para asegurar que quepa en pantallas de 360px */
       }
     }
     /* ── Footer ── */
@@ -4274,15 +4274,15 @@
              </div>
           </div>
 
-          <div style="border:1px solid #cbd5e1; border-radius:6px; overflow:hidden; margin-bottom:5px; background:#fff;">
-             <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+          <div style="border:1px solid #cbd5e1; border-radius:6px; overflow:visible; margin-bottom:5px; background:#fff;">
+             <table style="width:100%; border-collapse:collapse; font-size:0.75rem; table-layout: fixed;">
                 <thead>
                    <tr style="background:#f8fafc;">
-                      <th style="padding:2px 4px; text-align:left; color:#16a34a;">ASIGNATURA</th>
-                      <th style="padding:2px 4px; text-align:center; color:#16a34a;">PUNTAJE</th>
-                      <th style="padding:2px 4px; text-align:center; color:#16a34a;">NIVEL</th>
-                      <th style="padding:2px 4px; text-align:center; color:#16a34a;">PUESTO</th>
-                      <th style="padding:2px 4px; text-align:center; color:#16a34a;">VALORACIÓN</th>
+                      <th style="padding:4px 2px; text-align:left; color:#16a34a; width:35%;">ASIGNATURA</th>
+                      <th style="padding:4px 2px; text-align:center; color:#16a34a; width:15%;">PUNTAJE</th>
+                      <th style="padding:4px 2px; text-align:center; color:#16a34a; width:12%;">NIVEL</th>
+                      <th style="padding:4px 2px; text-align:center; color:#16a34a; width:15%;">PUESTO</th>
+                      <th style="padding:4px 2px; text-align:center; color:#16a34a; width:23%;">VALORACIÓN</th>
                    </tr>
                 </thead>
                 <tbody>
@@ -4298,11 +4298,11 @@
                       const displayName = labelsMap[m.name] || m.name;
                       return `
                       <tr style="border-bottom:1px solid #f1f5f9;">
-                         <td style="padding:2px 4px; font-weight:800; color:#1e293b; font-size:0.75rem;">${m.icon} ${displayName}</td>
-                         <td style="padding:2px 4px; text-align:center;"><span style="font-weight:900; color:#2563eb;">${m.pct}</span></td>
-                         <td style="padding:2px 4px; text-align:center; font-weight:900; color:#2563eb;">${m.val.nivel}</td>
-                         <td style="padding:2px 4px; text-align:center; font-weight:900; color:#1e293b;">${m.puesto}</td>
-                         <td style="padding:2px 4px; text-align:center;"><span style="color:${m.val.color}; font-weight:900; font-size:0.75rem;">${m.val.label}</span></td>
+                         <td style="padding:4px 2px; font-weight:800; color:#1e293b; font-size:0.75rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.icon} ${displayName}</td>
+                         <td style="padding:4px 2px; text-align:center;"><span style="font-weight:900; color:#2563eb;">${m.pct}</span></td>
+                         <td style="padding:4px 2px; text-align:center; font-weight:900; color:#2563eb;">${m.val.nivel}</td>
+                         <td style="padding:4px 2px; text-align:center; font-weight:900; color:#1e293b;">${m.puesto}</td>
+                         <td style="padding:4px 2px; text-align:center;"><span style="color:${m.val.color}; font-weight:900; font-size:0.75rem;">${m.val.label}</span></td>
                       </tr>
                       `;
                     }).join('')}
