@@ -1292,8 +1292,8 @@
         -webkit-overflow-scrolling: touch;
       }
       .individual-report-wrapper {
-        min-width: 780px; 
-        zoom: 0.45;
+        width: 820px !important; /* Ancho fijo para mantener integridad */
+        zoom: 0.44;
       }
     }
     /* ── Footer ── */
@@ -4213,10 +4213,10 @@
           </div>
 
           <!-- Fila de Resultados: 2 Columnas (Resultado/Desempeño | Escalera) -->
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:5px;">
+          <div style="display:grid; grid-template-columns: 1.15fr 0.85fr; gap:8px; margin-bottom:5px;">
              
              <!-- Columna 1: Resultado General y Puestos -->
-             <div style="border:1px solid #2563eb; border-radius:12px; padding:6px 12px; background:#fff; display:flex; justify-content:space-between; align-items:center; position:relative; overflow:hidden;">
+             <div style="border:1px solid #2563eb; border-radius:12px; padding:6px 10px; background:#fff; display:flex; justify-content:space-around; align-items:center; position:relative; overflow:visible;">
                 
                 <!-- Info General -->
                 <div style="display:flex; flex-direction:column; justify-content:center;">
