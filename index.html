@@ -113,14 +113,15 @@
       --bg: #f8fafc;
       --card: #ffffff;
       --text: #1e293b;
-      --header-top: 160px;
+      --header-top: 0px;
     }
 
     @media (max-width: 768px) {
       :root {
-        --header-top: 120px;
+        --header-top: 0px;
       }
     }
+
 
     * {
       box-sizing: border-box;
@@ -1330,54 +1331,51 @@
       style="background:#f1f5f9; color:#ef4444; border:none; padding:6px 10px; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.8rem;">⏻</button>
   </div>
 
-  <main class="container">
-    <!-- Contenedor Principal de Filtros y Navegación -->
-    <div class="top-nav-container" style="background: white; border-bottom: 2px solid #f1f5f9; padding: 1rem 0; margin-bottom: 1rem; position: sticky; top: 0; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-      <div class="container" style="display: flex; flex-direction: column; gap: 0.5rem;">
-
-        <!-- Navegación Superior y Logo -->
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-          <div style="display: flex; align-items: center; gap: 1.5rem;">
-            <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png"
-              style="height: 75px; width: auto; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));" alt="Logo Mini">
-            <div class="tabs" style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px;">
-              <button onclick="switchMainTab('analisis')" id="tab-analisis" class="tab-btn active"
-                style="padding: 10px 25px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: 0.3s; display: flex; align-items: center; gap: 8px;">📈
-                Análisis General</button>
-              <button onclick="switchMainTab('estadisticas')" id="tab-estadisticas" class="tab-btn"
-                style="padding: 8px 20px; border: none; border-radius: 10px; background: transparent; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: 0.3s;">Estadísticas</button>
-
-              <div class="dropdown" id="tab-informes-parent">
-                <button class="tab-btn" id="tab-informes-btn" onclick="toggleInformesDropdown(event)"
-                  style="padding: 8px 20px; border: none; border-radius: 10px; background: transparent; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: 0.3s;">
-                  📁 Informes ▾
-                </button>
-                <div class="dropdown-content">
-                  <div class="dropdown-item" id="tab-individual-item" onclick="selectInforme('individual')">👤 Reporte
-                    Individual</div>
-                  <div class="dropdown-item" id="tab-grupal-item" onclick="selectInforme('grupal')">👥 Reporte Grupal
-                  </div>
-                  <div class="dropdown-item" id="tab-asignatura-item" onclick="selectInforme('asignatura')">📚 Reporte
-                    Asignatura</div>
+  <div class="top-nav-container" style="background: white; border-bottom: 2px solid #f1f5f9; padding: 1rem 0; margin-bottom: 1rem;">
+    <div class="container" style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <!-- Navegación Superior y Logo -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+          <img src="https://txnecdeccianklqqyrav.supabase.co/storage/v1/object/public/assets/logo%20solo%20copia.png"
+            style="height: 75px; width: auto; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));" alt="Logo Mini">
+          <div class="tabs" style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px;">
+            <button onclick="switchMainTab('analisis')" id="tab-analisis" class="tab-btn active"
+              style="padding: 10px 25px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: 0.3s; display: flex; align-items: center; gap: 8px;">📈
+              Análisis</button>
+            <button onclick="switchMainTab('estadisticas')" id="tab-estadisticas" class="tab-btn"
+              style="padding: 8px 20px; border: none; border-radius: 10px; background: transparent; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: 0.3s;">Estadísticas</button>
+            <div class="dropdown" id="tab-informes-parent">
+              <button class="tab-btn" id="tab-informes-btn" onclick="toggleInformesDropdown(event)"
+                style="padding: 8px 20px; border: none; border-radius: 10px; background: transparent; cursor: pointer; font-weight: 700; font-size: 0.85rem; transition: 0.3s;">
+                📁 Informes ▾
+              </button>
+              <div class="dropdown-content">
+                <div class="dropdown-item" id="tab-individual-item" onclick="selectInforme('individual')">👤 Reporte
+                  Individual</div>
+                <div class="dropdown-item" id="tab-grupal-item" onclick="selectInforme('grupal')">👥 Reporte Grupal
                 </div>
+                <div class="dropdown-item" id="tab-asignatura-item" onclick="selectInforme('asignatura')">📚 Reporte
+                  Asignatura</div>
               </div>
             </div>
           </div>
-
-          <div class="period-tabs" style="margin: 0;">
-            <div id="tab-1" class="period-tab active" onclick="setPeriodo(1)">Evaluándonos 1</div>
-            <div id="tab-2" class="period-tab" onclick="setPeriodo(2)">Evaluándonos 2</div>
-            <div id="tab-3" class="period-tab" onclick="setPeriodo(3)">Evaluándonos Final</div>
-          </div>
-
-
-          <button onclick="toggleAdmin()" class="admin-trigger"
-            style="display:none; background:#1e293b; color:white; border:none; padding:8px 16px; border-radius:12px; font-weight:700; cursor:pointer; font-size:0.85rem; align-items:center; gap:8px;">
-            ⚙️ Panel Admin
-          </button>
-
         </div>
 
+        <div class="period-tabs" style="margin: 0;">
+          <div id="tab-1" class="period-tab active" onclick="setPeriodo(1)">Evaluándonos 1</div>
+          <div id="tab-2" class="period-tab" onclick="setPeriodo(2)">Evaluándonos 2</div>
+          <div id="tab-3" class="period-tab" onclick="setPeriodo(3)">Evaluándonos Final</div>
+        </div>
+
+        <button onclick="toggleAdmin()" class="admin-trigger"
+          style="display:none; background:#1e293b; color:white; border:none; padding:8px 16px; border-radius:12px; font-weight:700; cursor:pointer; font-size:0.85rem; align-items:center; gap:8px;">
+          ⚙️ Panel Admin
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <main class="container">
         <!-- Resultados -->
         <div id="resultado-container" style="display: none;">
 
