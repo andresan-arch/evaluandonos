@@ -2693,14 +2693,7 @@
           // Bloque de TEXTO
           if (contentPart) {
             let formattedContent = contentPart.replace(/\n/g, '<br>');
-            const isContext = /^(RESPONDA|RESPONDE|RESOLVER|RESUELVE|CON LA|SEGUN|DE ACUERDO|BAJO|EN BASE|LEE EL)/i.test(contentPart);
-            
-            if (isContext) {
-              let style = 'width:100%; text-align:left; color:var(--primary); font-size:1rem; line-height:1.4; font-weight:700; background:rgba(79, 70, 229, 0.08); border-left:5px solid var(--primary); padding:15px; border-radius:0 12px 12px 0; margin-bottom:10px; font-family:"Outfit", sans-serif;';
-              combinedHtml += `<div style="${style}"><span style="display:block; font-size:0.7rem; text-transform:uppercase; opacity:0.7; margin-bottom:5px;">📋 Contexto de Evaluación</span>${formattedContent}</div>`;
-            } else {
-              combinedHtml += `<div style="margin-bottom:10px;">${formattedContent}</div>`;
-            }
+            combinedHtml += `<div style="margin-bottom:10px;">${formattedContent}</div>`;
           }
         } else {
           // Bloque de IMAGEN
@@ -4194,26 +4187,35 @@
         let config = MATRIZ_RANGOS[mKey];
 
         let html = `
-                <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
-                    <thead>
-                        <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
-                            <th style="padding:10px 8px; text-align:left; position:sticky; left:0; background:#f8fafc; z-index:10; min-width:180px;">ESTUDIANTE</th>
-                            ${config.map(s => {
-          const abrev = {
-            'Matemáticas': 'Mat', 'Competencias Ciudadanas': 'Ciu', 'Ciudadanas': 'Ciu',
-            'Ciencias Sociales': 'Soc', 'Sociales': 'Soc', 'Lenguaje': 'Len',
-            'Biología': 'Bio', 'Física': 'Fis', 'Química': 'Qui', 'Inglés': 'Ing',
-            'Ciencias Naturales': 'Nat', 'Lectura Crítica': 'Lect', 'Filosofía': 'Fil',
-            'Ética': 'Ét', 'Educación Física': 'EdF', 'Religión': 'Rel',
-            'Tecnología': 'Tec', 'Artística': 'Art'
+                <table style="width:100%; border-collapse:collapse; font-size:0.85rem; border-spacing:0;">
+                        <thead style="position:sticky; top:68px; z-index:90; background:white;">
+                            <tr>
+                                <th style="padding:12px 8px; text-align:left; position:sticky; top:68px; left:0; background:#f8fafc; z-index:100; min-width:180px; border-bottom:2px solid #e2e8f0; box-shadow: 0 2px 4px -2px rgba(0,0,0,0.1);">ESTUDIANTE</th>
+                                ${config.map(s => {
+          const labelsMap = {
+            'Matemáticas': 'Matemáticas',
+            'Competencias Ciudadanas': 'Socilaes',
+            'Ciudadanas': 'Socilaes',
+            'Ciencias Sociales': 'Sociales',
+            'Sociales': 'Sociales',
+            'Lenguaje': 'Lenguaje',
+            'Biología': 'Biología',
+            'Física': 'Física',
+            'Química': 'Química',
+            'Inglés': 'Inglés',
+            'Ciencias Naturales': 'Biología'
           };
-          let label = abrev[s.label] || s.label;
-          return `<th class="subject-col-base" style="padding:10px 4px; text-align:center; min-width:45px; font-size:0.75rem;">${label}</th>`;
+          const displayLabel = labelsMap[s.label] || s.label;
+          return `
+                                    <th style="padding:12px 4px; text-align:center; min-width:60px; font-size:0.75rem; color:#1e293b; border-bottom:2px solid #e2e8f0; position:sticky; top:68px; background:white; z-index:90; box-shadow: 0 2px 4px -2px rgba(0,0,0,0.1);">
+                                        ${displayLabel}
+                                    </th>
+                                `;
         }).join('')}
-                            <th class="promedio-col-base" style="padding:10px 8px; text-align:center; font-weight:800; background:#f0f9ff; min-width:50px;">PROM.</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                                <th style="padding:12px 8px; text-align:center; min-width:70px; background:#f1f5ff; border-bottom:2px solid #e2e8f0; position:sticky; top:68px; z-index:90; box-shadow: 0 2px 4px -2px rgba(0,0,0,0.1);">PROM.</th>
+                            </tr>
+                        </thead>
+                    <tbody style="position:relative; z-index:10;">
             `;
 
         alumnosGrupo.forEach(est => {
@@ -4233,7 +4235,7 @@
             sumaPct += pct;
             const val = getValoration(pct);
             html += `<td class="subject-col-base" style="padding:4px; text-align:center;">
-                        <div class="val-box" style="background:${val.color}; color:${val.color === '#facc15' ? '#1e293b' : 'white'};">
+                        <div class="val-box" title="${pct}" style="background:${val.color}; color:${val.color === '#facc15' ? '#1e293b' : 'white'}; cursor:help;">
                             ${val.initial}
                         </div>
                     </td>`;
