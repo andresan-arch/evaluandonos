@@ -1503,7 +1503,15 @@
         <div id="individual-container" style="display:none; margin-top:2rem;">
           <div class="card">
             <h2 style="margin-bottom:1.5rem; color:var(--primary);">Reporte de Resultados por Estudiante</h2>
-            <div
+            
+            <!-- Vista Simplificada para Estudiantes -->
+            <div id="student-portal-info" style="display:none; background:#f0f9ff; border:1px solid #bae6fd; padding:1.5rem; border-radius:16px; text-align:center; margin-bottom:1.5rem;">
+                <h3 style="color:#0369a1; margin-bottom:0.5rem;">¡Hola, <span id="st-display-name">Estudiante</span>!</h3>
+                <p style="color:#0c4a6e; font-size:0.9rem; margin-bottom:1.5rem;">Haz clic en el botón para consultar tus resultados detallados.</p>
+                <button onclick="generarReporteIndividual()" style="background:#0284c7; color:white; border:none; padding:12px 24px; border-radius:12px; font-weight:800; cursor:pointer; font-size:1rem; box-shadow:0 4px 12px rgba(2,132,199,0.3); transition:0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">GENERAR MI INFORME</button>
+            </div>
+
+            <div id="rep-filters"
               style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:2rem;">
               <div>
                 <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Sede</label>
@@ -2310,8 +2318,11 @@
       if ($('user-badge')) $('user-badge').style.display = 'flex';
       if ($('user-nombre')) $('user-nombre').innerText = nombre;
       if ($('user-avatar')) $('user-avatar').innerText = "ST";
+      if ($('st-display-name')) $('st-display-name').innerText = nombre;
       
       document.body.classList.add('is-student');
+      if ($('student-portal-info')) $('student-portal-info').style.display = 'block';
+      if ($('rep-filters')) $('rep-filters').style.display = 'none';
       
       switchMainTab('individual');
       
@@ -2320,8 +2331,6 @@
           if (sel) {
               sel.innerHTML = `<option value="${id}">${nombre}</option>`;
               sel.value = id;
-              sel.disabled = true;
-              generarReporteIndividual();
           }
       }, 500);
     }
@@ -3998,12 +4007,22 @@
         const todos = resTodos.data || [];
 
         const est = historico.find(t => t.periodo === parseInt(currentPeriodo)) || historico[historico.length - 1];
-        if (!est) throw new Error("No se encontró el registro del estudiante.");
+        if (!est) {
+           $('reporte-content').innerHTML = `
+             <div style="text-align:center; padding:3rem; color:#64748b;">
+               <img src="https://cdn-icons-png.flaticon.com/512/1175/1175510.png" style="width:80px; opacity:0.3; margin-bottom:1rem;">
+               <p style="font-weight:700; font-size:1.1rem;">Aún no tienes resultados cargados</p>
+               <p style="font-size:0.85rem;">Espera a que tus docentes suban las notas del periodo ${currentPeriodo === 3 ? 'Final' : currentPeriodo}.</p>
+             </div>
+           `;
+           showLoading(false);
+           return;
+        }
 
-        const alumnosGrupo = todos.filter(t => extraerGrupo(t.zipgrade_id) === grupo);
-        if (alumnosGrupo.length === 0) throw new Error("No se encontraron resultados para el grupo en este periodo.");
+        const grupoEst = extraerGrupo(est.zipgrade_id);
+        const alumnosGrupo = todos.filter(t => extraerGrupo(t.zipgrade_id) === grupoEst);
 
-        const gradoBase = extraerGradoBase(grupo);
+        const gradoBase = extraerGradoBase(grupoEst);
         const alumnosNivel = todos.filter(t => extraerGradoBase(extraerGrupo(t.zipgrade_id)) === gradoBase);
         const sortedGrupo = [...alumnosGrupo].sort((a, b) => {
           if ((b.porcentaje || 0) !== (a.porcentaje || 0)) return (b.porcentaje || 0) - (a.porcentaje || 0);
