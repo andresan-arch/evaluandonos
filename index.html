@@ -4437,18 +4437,13 @@
 
       // --- Filtro de Privacidad: Solo mostrar asignaturas permitidas ---
       if (currentRole === 'lector' || (currentRole !== 'superadmin' && currentRole !== 'admin')) {
-        const isDirectorDeEsteGrupo = window.assignedGrade && window.assignedGrade.toString() === grupo.toString();
-
-        if (!isDirectorDeEsteGrupo) {
-           const myPermissions = userPermissions
-             .filter(p => p.tipo === 'ASIGNACION' && p.grado.toString().trim() === grupo.toString().trim())
-             .map(p => p.asignatura);
-           
-           console.log("🔍 [DEBUG] Permisos para el grupo", grupo, ":", myPermissions);
-           uniqueAsig = uniqueAsig.filter(a => checkSubjectPermission(myPermissions, a, gNum));
-        } else {
-           console.log("👑 [DIRECTOR] Acceso total a materias en Estadísticas para el grupo:", grupo);
-        }
+         // El usuario solicita que incluso los directores vean solo lo que dictan en este reporte específico
+         const myPermissions = userPermissions
+           .filter(p => p.tipo === 'ASIGNACION' && p.grado.toString().trim() === grupo.toString().trim())
+           .map(p => p.asignatura);
+         
+         console.log("🔍 [DEBUG] Permisos para el grupo", grupo, ":", myPermissions);
+         uniqueAsig = uniqueAsig.filter(a => checkSubjectPermission(myPermissions, a, gNum));
       }
       // -----------------------------------------------------------------
 
