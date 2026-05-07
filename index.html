@@ -4043,7 +4043,7 @@
         const sortedNivel = [...alumnosNivel].sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
         const puestoNivel = sortedNivel.findIndex(t => t.zipgrade_id === zipId) + 1;
 
-        const gNum = extraerGradoBase(grupo);
+        const gNum = extraerGradoBase(grupoEst);
         let mKey = '6-9';
         if (gNum <= 4) mKey = '3-4';
         else if (gNum === 5) mKey = '5';
