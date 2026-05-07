@@ -2652,11 +2652,10 @@
     function renderMedia(textId, mediaId, content, grado, asig, num, opcion = "") {
       const textElem = $(textId);
       const mediaElem = $(mediaId);
-      if (!textElem || !mediaElem) return;
+      if (!textElem) return;
 
       if (!content) {
         textElem.innerHTML = "";
-        mediaElem.innerHTML = "";
         return;
       }
 
@@ -2668,7 +2667,7 @@
         // Dividir por // pero protegiendo protocolos http:// y https://
         const temp = str.split('//');
         for (let i = 0; i < temp.length; i++) {
-          if (i > 0 && parts[parts.length - 1].trim().match(/https?:$/i)) {
+          if (i > 0 && (parts.length > 0 && parts[parts.length - 1].trim().match(/https?:$/i))) {
             parts[parts.length - 1] += '//' + temp[i];
           } else {
             parts.push(temp[i]);
@@ -2682,10 +2681,8 @@
 
       // Limpiamos contenedores
       textElem.innerHTML = "";
-      mediaElem.innerHTML = "";
 
-      let textHtml = "";
-      let mediaHtml = `<div style="display:flex; flex-direction:column; gap:15px; width:100%; align-items:center;">`;
+      let combinedHtml = "";
       let imageCounter = 0;
 
       parts.forEach((part, index) => {
@@ -2695,16 +2692,14 @@
         if (isEven) {
           // Bloque de TEXTO
           if (contentPart) {
-            // Reemplazar saltos de línea por <br> para respetar el formato de Supabase
             let formattedContent = contentPart.replace(/\n/g, '<br>');
-            
             const isContext = /^(RESPONDA|RESPONDE|RESOLVER|RESUELVE|CON LA|SEGUN|DE ACUERDO|BAJO|EN BASE|LEE EL)/i.test(contentPart);
             
             if (isContext) {
               let style = 'width:100%; text-align:left; color:var(--primary); font-size:1rem; line-height:1.4; font-weight:700; background:rgba(79, 70, 229, 0.08); border-left:5px solid var(--primary); padding:15px; border-radius:0 12px 12px 0; margin-bottom:10px; font-family:"Outfit", sans-serif;';
-              textHtml += `<div style="${style}"><span style="display:block; font-size:0.7rem; text-transform:uppercase; opacity:0.7; margin-bottom:5px;">📋 Contexto de Evaluación</span>${formattedContent}</div>`;
+              combinedHtml += `<div style="${style}"><span style="display:block; font-size:0.7rem; text-transform:uppercase; opacity:0.7; margin-bottom:5px;">📋 Contexto de Evaluación</span>${formattedContent}</div>`;
             } else {
-              textHtml += `<div>${formattedContent}</div>`;
+              combinedHtml += `<div style="margin-bottom:10px;">${formattedContent}</div>`;
             }
           }
         } else {
@@ -2712,29 +2707,24 @@
           imageCounter++;
           let imgUrl = contentPart;
 
-          // Si el bloque está vacío o no es URL, usamos nomenclatura automática
           if (!imgUrl.toLowerCase().startsWith("http")) {
             imgUrl = obtenerUrlPredictiva(grado, asig, num, opcion, imageCounter);
           }
 
           if (imgUrl) {
-            mediaHtml += `
-              <div style="display:flex; flex-direction:column; gap:8px; align-items:center; width:100%;">
+            combinedHtml += `
+              <div style="display:flex; flex-direction:column; gap:8px; align-items:center; width:100%; margin: 15px 0;">
                 <img src="${imgUrl}" 
                      style="max-width:100%; border-radius:12px; border:1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);" 
                      title="Imagen ${imageCounter}"
-                     onerror="this.parentElement.style.display='none';">
+                     onerror="this.style.display='none';">
               </div>`;
           }
         }
       });
-
-      mediaHtml += `</div>`;
       
-      textElem.innerHTML = textHtml;
-      if (imageCounter > 0) {
-        mediaElem.innerHTML = mediaHtml;
-      }
+      textElem.innerHTML = combinedHtml;
+      if (mediaElem) mediaElem.innerHTML = ""; // Limpiar el contenedor de media separado
       
       // Disparar renderizado de MathJax inmediatamente después de actualizar el DOM
       triggerMath();
