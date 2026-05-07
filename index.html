@@ -1508,7 +1508,7 @@
             <div id="student-portal-info" style="display:none; background:#f0f9ff; border:1px solid #bae6fd; padding:1.5rem; border-radius:16px; text-align:center; margin-bottom:1.5rem;">
                 <h3 style="color:#0369a1; margin-bottom:0.5rem;">¡Hola, <span id="st-display-name">Estudiante</span>!</h3>
                 <p style="color:#0c4a6e; font-size:0.9rem; margin-bottom:1.5rem;">Haz clic en el botón para consultar tus resultados detallados.</p>
-                <button onclick="generarReporteIndividual()" style="background:#0284c7; color:white; border:none; padding:12px 24px; border-radius:12px; font-weight:800; cursor:pointer; font-size:1rem; box-shadow:0 4px 12px rgba(2,132,199,0.3); transition:0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">GENERAR MI INFORME</button>
+                <button onclick="generarReporteIndividual(studentId)" style="background:#0284c7; color:white; border:none; padding:12px 24px; border-radius:12px; font-weight:800; cursor:pointer; font-size:1rem; box-shadow:0 4px 12px rgba(2,132,199,0.3); transition:0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">GENERAR MI INFORME</button>
             </div>
 
             <div id="rep-filters"
@@ -3988,9 +3988,8 @@
     }
 
     // --- GENERACIÓN DE REPORTES Y PUESTOS ---
-    async function generarReporteIndividual() {
-      const zipId = $('rep-estudiante').value;
-      const grupo = $('rep-grado').value;
+    async function generarReporteIndividual(forcedZipId = null) {
+      const zipId = forcedZipId || $('rep-estudiante').value;
       if (!zipId) return;
 
       showLoading(true);
