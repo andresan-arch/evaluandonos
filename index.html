@@ -2222,6 +2222,7 @@
 
           // --- CONTROL DE VISIBILIDAD DE INFORMES ---
           window.assignedGrade = assignedGrade;
+          window.assignedGroups = assignedGrade ? assignedGrade.toString().split(/[;,]/).map(g => g.trim()).filter(g => g) : [];
         } catch (privErr) {
           console.error("Error al cargar privacidad:", privErr);
           userPermissions = [];
@@ -3726,13 +3727,15 @@
              const dictan = userPermissions
                 .filter(p => p.tipo === 'ASIGNACION' && isSubjectEvaluated(p.asignatura, p.grado))
                 .map(p => p.grado.toString());
-             const direccion = window.assignedGrade ? [window.assignedGrade.toString()] : [];
+             const direccion = window.assignedGroups || [];
              const allowedPool = [...new Set([...dictan, ...direccion])];
 
              allGroups = allGroups.filter(g => {
                 const gBase = extraerGradoBase(g);
                 if (esDePrimaria && gBase >= 1 && gBase <= 5) return true;
-                return allowedPool.includes(g.toString());
+                // Permitir match por nivel (ej. si dirige "6", ve todos los "6XX")
+                const matchDireccionNivel = direccion.some(d => d === g.toString() || d === gBase.toString());
+                return allowedPool.includes(g.toString()) || matchDireccionNivel;
              });
           }
           console.log("🎯 Grupos permitidos final en informes:", allGroups);
@@ -4403,15 +4406,18 @@
 
         // --- Filtro de Privacidad: Solo mostrar grados permitidos ---
         if (currentRole === 'lector' || (currentRole !== 'superadmin' && currentRole !== 'admin')) {
-          const assigned = window.assignedGrade ? [window.assignedGrade.toString()] : [];
+          const direccion = window.assignedGroups || [];
           
           // Solo incluimos grupos donde dicta una asignatura EVALUADA
           const dictan = userPermissions
             .filter(p => p.tipo === 'ASIGNACION' && isSubjectEvaluated(p.asignatura, p.grado))
             .map(p => p.grado.toString());
           
-          const allowedGroups = [...new Set([...assigned, ...dictan])];
-          uniqueGroups = uniqueGroups.filter(g => allowedGroups.includes(g.toString()));
+          const allowedPool = [...new Set([...direccion, ...dictan])];
+          uniqueGroups = uniqueGroups.filter(g => {
+             const gBase = extraerGradoBase(g);
+             return allowedPool.some(ap => ap === g.toString() || ap === gBase.toString());
+          });
         }
         // ----------------------------------------------------------
 
@@ -4439,7 +4445,13 @@
       if (currentRole === 'lector' || (currentRole !== 'superadmin' && currentRole !== 'admin')) {
          // El usuario solicita que incluso los directores vean solo lo que dictan en este reporte específico
          const myPermissions = userPermissions
-           .filter(p => p.tipo === 'ASIGNACION' && p.grado.toString().trim() === grupo.toString().trim())
+           .filter(p => {
+              if (p.tipo !== 'ASIGNACION') return false;
+              const pGrado = p.grado.toString().trim();
+              const targetGrado = grupo.toString().trim();
+              const targetBase = extraerGradoBase(targetGrado).toString();
+              return pGrado === targetGrado || pGrado === targetBase;
+           })
            .map(p => p.asignatura);
          
          console.log("🔍 [DEBUG] Permisos para el grupo", grupo, ":", myPermissions);
