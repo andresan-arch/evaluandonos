@@ -1343,23 +1343,20 @@
       <div class="header-sub">
         Evaluándonos — Análisis Estadístico
       </div>
-    </div>
-  </header>
+    </header>
 
   <!-- Badge flotante de usuario (siempre visible) -->
-  <div id="user-badge" style="display:none; position:fixed; top:16px; right:16px; z-index:3000;
-    background:white; border-radius:50px; padding:8px 16px 8px 12px;
-    box-shadow:0 4px 20px rgba(79,70,229,0.25); border:1px solid #e2e8f0;
-    align-items:center; gap:10px; font-family:'Outfit',sans-serif;">
-    <div
-      style="width:34px; height:34px; background:linear-gradient(135deg,#4f46e5,#7c3aed); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:0.9rem;"
-      id="user-avatar">?</div>
-    <div style="line-height:1.2;">
-      <div id="user-nombre" style="font-weight:700; color:#1e293b; font-size:0.85rem;"></div>
-      <div id="user-email" style="color:#94a3b8; font-size:0.72rem; display:none;"></div>
-    </div>
-    <button onclick="logout()" title="Cerrar sesión"
-      style="background:#f1f5f9; color:#ef4444; border:none; padding:6px 10px; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.8rem;">⏻</button>
+  <div id="user-badge" style="display:none; position:fixed; top:12px; right:12px; z-index:3000;
+    background:white; padding:6px 12px; border-radius:50px; box-shadow:0 8px 20px rgba(0,0,0,0.15); 
+    align-items:center; gap:8px; border:1px solid #e2e8f0;">
+      <div id="user-avatar" style="width:30px; height:30px; background:#4f46e5; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.75rem;">ST</div>
+      <div style="display:flex; flex-direction:column; max-width: 120px;">
+        <span id="user-nombre" style="font-size:0.7rem; font-weight:800; color:#1e293b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Estudiante</span>
+        <span id="user-role-label" style="font-size:0.6rem; color:#64748b; font-weight:600;">Estudiante</span>
+      </div>
+      <button onclick="logout()" style="background:#fee2e2; border:none; color:#ef4444; cursor:pointer; padding:6px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.3s;" title="Cerrar Sesión">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </button>
   </div>
 
   <div class="top-nav-container" style="background: white; border-bottom: 2px solid #f1f5f9; padding: 1rem 0; margin-bottom: 1rem;">
@@ -1508,7 +1505,10 @@
             <div id="student-portal-info" style="display:none; background:#f0f9ff; border:1px solid #bae6fd; padding:1.5rem; border-radius:16px; text-align:center; margin-bottom:1.5rem;">
                 <h3 style="color:#0369a1; margin-bottom:0.5rem;">¡Hola, <span id="st-display-name">Estudiante</span>!</h3>
                 <p style="color:#0c4a6e; font-size:0.9rem; margin-bottom:1.5rem;">Haz clic en el botón para consultar tus resultados detallados.</p>
-                <button onclick="generarReporteIndividual(studentId)" style="background:#0284c7; color:white; border:none; padding:12px 24px; border-radius:12px; font-weight:800; cursor:pointer; font-size:1rem; box-shadow:0 4px 12px rgba(2,132,199,0.3); transition:0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">GENERAR MI INFORME</button>
+                <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                    <button onclick="generarReporteIndividual(studentId)" style="background:#0284c7; color:white; border:none; padding:12px 24px; border-radius:12px; font-weight:800; cursor:pointer; font-size:1rem; box-shadow:0 4px 12px rgba(2,132,199,0.3); transition:0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">GENERAR MI INFORME</button>
+                    <button onclick="logout()" style="background:#f1f5f9; color:#64748b; border:none; padding:12px 20px; border-radius:12px; font-weight:700; cursor:pointer; font-size:0.9rem;">SALIR</button>
+                </div>
             </div>
 
             <div id="rep-filters"
