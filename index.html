@@ -4002,8 +4002,18 @@
         if (resHist.error) throw resHist.error;
         if (resTodos.error) throw resTodos.error;
 
-        const historico = resHist.data || [];
+        let historico = resHist.data || [];
         const todos = resTodos.data || [];
+
+        // FALLBACK: Si no hay historial por ID, intentar por nombre completo (si estamos en modo estudiante)
+        if (historico.length === 0 && isStudentMode) {
+          const sName = localStorage.getItem('studentName');
+          if (sName) {
+            const { data: resName } = await supabaseClient.from('eval_estudiantes_notas')
+              .select('*').eq('estudiante_nombre', sName).order('periodo', { ascending: true });
+            if (resName && resName.length > 0) historico = resName;
+          }
+        }
 
         const est = historico.find(t => t.periodo === parseInt(currentPeriodo)) || historico[historico.length - 1];
         if (!est) {
