@@ -9192,7 +9192,7 @@
           const ctxG = $('chart-grados').getContext('2d');
           chartGrados = new Chart(ctxG, {
             type: 'bar',
-            plugins: [ChartDataLabels],
+            plugins: [ChartDataLabels, nivelesHorizontalesPlugin],
             data: {
               labels: labelsG.map(l => l + "°"),
               datasets: [{
@@ -9440,7 +9440,7 @@
         const ctxC = $('chart-comparativo-grupos').getContext('2d');
         chartComparativo = new Chart(ctxC, {
           type: 'bar',
-          plugins: [ChartDataLabels],
+          plugins: [ChartDataLabels, nivelesHorizontalesPlugin],
           data: { labels: labels, datasets: datasets },
           options: {
             responsive: true, maintainAspectRatio: false,
