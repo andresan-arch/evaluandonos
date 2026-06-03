@@ -2943,7 +2943,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script>
-    var CURRENT_APP_VERSION = "v113";
+    var CURRENT_APP_VERSION = "v114";
     window.MathJax = {
       tex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']],
@@ -9204,6 +9204,7 @@
             },
             options: {
               responsive: true, maintainAspectRatio: false,
+              layout: { padding: { left: 55 } },
               plugins: {
                 legend: { display: false },
                 datalabels: { color: '#fff', font: { weight: 'bold', size: 16 }, anchor: 'end', align: 'bottom', formatter: v => v }
@@ -9444,6 +9445,7 @@
           data: { labels: labels, datasets: datasets },
           options: {
             responsive: true, maintainAspectRatio: false,
+            layout: { padding: { left: 55 } },
             plugins: {
               legend: { display: true, position: 'top', labels: { font: { size: 10, weight: 'bold' }, usePointStyle: true } },
               datalabels: {
