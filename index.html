@@ -2088,32 +2088,17 @@
       <header
         style="height: 80px; min-height: 80px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; position: sticky; top: 0; z-index: 999; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
 
-        <!-- Izquierda: Filtros Globales (Período y Año) -->
-        <div style="display: flex; gap: 15px; align-items: center;">
-          <!-- Pestañas de Período -->
-          <div class="period-tabs"
-            style="margin: 0; background: #f1f5f9; padding: 4px; border-radius: 12px; display: flex; gap: 5px; border: 1px solid #cbd5e1;">
-            <div id="tab-1" class="period-tab active" onclick="setPeriodo(1)"
-              style="font-size: 0.85rem; padding: 8px 20px; font-weight: 800; border-radius: 8px; cursor:pointer;">E1
-            </div>
-            <div id="tab-2" class="period-tab" onclick="setPeriodo(2)"
-              style="font-size: 0.85rem; padding: 8px 20px; font-weight: 800; border-radius: 8px; cursor:pointer;">E2
-            </div>
-            <div id="tab-3" class="period-tab" onclick="setPeriodo(3)"
-              style="font-size: 0.85rem; padding: 8px 20px; font-weight: 800; border-radius: 8px; cursor:pointer;">EF
-            </div>
+        <!-- Izquierda: Pestañas de Período -->
+        <div class="period-tabs"
+          style="margin: 0; background: #f1f5f9; padding: 4px; border-radius: 12px; display: flex; gap: 5px; border: 1px solid #cbd5e1;">
+          <div id="tab-1" class="period-tab active" onclick="setPeriodo(1)"
+            style="font-size: 0.85rem; padding: 8px 20px; font-weight: 800; border-radius: 8px; cursor:pointer;">E1
           </div>
-          
-          <!-- Selector de Año -->
-          <div style="background: #f1f5f9; padding: 4px 10px; border-radius: 12px; border: 1px solid #cbd5e1; display: flex; align-items: center;">
-            <label for="global-anio" style="font-size: 0.85rem; font-weight: 800; color: #475569; margin-right: 8px;">Año:</label>
-            <select id="global-anio" onchange="setAnio(this.value)" style="background: transparent; border: none; font-size: 0.85rem; font-weight: 800; color: #1e293b; outline: none; cursor: pointer;">
-              <option value="2026" selected>2026</option>
-              <option value="2027">2027</option>
-              <option value="2028">2028</option>
-              <option value="2029">2029</option>
-              <option value="2030">2030</option>
-            </select>
+          <div id="tab-2" class="period-tab" onclick="setPeriodo(2)"
+            style="font-size: 0.85rem; padding: 8px 20px; font-weight: 800; border-radius: 8px; cursor:pointer;">E2
+          </div>
+          <div id="tab-3" class="period-tab" onclick="setPeriodo(3)"
+            style="font-size: 0.85rem; padding: 8px 20px; font-weight: 800; border-radius: 8px; cursor:pointer;">EF
           </div>
         </div>
 
