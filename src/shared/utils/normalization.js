@@ -131,8 +131,15 @@ export function extraerGradoBase(grupo) {
  * @returns {number} Año actual
  */
 export function getCurrentYear() {
-  if (typeof window !== 'undefined' && window.currentYear) {
-    return parseInt(window.currentYear, 10);
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('currentYear');
+    if (stored) {
+      window.currentYear = parseInt(stored, 10);
+      return window.currentYear;
+    }
+    if (window.currentYear) {
+      return parseInt(window.currentYear, 10);
+    }
   }
-  return new Date().getFullYear();
+  return 2026; // Base data year fallback
 }
