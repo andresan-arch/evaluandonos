@@ -2061,6 +2061,15 @@
             <button onclick="setAnio(2027)"
               style="padding: 10px 15px 10px 35px; border: none; background: transparent; color: white; text-align: left; cursor: pointer; font-size: 0.85rem; font-weight:bold;">📅
               2027</button>
+            <button onclick="setAnio(2028)"
+              style="padding: 10px 15px 10px 35px; border: none; background: transparent; color: white; text-align: left; cursor: pointer; font-size: 0.85rem; font-weight:bold;">📅
+              2028</button>
+            <button onclick="setAnio(2029)"
+              style="padding: 10px 15px 10px 35px; border: none; background: transparent; color: white; text-align: left; cursor: pointer; font-size: 0.85rem; font-weight:bold;">📅
+              2029</button>
+            <button onclick="setAnio(2030)"
+              style="padding: 10px 15px 10px 35px; border: none; background: transparent; color: white; text-align: left; cursor: pointer; font-size: 0.85rem; font-weight:bold;">📅
+              2030</button>
           </div>
         </div>
 
@@ -9875,9 +9884,9 @@
           }
 
           window.addEventListener('DOMContentLoaded', () => {
-            const anioSelect = document.getElementById('global-anio');
-            if (anioSelect && window.currentYear) {
-              anioSelect.value = window.currentYear.toString();
+            const lblAnio = document.getElementById('lbl-anio');
+            if (lblAnio && window.currentYear) {
+              lblAnio.innerText = window.currentYear.toString();
             }
 
             if (typeof checkSession === 'function') {
