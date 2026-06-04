@@ -11,6 +11,7 @@
  */
 
 import { supabaseDatasource } from '../datasources/SupabaseDatasource.js';
+import { getCurrentYear } from '../../shared/utils/index.js';
 
 export class ResultadosRepository {
   /**
@@ -23,6 +24,7 @@ export class ResultadosRepository {
       const { data, error } = await supabaseDatasource.getClient()
         .from('eval_resultados')
         .select('grado')
+        .eq('anio', getCurrentYear())
         .eq('periodo', periodo);
 
       if (error) throw error;
@@ -45,6 +47,7 @@ export class ResultadosRepository {
       const { data, error } = await supabaseDatasource.getClient()
         .from('eval_resultados')
         .select('periodo')
+        .eq('anio', getCurrentYear())
         .order('periodo', { ascending: false })
         .limit(1);
 
@@ -67,6 +70,7 @@ export class ResultadosRepository {
       const { data, error } = await supabaseDatasource.getClient()
         .from('eval_resultados')
         .select('periodo')
+        .eq('anio', getCurrentYear())
         .eq('periodo', periodo)
         .limit(1);
 
@@ -93,6 +97,7 @@ export class ResultadosRepository {
       let query = supabaseDatasource.getClient()
         .from('eval_resultados')
         .select('*')
+        .eq('anio', getCurrentYear())
         .eq('grado', grado)
         .eq('periodo', periodo)
         .range(offset, offset + limit - 1);
@@ -118,6 +123,7 @@ export class ResultadosRepository {
       const { data, error } = await supabaseDatasource.getClient()
         .from('eval_resultados')
         .select('grado')
+        .eq('anio', getCurrentYear())
         .eq('periodo', periodo);
 
       if (error) throw error;

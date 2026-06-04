@@ -10,5 +10,6 @@ export {
   detectarPeriodo,
   calcularPorcentaje,
   isValidEmail,
-  extraerGradoBase
+  extraerGradoBase,
+  getCurrentYear
 } from './normalization.js';

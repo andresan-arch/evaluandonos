@@ -4,7 +4,7 @@
  */
 
 import { AdminService } from '../../domain/services/index.js';
-import { extraerGradoBase, detectarPeriodo, detectarSede } from '../../shared/utils/normalization.js';
+import { extraerGradoBase, detectarPeriodo, detectarSede, getCurrentYear } from '../../shared/utils/normalization.js';
 
 export class AdminController {
   constructor() {
@@ -117,7 +117,8 @@ export class AdminController {
               identificacion: identificacion.toString().trim(),
               nombre: nombre.toString().trim(),
               zipgrade_id: zipgradeId ? zipgradeId.toString().trim() : null,
-              grupo: grupo ? grupo.toString().trim() : null
+              grupo: grupo ? grupo.toString().trim() : null,
+              anio: getCurrentYear()
             });
           }
         });
@@ -184,7 +185,8 @@ export class AdminController {
               respuestas,
               porcentaje: Math.round((correctas / (total || 1)) * 100),
               grado: gBase,
-              periodo
+              periodo,
+              anio: getCurrentYear()
             });
           }
         });

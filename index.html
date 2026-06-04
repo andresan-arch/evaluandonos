@@ -6796,7 +6796,7 @@
                 todosLosRegistros = data || [];
                 renderUsuariosTabla(todosLosRegistros);
               } else {
-                const { data, error } = await supabaseClient.from('maestro_estudiantes').select('*').order('sede', { ascending: true }).order('nombre', { ascending: true });
+                const { data, error } = await supabaseClient.from('maestro_estudiantes').select('*').eq('anio', window.currentYear || 2026).order('sede', { ascending: true }).order('nombre', { ascending: true });
                 if (error) throw error;
                 todosLosRegistros = data || [];
                 renderUsuariosTabla(todosLosRegistros);
@@ -6874,7 +6874,7 @@
             if (formType === 'docente' && user.nombre) {
               // Consultar permisos actuales
               try {
-                const { data } = await supabaseClient.from('docentes_privacidad').select('asignatura, grado, tipo').eq('nombre', user.nombre);
+                const { data } = await supabaseClient.from('docentes_privacidad').select('asignatura, grado, tipo').eq('nombre', user.nombre).eq('anio', window.currentYear || 2026);
                 cargaDocenteActual = data || [];
                 renderCargaDocente();
               } catch (e) { console.error('Error fetching privacidad:', e); }
@@ -6939,15 +6939,16 @@
 
                 // --- ACTUALIZAR DOCENTES_PRIVACIDAD ---
                 if (nombre) {
-                  // 1. Borrar todas las asignaciones anteriores
-                  await supabaseClient.from('docentes_privacidad').delete().eq('nombre', nombre);
+                  // 1. Borrar todas las asignaciones anteriores del año actual
+                  await supabaseClient.from('docentes_privacidad').delete().eq('nombre', nombre).eq('anio', window.currentYear || 2026);
                   // 2. Insertar las nuevas
                   if (cargaDocenteActual.length > 0) {
                     const insertData = cargaDocenteActual.map(c => ({
                       nombre: nombre,
                       asignatura: c.asignatura,
                       grado: c.grado,
-                      tipo: c.tipo || 'ASIGNACION'
+                      tipo: c.tipo || 'ASIGNACION',
+                      anio: window.currentYear || 2026
                     }));
                     const { error: privErr } = await supabaseClient.from('docentes_privacidad').insert(insertData);
                     if (privErr) throw privErr;
@@ -6961,17 +6962,18 @@
                 const identificacion = (document.getElementById('nu-identificacion') || {}).value?.trim() || '';
                 const sede = (document.getElementById('nu-sede') || {}).value?.trim() || '';
                 const zipgrade = (document.getElementById('nu-zipgrade') || {}).value?.trim() || '';
+                const anioActual = window.currentYear || 2026;
 
                 if (!nombre || !identificacion || !sede) throw new Error('Nombre, Identificación y Sede son obligatorios.');
 
                 if (!isEdit) {
-                  const { error } = await supabaseClient.from('maestro_estudiantes').insert({ identificacion, nombre, sede, zipgrade_id: zipgrade });
+                  const { error } = await supabaseClient.from('maestro_estudiantes').insert({ identificacion, nombre, sede, zipgrade_id: zipgrade, anio: anioActual });
                   if (error) {
-                    if (error.code === '23505') throw new Error('La identificación ya existe en la base de datos.');
+                    if (error.code === '23505') throw new Error('La identificación ya existe en este año.');
                     throw error;
                   }
                 } else {
-                  const { error } = await supabaseClient.from('maestro_estudiantes').update({ nombre, sede, zipgrade_id: zipgrade }).eq('identificacion', originalId);
+                  const { error } = await supabaseClient.from('maestro_estudiantes').update({ nombre, sede, zipgrade_id: zipgrade }).eq('identificacion', originalId).eq('anio', anioActual);
                   if (error) throw error;
                 }
               }

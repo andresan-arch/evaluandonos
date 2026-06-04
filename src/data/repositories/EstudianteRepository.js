@@ -11,6 +11,7 @@
  */
 
 import { supabaseDatasource } from '../datasources/SupabaseDatasource.js';
+import { getCurrentYear } from '../../shared/utils/index.js';
 
 export class EstudianteRepository {
   /**
@@ -23,6 +24,7 @@ export class EstudianteRepository {
       const { data, error } = await supabaseDatasource.getClient()
         .from('maestro_estudiantes')
         .select('nombre, identificacion, zipgrade_id')
+        .eq('anio', getCurrentYear())
         .eq('identificacion', identificacion)
         .maybeSingle();
 
@@ -47,6 +49,7 @@ export class EstudianteRepository {
       const { data, error } = await supabaseDatasource.getClient()
         .from('maestro_estudiantes')
         .select('*')
+        .eq('anio', getCurrentYear())
         .range(offset, offset + limit - 1);
 
       if (error) throw error;
@@ -68,6 +71,7 @@ export class EstudianteRepository {
       const { data, error } = await supabaseDatasource.getClient()
         .from('maestro_estudiantes')
         .select('*')
+        .eq('anio', getCurrentYear())
         .eq('grado', grado);
 
       if (error) throw error;
@@ -93,7 +97,7 @@ export class EstudianteRepository {
 
       const { error } = await supabaseDatasource.getClient()
         .from('maestro_estudiantes')
-        .upsert(estudiantes, { onConflict: 'identificacion' });
+        .upsert(estudiantes, { onConflict: 'identificacion,anio' });
 
       if (error) throw error;
 
@@ -116,7 +120,8 @@ export class EstudianteRepository {
     try {
       const { count, error } = await supabaseDatasource.getClient()
         .from('maestro_estudiantes')
-        .select('*', { count: 'exact', head: true });
+        .select('*', { count: 'exact', head: true })
+        .eq('anio', getCurrentYear());
 
       if (error) throw error;
 

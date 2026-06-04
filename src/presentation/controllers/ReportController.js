@@ -11,7 +11,7 @@
 
 import { ReportService } from '../../domain/services/index.js';
 import { ResultadosRepository, EstudianteRepository } from '../../data/index.js';
-import { extraerGradoBase, detectarSede } from '../../shared/utils/normalization.js';
+import { extraerGradoBase, detectarSede, getCurrentYear } from '../../shared/utils/normalization.js';
 
 export class ReportController {
   constructor() {
@@ -93,8 +93,9 @@ export class ReportController {
       if (!client) return;
 
       const { data: resData, error } = await client
-        .from('eval_resultados')
+        .from('eval_estudiantes_notas')
         .select('*')
+        .eq('anio', getCurrentYear())
         .eq('zipgrade_id', zipId);
 
       if (error || !resData || resData.length === 0) {
@@ -194,6 +195,7 @@ export class ReportController {
       const { data, error } = await client
         .from('eval_estudiantes_notas')
         .select('*')
+        .eq('anio', getCurrentYear())
         .eq('periodo', periodo);
 
       if (error || !data || data.length === 0) {
@@ -288,8 +290,9 @@ export class ReportController {
 
       const periodo = (typeof window.currentPeriodo !== 'undefined') ? window.currentPeriodo : 1;
       const { data, error } = await client
-        .from('eval_resultados')
+        .from('eval_estudiantes_notas')
         .select('*')
+        .eq('anio', getCurrentYear())
         .eq('grado', gradoBase);
 
       if (error || !data || data.length === 0) {

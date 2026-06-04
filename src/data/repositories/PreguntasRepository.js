@@ -11,6 +11,7 @@
  */
 
 import { supabaseDatasource } from '../datasources/SupabaseDatasource.js';
+import { getCurrentYear } from '../../shared/utils/index.js';
 
 export class PreguntasRepository {
   /**
@@ -23,6 +24,7 @@ export class PreguntasRepository {
       const { data, error } = await supabaseDatasource.getClient()
         .from('eval_preguntas')
         .select('grado')
+        .eq('anio', getCurrentYear())
         .eq('periodo', periodo);
 
       if (error) throw error;
@@ -47,6 +49,7 @@ export class PreguntasRepository {
       const { data, error } = await supabaseDatasource.getClient()
         .from('eval_preguntas')
         .select('*')
+        .eq('anio', getCurrentYear())
         .eq('grado', grado)
         .eq('periodo', periodo);
 
@@ -70,6 +73,7 @@ export class PreguntasRepository {
       const { count, error } = await supabaseDatasource.getClient()
         .from('eval_preguntas')
         .select('*', { count: 'exact', head: true })
+        .eq('anio', getCurrentYear())
         .eq('grado', grado)
         .eq('periodo', periodo);
 

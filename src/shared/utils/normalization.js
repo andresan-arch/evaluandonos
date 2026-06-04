@@ -126,3 +126,13 @@ export function extraerGradoBase(grupo) {
   return isNaN(firstDigit) ? 0 : firstDigit;
 }
 
+/**
+ * Obtiene el año actual del sistema o la configuración global
+ * @returns {number} Año actual
+ */
+export function getCurrentYear() {
+  if (typeof window !== 'undefined' && window.currentYear) {
+    return parseInt(window.currentYear, 10);
+  }
+  return new Date().getFullYear();
+}

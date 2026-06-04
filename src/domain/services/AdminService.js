@@ -5,6 +5,7 @@
 
 import { supabaseDatasource } from '../../data/index.js';
 import { EstudianteRepository, ResultadosRepository } from '../../data/index.js';
+import { getCurrentYear } from '../../shared/utils/normalization.js';
 
 export class AdminService {
   /**
@@ -43,8 +44,8 @@ export class AdminService {
 
       const client = supabaseDatasource.getClient();
       const { error } = await client
-        .from('eval_resultados')
-        .upsert(resultados, { onConflict: 'zipgrade_id,periodo' });
+        .from('eval_estudiantes_notas')
+        .upsert(resultados, { onConflict: 'zipgrade_id,periodo,anio' });
 
       if (error) throw error;
 
@@ -69,6 +70,7 @@ export class AdminService {
       const { data, error } = await client
         .from('docentes_privacidad')
         .select('*')
+        .eq('anio', getCurrentYear())
         .order('docente', { ascending: true });
 
       if (error) throw error;
@@ -87,9 +89,10 @@ export class AdminService {
   static async guardarPermisoDocente(permiso) {
     try {
       const client = supabaseDatasource.getClient();
+      permiso.anio = getCurrentYear();
       const { error } = await client
         .from('docentes_privacidad')
-        .upsert(permiso, { onConflict: 'id' });
+        .upsert(permiso); // Let Supabase use the table's Primary Key automatically
 
       if (error) throw error;
       return { success: true, error: null };
