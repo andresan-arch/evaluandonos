@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/keep_alive",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}
