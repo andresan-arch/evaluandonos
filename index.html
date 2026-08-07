@@ -8624,10 +8624,22 @@
             if (!grupo) return;
             showLoading(true);
             try {
-              const { data: todosData, error } = await supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo);
+              const { data: todosDataRaw, error } = await supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo);
               if (error) throw error;
 
-              const estudiantesGrupo = (todosData || []).filter(t => {
+              const mergedMap = new Map();
+              (todosDataRaw || []).forEach(t => {
+                const key = t.zipgrade_id ? t.zipgrade_id.toString().trim() : '';
+                if (!key) return;
+                if (mergedMap.has(key)) {
+                  mergedMap.get(key).respuestas = { ...mergedMap.get(key).respuestas, ...(t.respuestas || {}) };
+                } else {
+                  mergedMap.set(key, { ...t, respuestas: { ...(t.respuestas || {}) } });
+                }
+              });
+              const todosData = Array.from(mergedMap.values());
+
+              const estudiantesGrupo = todosData.filter(t => {
                 const g = t.grado ? t.grado.toString().trim() : extraerGrupo(t.zipgrade_id);
                 return g === grupo;
               }).sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre, 'es', { sensitivity: 'base' }));
@@ -8877,10 +8889,22 @@
 
             showLoading(true);
             try {
-              const { data: todosData, error } = await supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo);
+              const { data: todosDataRaw, error } = await supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo);
               if (error) throw error;
 
-              const estudiantesGrupo = (todosData || []).filter(t => {
+              const mergedMap = new Map();
+              (todosDataRaw || []).forEach(t => {
+                const key = t.zipgrade_id ? t.zipgrade_id.toString().trim() : '';
+                if (!key) return;
+                if (mergedMap.has(key)) {
+                  mergedMap.get(key).respuestas = { ...mergedMap.get(key).respuestas, ...(t.respuestas || {}) };
+                } else {
+                  mergedMap.set(key, { ...t, respuestas: { ...(t.respuestas || {}) } });
+                }
+              });
+              const todosData = Array.from(mergedMap.values());
+
+              const estudiantesGrupo = todosData.filter(t => {
                 const g = t.grado ? t.grado.toString().trim() : extraerGrupo(t.zipgrade_id);
                 return g === grupo;
               }).sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre, 'es', { sensitivity: 'base' }));
@@ -9102,11 +9126,23 @@
 
             showLoading(true);
             try {
-              const { data: todosData, error } = await supabaseClient.from('eval_estudiantes_notas')
+              const { data: todosDataRaw, error } = await supabaseClient.from('eval_estudiantes_notas')
                 .select('*')
                 .order('periodo', { ascending: true });
 
               if (error) throw error;
+
+              const mergedMap = new Map();
+              (todosDataRaw || []).forEach(t => {
+                const key = t.zipgrade_id ? t.zipgrade_id.toString().trim() + '_' + t.periodo : '';
+                if (!key) return;
+                if (mergedMap.has(key)) {
+                  mergedMap.get(key).respuestas = { ...mergedMap.get(key).respuestas, ...(t.respuestas || {}) };
+                } else {
+                  mergedMap.set(key, { ...t, respuestas: { ...(t.respuestas || {}) } });
+                }
+              });
+              const todosData = Array.from(mergedMap.values());
 
               const estudiantesActuales = todosData.filter(t => extraerGrupo(t.zipgrade_id) === grupo && t.periodo === parseInt(currentPeriodo))
                 .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre, 'es', { sensitivity: 'base' }));
@@ -9262,11 +9298,23 @@
 
             showLoading(true);
             try {
-              const { data: todosData, error } = await supabaseClient.from('eval_estudiantes_notas')
+              const { data: todosDataRaw, error } = await supabaseClient.from('eval_estudiantes_notas')
                 .select('*')
                 .order('periodo', { ascending: true });
 
               if (error) throw error;
+
+              const mergedMap = new Map();
+              (todosDataRaw || []).forEach(t => {
+                const key = t.zipgrade_id ? t.zipgrade_id.toString().trim() + '_' + t.periodo : '';
+                if (!key) return;
+                if (mergedMap.has(key)) {
+                  mergedMap.get(key).respuestas = { ...mergedMap.get(key).respuestas, ...(t.respuestas || {}) };
+                } else {
+                  mergedMap.set(key, { ...t, respuestas: { ...(t.respuestas || {}) } });
+                }
+              });
+              const todosData = Array.from(mergedMap.values());
 
               // 1. Filtrar estudiantes de la sede y rango seleccionado
               const estudiantesSede = todosData.filter(t => {
