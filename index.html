@@ -5096,19 +5096,7 @@
               // 1. Verificar si hay datos en el periodo actual
               const { data: hasData } = await supabaseClient.from('eval_resultados').select('periodo').eq('periodo', currentPeriodo).limit(1);
 
-              if (!hasData || hasData.length === 0) {
-                // 2. Si no hay, buscar el periodo más reciente con datos
-                const { data: latestData } = await supabaseClient.from('eval_resultados').select('periodo').order('periodo', { ascending: false }).limit(1);
-                if (latestData && latestData.length > 0) {
-                  currentPeriodo = latestData[0].periodo;
-                  localStorage.setItem('currentPeriodo', currentPeriodo);
-                  console.log("🔄 Auto-ajustando periodo detectado:", currentPeriodo);
-                  // Actualizar pestañas de periodo en el DOM
-                  document.querySelectorAll('.period-tab').forEach((t, i) => {
-                    t.classList.toggle('active', (i + 1) === currentPeriodo);
-                  });
-                }
-              }
+              // Eliminada la lógica de auto-revertir el periodo, ya que impedía a los usuarios cambiar de periodo si este estaba vacío.
               await cargarGrados();
             } catch (err) {
               console.error("Error en init:", err);
@@ -5545,7 +5533,7 @@
             reader.onload = async (e) => {
               try {
                 const text = e.target.result;
-                const rows = text.split(/\r?\r\n/).filter(r => r.trim() !== "");
+                const rows = text.split(/\r?\n/).filter(r => r.trim() !== "");
 
                 // Saltar cabecera: SEDE;Estudiante;Identificación;ZipGrade_ID
                 const students = [];
@@ -7295,6 +7283,13 @@
 
               periodosDetectados.add(periodoDetectado);
 
+              // Detectar S2 y aplicar offset de +60 a la pregunta
+              let pNumShifted = pNum;
+              const nameLower = (quiz + " " + fileName).toLowerCase();
+              if (nameLower.includes('s2')) {
+                pNumShifted += 60;
+              }
+
               // Detectar grado del nombre del quiz si no hay columna
               let gradoRaw = "0";
               const matchG = quiz.match(/(\d+)/);
@@ -7332,7 +7327,7 @@
                 periodo: periodoDetectado,
                 sede: sedeDetectada,
                 quiz_name: quiz,
-                pregunta_num: pNum,
+                pregunta_num: pNumShifted,
                 key: correctKey,
                 cant_correctas: c_corr,
                 porc_correctas: p_corr,
@@ -7473,9 +7468,17 @@
                 if (pFile !== currentPeriodo) periodoDetectado = pFile;
               }
 
+              const quizNameRaw = quizName || "";
+              const esParte2 = /_S2/i.test(quizNameRaw) || /_S2/i.test(fileName || '');
+              const offset = esParte2 ? 60 : 0;
+
               const respuestas = {};
-              qCols.forEach((colIdx, i) => {
-                respuestas[i + 1] = parseInt(row[colIdx]) || 0;
+              qCols.forEach((colIdx) => {
+                const match = header[colIdx].toString().trim().match(/^Q(\d+)$/i);
+                if (match) {
+                  const num = parseInt(match[1], 10) + offset;
+                  respuestas[num] = parseInt(row[colIdx]) || 0;
+                }
               });
 
               if (!nombre) continue;
@@ -7507,28 +7510,43 @@
               console.log('💾 Muestra del primer registro:', JSON.stringify(resultadosEstudiantes[0], null, 2));
               console.log('💾 Muestra del último registro:', JSON.stringify(resultadosEstudiantes[resultadosEstudiantes.length - 1], null, 2));
 
-              // Borrado quirúrgico global por archivo: eliminar todos los registros que coincidan con el quiz y periodo
-              const uniqueCombs = [...new Set(resultadosEstudiantes.map(e => `${e.quiz_name}|${e.periodo}`))];
-              console.log('🗑️ [procesarEstudiantes] Combinaciones a borrar:', uniqueCombs);
-              for (const comb of uniqueCombs) {
-                const [q, p] = comb.split('|');
-                console.log(`🗑️ Borrando previos: quiz_name="${q}" periodo=${p}`);
-                const { error: delErr } = await supabaseClient.from('eval_estudiantes_notas')
-                  .delete()
-                  .eq('quiz_name', q)
-                  .eq('periodo', p);
-                if (delErr) console.warn('⚠️ Advertencia al borrar previos:', delErr);
-                else console.log(`✅ Borrado OK para "${q}" (P${p})`);
+              // NOTA: Se eliminó el borrado previo para evitar perder la Parte 1 al subir la Parte 2.
+              // En su lugar, hacemos un merge de respuestas y un UPSERT.
+              const uniquePeriodos = [...new Set(resultadosEstudiantes.map(e => e.periodo))];
+              const zips = resultadosEstudiantes.map(e => e.zipgrade_id);
+              
+              for (const p of uniquePeriodos) {
+                const { data: existingData } = await supabaseClient
+                  .from('eval_estudiantes_notas')
+                  .select('zipgrade_id, respuestas')
+                  .eq('periodo', p)
+                  .in('zipgrade_id', zips);
+                  
+                const existingMap = {};
+                if (existingData) {
+                  existingData.forEach(r => existingMap[r.zipgrade_id] = r);
+                }
+                
+                resultadosEstudiantes.forEach(r => {
+                  if (r.periodo === p) {
+                    const ex = existingMap[r.zipgrade_id];
+                    if (ex && ex.respuestas) {
+                      r.respuestas = { ...ex.respuestas, ...r.respuestas };
+                      r.total_correctas = Object.values(r.respuestas).filter(v => v === 1 || v === '1' || v === true).length;
+                      r.porcentaje = Math.round((r.total_correctas / 120) * 100);
+                    }
+                  }
+                });
               }
 
               // Insertar en lotes de 200 para evitar límites de Supabase
               const BATCH = 200;
               for (let b = 0; b < resultadosEstudiantes.length; b += BATCH) {
                 const lote = resultadosEstudiantes.slice(b, b + BATCH);
-                console.log(`🚀 Insertando lote ${b / BATCH + 1}: estudiantes ${b + 1} al ${Math.min(b + BATCH, resultadosEstudiantes.length)}`);
-                const { error: err, data: insertData } = await supabaseClient.from('eval_estudiantes_notas').insert(lote);
+                console.log(`🚀 Upserting lote ${b / BATCH + 1}: estudiantes ${b + 1} al ${Math.min(b + BATCH, resultadosEstudiantes.length)}`);
+                const { error: err, data: insertData } = await supabaseClient.from('eval_estudiantes_notas').upsert(lote, { onConflict: 'zipgrade_id,periodo,anio' });
                 if (err) {
-                  console.error('❌ Error en insert lote:', err);
+                  console.error('❌ Error en upsert lote:', err);
                   console.error('📄 Primer registro del lote fallido:', JSON.stringify(lote[0], null, 2));
                   throw err;
                 }
@@ -7589,19 +7607,25 @@
                 if (pFile !== currentPeriodo) periodoDetectado = pFile;
               }
 
+              // Detectar S2 para aplicar offset
+              const nameLower = (quizName + " " + fileName).toLowerCase();
+              const isS2 = nameLower.includes('s2');
+
               // Extraer respuestas dinámicamente
               const respuestas = {};
               // Buscamos Stu1, Stu2... en el header
               header.forEach((h, i) => {
                 const match = h.toString().match(/^Stu(\d+)$/i);
                 if (match) {
-                  const qNum = match[1];
+                  let qNum = parseInt(match[1]);
+                  if (isS2) qNum += 60; // Aplicar offset +60 para S2
+                  
                   const stuVal = (row[i] || "").toString().trim();
                   const keyVal = (row[i + 1] || "").toString().trim(); // PriKeyX es la siguiente col
                   const ptsVal = parseFloat(row[i + 2]) || 0;       // PointsX es +2
                   const markVal = (row[i + 3] || "").toString().trim(); // MarkX es +3
 
-                  respuestas[qNum] = {
+                  respuestas[qNum.toString()] = {
                     stu: stuVal,
                     key: keyVal,
                     pts: ptsVal,
@@ -8165,14 +8189,31 @@
               const historicoData = [...(resHistNotas.data || []), ...normComp(resHistComp.data)].sort((a, b) => a.periodo - b.periodo);
               const todosData = [...(resTodosNotas.data || []), ...normComp(resTodosComp.data)];
 
-              // Deduplicar historico por zipgrade_id + periodo
+              // Deduplicar historico por zipgrade_id + periodo (Fusionando respuestas de S1 y S2)
               const histMap = new Map();
-              historicoData.forEach(t => histMap.set(`${t.zipgrade_id}_${t.periodo}`, t));
+              historicoData.forEach(t => {
+                const key = `${t.zipgrade_id}_${t.periodo}`;
+                if (histMap.has(key)) {
+                  const existing = histMap.get(key);
+                  existing.respuestas = { ...existing.respuestas, ...(t.respuestas || {}) };
+                  // También podríamos fusionar porcentaje si fuera necesario, pero las respuestas son lo principal
+                } else {
+                  histMap.set(key, { ...t, respuestas: { ...(t.respuestas || {}) } });
+                }
+              });
               const historico = Array.from(histMap.values());
 
-              // Deduplicar todos por zipgrade_id
+              // Deduplicar todos por zipgrade_id (Fusionando respuestas)
               let todosMap = new Map();
-              todosData.forEach(t => todosMap.set(t.zipgrade_id.toString().trim(), t));
+              todosData.forEach(t => {
+                const key = t.zipgrade_id.toString().trim();
+                if (todosMap.has(key)) {
+                  const existing = todosMap.get(key);
+                  existing.respuestas = { ...existing.respuestas, ...(t.respuestas || {}) };
+                } else {
+                  todosMap.set(key, { ...t, respuestas: { ...(t.respuestas || {}) } });
+                }
+              });
               let todos = Array.from(todosMap.values());
 
               // NO usar fallback por nombre para evitar confusiones entre estudiantes con apellidos iguales.

@@ -43,6 +43,41 @@ export class AdminService {
       }
 
       const client = supabaseDatasource.getClient();
+      
+      // -- Merge con existentes para evitar borrar S1 al subir S2 --
+      try {
+        const zips = resultados.map(r => r.zipgrade_id);
+        const uniquePeriodos = [...new Set(resultados.map(r => r.periodo))];
+        
+        for (const p of uniquePeriodos) {
+          const { data: existingData } = await client
+            .from('eval_estudiantes_notas')
+            .select('zipgrade_id, respuestas, total_correctas, porcentaje')
+            .eq('periodo', p)
+            .in('zipgrade_id', zips);
+            
+          const existingMap = {};
+          if (existingData) {
+            existingData.forEach(r => existingMap[r.zipgrade_id] = r);
+          }
+          
+          resultados.forEach(r => {
+            if (r.periodo === p) {
+              const ex = existingMap[r.zipgrade_id];
+              if (ex && ex.respuestas) {
+                // Unimos las respuestas guardadas (p.ej S1) con las nuevas (p.ej S2)
+                r.respuestas = { ...ex.respuestas, ...r.respuestas };
+                // Recalculamos el total de correctas contando los "1" en el objeto final
+                r.total_correctas = Object.values(r.respuestas).filter(v => v === 1 || v === '1' || v === true).length;
+                r.porcentaje = Math.round((r.total_correctas / 120) * 100);
+              }
+            }
+          });
+        }
+      } catch (e) {
+        console.warn("No se pudieron mergear resultados existentes:", e);
+      }
+      
       const { error } = await client
         .from('eval_estudiantes_notas')
         .upsert(resultados, { onConflict: 'zipgrade_id,periodo,anio' });
