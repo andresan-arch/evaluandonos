@@ -8241,7 +8241,7 @@
                 // Si llegamos aquí, el ID no está en la base de notas.
               }
 
-              const est = historico.find(t => t.periodo === parseInt(currentPeriodo)) || historico[historico.length - 1];
+              const est = historico.find(t => t.periodo === parseInt(currentPeriodo));
               if (!est) {
                 $('reporte-content').innerHTML = `
              <div style="text-align:center; padding:3rem; color:#64748b;">

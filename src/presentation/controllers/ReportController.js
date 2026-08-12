@@ -92,10 +92,12 @@ export class ReportController {
       const client = window.supabaseClient || null;
       if (!client) return;
 
+      const periodo = parseInt(window.currentPeriodo) || 2;
       const { data: resData, error } = await client
         .from('eval_estudiantes_notas')
         .select('*')
         .eq('anio', getCurrentYear())
+        .eq('periodo', periodo)
         .eq('zipgrade_id', zipId);
 
       if (error || !resData || resData.length === 0) {
