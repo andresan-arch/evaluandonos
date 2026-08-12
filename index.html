@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -5879,7 +5879,8 @@
 
             // Refrescar automáticamente la vista activa
             if ($('individual-container').style.display === 'block') {
-              if ($('rep-estudiante').value) generarReporteIndividual();
+              if (isStudentMode && studentId) generarReporteIndividual(studentId);
+              else if ($('rep-estudiante').value) generarReporteIndividual();
               else cargarGradosReporte();
             } else if ($('resultado-container').style.display === 'block') {
               if ($('sel-grado').value && $('sel-asig').value && $('sel-pregunta').value) mostrarAnalisis();
@@ -6089,9 +6090,43 @@
             showLoading(true);
             try {
               // Consultar preguntas del nivel (buscamos por el prefijo numérico del grado)
-              const { data } = await supabaseClient.from('eval_preguntas')
+              let { data } = await supabaseClient.from('eval_preguntas')
                 .select('asignatura, grado')
                 .eq('periodo', currentPeriodo);
+
+              if (!data || data.length === 0) {
+                 // FALLBACK: Usar MATRIZ_RANGOS si no hay preguntas cargadas en la BD
+                 const gBase = extraerGradoBase(nivel);
+                 const esE1 = parseInt(currentPeriodo) === 1;
+                 let key;
+                 if (gBase <= 4) key = '3-4';
+                 else if (gBase === 5) key = '5';
+                 else if (gBase >= 10) key = esE1 ? '10-11-E1' : '10-11-E2E3';
+                 else key = esE1 ? '6-9-E1' : '6-9-E2E3';
+                 const rangos = typeof MATRIZ_RANGOS !== 'undefined' ? MATRIZ_RANGOS[key] : [];
+                 let uniqueFallback = rangos ? rangos.map(r => r.label).sort() : [];
+
+                 if (currentRole !== 'superadmin' && currentRole !== 'admin') {
+                   const assignedLower = (window.assignedGrade || "").toString().toLowerCase();
+                   const gBaseAssigned = extraerGradoBase(window.assignedGrade);
+                   const esDePrimaria = assignedLower === "primaria" || (gBaseAssigned >= 1 && gBaseAssigned <= 5);
+                   const esNivelPrimaria = parseInt(nivel) >= 1 && parseInt(nivel) <= 5;
+                   if (!(esDePrimaria && esNivelPrimaria)) {
+                     const myPermissions = userPermissions
+                       .filter(p => p.tipo === 'ASIGNACION' && extraerGradoBase(p.grado).toString() === nivel.toString())
+                       .map(p => p.asignatura);
+                     uniqueFallback = uniqueFallback.filter(a => checkSubjectPermission(myPermissions, a, parseInt(nivel)));
+                   }
+                 }
+                 const sel = $('sel-asig');
+                 sel.innerHTML = '<option value="">Seleccione asignatura...</option>' + uniqueFallback.map(a => `<option value="${a}">${a}</option>`).join('');
+                 sel.style.borderColor = '#cbd5e1';
+                 sel.style.backgroundColor = 'white';
+                 sel.style.color = '#1e293b';
+                 $('card-asig').style.borderLeftColor = '#e2e8f0';
+                 showLoading(false);
+                 return;
+              }
 
               // Filtrar localmente las que pertenecen al nivel seleccionado (ej: 9 -> 9, 901, 902...)
               let filteredData = data ? data.filter(d => extraerGradoBase(d.grado).toString() === nivel.toString()) : [];
@@ -6189,10 +6224,35 @@
             showLoading(true);
             try {
               // Consultar preguntas usando queryAsig (el nombre real en DB)
-              const { data } = await supabaseClient.from('eval_preguntas')
+              let { data } = await supabaseClient.from('eval_preguntas')
                 .select('pregunta_num').eq('grado', g).eq('periodo', currentPeriodo)
                 .or(`asignatura.eq."${queryAsig}",asignatura.eq."${a}"`) // Intentar ambos por si acaso
                 .order('pregunta_num');
+
+              if (!data || data.length === 0) {
+                 // FALLBACK: Usar MATRIZ_RANGOS si no hay datos
+                 const gBase = extraerGradoBase(g);
+                 const esE1 = parseInt(currentPeriodo) === 1;
+                 let key;
+                 if (gBase <= 4) key = '3-4';
+                 else if (gBase === 5) key = '5';
+                 else if (gBase >= 10) key = esE1 ? '10-11-E1' : '10-11-E2E3';
+                 else key = esE1 ? '6-9-E1' : '6-9-E2E3';
+                 const rangos = typeof MATRIZ_RANGOS !== 'undefined' ? MATRIZ_RANGOS[key] : [];
+                 const rangoAsig = rangos ? rangos.find(r => r.label.toLowerCase() === a.toLowerCase() || r.label.toLowerCase() === queryAsig.toLowerCase()) : null;
+                 
+                 const pSel = $('sel-pregunta');
+                 if (!rangoAsig) {
+                   pSel.innerHTML = '<option value="">Sin preguntas</option>';
+                 } else {
+                   const qs = [];
+                   for (let i = rangoAsig.start; i <= rangoAsig.end; i++) qs.push(i);
+                   pSel.innerHTML = qs.map(p => `<option value="${p}">#${p}</option>`).join('');
+                   mostrarAnalisis();
+                 }
+                 showLoading(false);
+                 return;
+              }
 
               const pSel = $('sel-pregunta');
               const uniqueP = data ? [...new Set(data.map(d => d.pregunta_num))].sort((x, y) => x - y) : [];
@@ -7452,13 +7512,19 @@
               const quizRaw = row[quizIdx] || "";
               const quizName = quizRaw.toString().trim();
 
-              // Obtener grupo del ZipGrade ID o de la columna Class
-              let grupo = _exGrupo(zipId);
-              const classVal = (row[classIdx] || "").toString().trim();
+              // Obtener grupo: prioridad al Class del CSV (refleja el grupo real del quiz)
+              // El ZipGrade ID siempre codifica el grupo original del estudiante (fijo),
+              // pero la columna Class del CSV indica el grupo donde presentó ESTE quiz.
+              // Normalizar Class: ZipGrade exporta '11-01' pero el sistema usa '1101'
+              const classRaw = (row[classIdx] || "").toString().trim();
+              const classVal = classRaw.replace(/^(\d{1,2})-(\d{2})$/, '$1$2'); // '11-01' → '1101', '6-01' → '601'
+              let grupo = _exGrupo(zipId); // fallback: grupo del ID
 
-              // Si el ID no nos dio un grupo claro pero la columna Class sí, usamos Class
-              if (!_esValido(grupo)) {
-                if (_esValido(classVal)) grupo = classVal;
+              // Si Class tiene un grupo válido, usarlo como grupo real del período
+              if (_esValido(classVal)) {
+                grupo = classVal;
+              } else if (!_esValido(grupo)) {
+                // Si ni el ID ni el Class dan un grupo válido, descartar
               }
 
               if (!_esValido(grupo)) continue; // Ignorar si el grupo no es válido
@@ -7595,16 +7661,19 @@
               const name = ((row[lNameIdx] || "").trim() + " " + (row[fNameIdx] || "").trim()).trim();
               const studentId = (row[stdIdIdx] || "").trim();
 
-              let grupo = extraerGrupo(studentId);
-              const classVal = classIdx !== -1 ? (row[classIdx] || "").toString().trim() : "";
+              // Obtener grupo: prioridad al Class del CSV (refleja el grupo real del quiz)
+              // El ZipGrade ID codifica el grupo original (fijo), pero Class indica
+              // el grupo donde el estudiante presentó ESTE quiz específico.
+              // Normalizar Class: ZipGrade exporta '11-01' pero el sistema usa '1101'
+              const classRaw = classIdx !== -1 ? (row[classIdx] || "").toString().trim() : "";
+              const classVal = classRaw.replace(/^(\d{1,2})-(\d{2})$/, '$1$2'); // '11-01' → '1101'
+              let grupo = extraerGrupo(studentId); // fallback: grupo del ID
 
-              // Si el ID no nos dio un grupo claro pero la columna Class sí, usamos Class
-              if (!esGrupoValido(grupo)) {
-                if (esGrupoValido(classVal)) {
-                  grupo = classVal;
-                } else if (classVal) {
-                  grupo = classVal;
-                }
+              // Si Class tiene un grupo válido, usarlo como grupo real del período
+              if (esGrupoValido(classVal)) {
+                grupo = classVal;
+              } else if (!esGrupoValido(grupo)) {
+                if (classRaw) grupo = classRaw; // último fallback: usar Class tal como viene
               }
 
               const sede = detectarSede(grupo);
@@ -8355,7 +8424,7 @@
           function construirHTMLBoletin(est, puesto, total, puestosMaterias, config, historico = [], puestoNivel = null, totalNivel = null) {
 
             const curP = parseInt(est.periodo) || 1;
-            const gBase = extraerGradoBase(extraerGrupo(est.zipgrade_id));
+            const gBase = extraerGradoBase(est.grado ? est.grado.toString().trim() : extraerGrupo(est.zipgrade_id));
             const gNombre = gBase <= 5 ? "Primaria" : (gBase <= 9 ? "Básica" : "Media");
 
             // Mapeo histórico por materia
@@ -9223,8 +9292,11 @@
             try {
               const todosData = await obtenerDatosCompletosHistorico();
 
-              const estudiantesActuales = todosData.filter(t => extraerGrupo(t.zipgrade_id) === grupo && t.periodo === parseInt(currentPeriodo))
-                .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre, 'es', { sensitivity: 'base' }));
+              const estudiantesActuales = todosData.filter(t => {
+                if (t.periodo !== parseInt(currentPeriodo)) return false;
+                const gEst = t.grado ? t.grado.toString().trim() : extraerGrupo(t.zipgrade_id);
+                return gEst === grupo;
+              }).sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre, 'es', { sensitivity: 'base' }));
 
               if (estudiantesActuales.length === 0) {
                 printWindow.close();
@@ -9233,7 +9305,11 @@
               }
 
               const gNum = extraerGradoBase(grupo);
-              const estudiantesNivel = todosData.filter(t => t.periodo === parseInt(currentPeriodo) && extraerGradoBase(extraerGrupo(t.zipgrade_id)) === gNum);
+              const estudiantesNivel = todosData.filter(t => {
+                if (t.periodo !== parseInt(currentPeriodo)) return false;
+                const gEst = t.grado ? t.grado.toString().trim() : extraerGrupo(t.zipgrade_id);
+                return extraerGradoBase(gEst) === gNum;
+              });
               const sortedNivel = [...estudiantesNivel].sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
 
               const esE1 = parseInt(currentPeriodo) === 1;
@@ -9387,8 +9463,9 @@
               // 1. Filtrar estudiantes de la sede y rango seleccionado
               const estudiantesSede = todosData.filter(t => {
                 if (t.periodo !== parseInt(currentPeriodo)) return false;
-                if (detectarSede(extraerGrupo(t.zipgrade_id)) !== sede) return false;
-                const g = extraerGradoBase(extraerGrupo(t.zipgrade_id));
+                const gEst = t.grado ? t.grado.toString().trim() : extraerGrupo(t.zipgrade_id);
+                if (detectarSede(gEst) !== sede) return false;
+                const g = extraerGradoBase(gEst);
                 if (rango === 'basica') return g >= 3 && g <= 9;
                 if (rango === 'superior') return g >= 10;
                 return true;
@@ -9399,10 +9476,10 @@
                 return alert(`No hay datos para el rango ${desc} en la sede "${sede}".`);
               }
 
-              // 2. Agrupar por grupo para calcular puestos
+              // 2. Agrupar por grupo para calcular puestos (usando t.grado para respetar cambios de grupo entre períodos)
               const gruposMap = {};
               estudiantesSede.forEach(a => {
-                const g = extraerGrupo(a.zipgrade_id);
+                const g = a.grado ? a.grado.toString().trim() : extraerGrupo(a.zipgrade_id);
                 if (!gruposMap[g]) gruposMap[g] = [];
                 gruposMap[g].push(a);
               });
@@ -9414,7 +9491,11 @@
               for (const grupo of gruposOrdenados) {
                 const estudiantesGrupo = gruposMap[grupo];
                 const gNum = extraerGradoBase(grupo);
-                const estudiantesNivel = todosData.filter(t => t.periodo === parseInt(currentPeriodo) && extraerGradoBase(extraerGrupo(t.zipgrade_id)) === gNum);
+                const estudiantesNivel = todosData.filter(t => {
+                  if (t.periodo !== parseInt(currentPeriodo)) return false;
+                  const gEst = t.grado ? t.grado.toString().trim() : extraerGrupo(t.zipgrade_id);
+                  return extraerGradoBase(gEst) === gNum;
+                });
                 const sortedNivel = [...estudiantesNivel].sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
 
                 const esE1 = parseInt(currentPeriodo) === 1;
