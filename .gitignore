@@ -11,3 +11,5 @@
 evaluandonos.sg
 backticks.txt
 csv/
+.vercel
+.env*

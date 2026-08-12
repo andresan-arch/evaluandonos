@@ -11,15 +11,18 @@ export class ReportService {
    * Procesa los datos de un estudiante para el reporte individual
    * @param {Object} estudiante - Datos del estudiante y sus respuestas
    * @param {number} gBase - Grado base
+   * @param {number} [periodo=2] - Periodo: 1=E1 (hoja unica), 2+=E2E3 (doble hoja)
    * @returns {Object} Datos formateados para el reporte individual
    */
-  static procesarReporteIndividual(estudiante, gBase) {
+  static procesarReporteIndividual(estudiante, gBase, periodo = 2) {
     if (!estudiante) return null;
 
-    let mKey = '6-9';
+    const esE1 = periodo === 1;
+    let mKey;
     if (gBase <= 4) mKey = '3-4';
     else if (gBase === 5) mKey = '5';
-    else if (gBase >= 10) mKey = '10-11';
+    else if (gBase >= 10) mKey = esE1 ? '10-11-E1' : '10-11-E2E3';
+    else mKey = esE1 ? '6-9-E1' : '6-9-E2E3';
 
     const config = MATRIZ_RANGOS[mKey] || [];
     const asignaturasReporte = [];
@@ -78,15 +81,18 @@ export class ReportService {
    * Procesa las respuestas de un grupo para el reporte grupal
    * @param {Array} alumnosGrupo - Alumnos pertenecientes al grupo
    * @param {number} gBase - Grado base
+   * @param {number} [periodo=2] - Periodo: 1=E1 (hoja unica), 2+=E2E3 (doble hoja)
    * @returns {Object} Datos procesados para el reporte grupal
    */
-  static procesarReporteGrupal(alumnosGrupo, gBase) {
+  static procesarReporteGrupal(alumnosGrupo, gBase, periodo = 2) {
     if (!alumnosGrupo || alumnosGrupo.length === 0) return null;
 
-    let mKey = '6-9';
+    const esE1 = periodo === 1;
+    let mKey;
     if (gBase <= 4) mKey = '3-4';
     else if (gBase === 5) mKey = '5';
-    else if (gBase >= 10) mKey = '10-11';
+    else if (gBase >= 10) mKey = esE1 ? '10-11-E1' : '10-11-E2E3';
+    else mKey = esE1 ? '6-9-E1' : '6-9-E2E3';
 
     const config = MATRIZ_RANGOS[mKey] || [];
     const totalPreguntas = config.reduce((acc, curr) => acc + (curr.end - curr.start + 1), 0);
@@ -155,19 +161,22 @@ export class ReportService {
    * Procesa los promedios por sede para el reporte por asignatura
    * @param {Array} alumnosNivel - Todos los alumnos del nivel/grado base
    * @param {number} gBase - Grado base
+   * @param {number} [periodo=2] - Periodo: 1=E1 (hoja unica), 2+=E2E3 (doble hoja)
    * @returns {Object} Datasets y etiquetas para el gráfico
    */
-  static procesarComparativoSedes(alumnosNivel, gBase) {
+  static procesarComparativoSedes(alumnosNivel, gBase, periodo = 2) {
     if (!alumnosNivel || alumnosNivel.length === 0) return null;
 
     const sedesUnicas = [...new Set(alumnosNivel.map(d => detectarSede(d.zipgrade_id || '')))]
       .filter(s => s)
       .sort((a, b) => a.localeCompare(b));
 
-    let mKey = '6-9';
+    const esE1 = periodo === 1;
+    let mKey;
     if (gBase <= 4) mKey = '3-4';
     else if (gBase === 5) mKey = '5';
-    else if (gBase >= 10) mKey = '10-11';
+    else if (gBase >= 10) mKey = esE1 ? '10-11-E1' : '10-11-E2E3';
+    else mKey = esE1 ? '6-9-E1' : '6-9-E2E3';
 
     const config = MATRIZ_RANGOS[mKey] || [];
     const labels = config.map(c => c.label);

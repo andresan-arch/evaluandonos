@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -5885,6 +5885,20 @@
               if ($('sel-grado').value && $('sel-asig').value && $('sel-pregunta').value) mostrarAnalisis();
             } else if ($('estadisticas-container').style.display === 'block') {
               cargarEstadisticas();
+            } else if ($('grupal-container').style.display === 'block') {
+              if ($('gru-sel-grado').value) {
+                if (window.reportController && typeof window.reportController.cargarReporteGrupal === 'function') {
+                   window.reportController.cargarReporteGrupal($('gru-sel-grado').value);
+                }
+                generarInformeGrupal(); 
+              } else cargarGruposInformeGrupal();
+            } else if ($('asignatura-container').style.display === 'block') {
+              if ($('asig-sel-grado').value && $('asig-sel-materia').value) {
+                if (window.reportController && typeof window.reportController.cargarReporteAsignatura === 'function') {
+                   window.reportController.cargarReporteAsignatura($('asig-sel-grado').value);
+                }
+                generarInformeAsignatura();
+              } else cargarGruposInformeAsignatura();
             }
           }
 
@@ -7779,7 +7793,12 @@
             sel.innerHTML = '<option value="">Asignatura...</option>';
 
             const gBase = extraerGradoBase(grado);
-            const key = (gBase >= 10) ? '10-11' : (gBase >= 6) ? '6-9' : (gBase >= 5) ? '5' : '3-4';
+            const esE1 = parseInt(currentPeriodo) === 1;
+            let key;
+            if (gBase <= 4) key = '3-4';
+            else if (gBase === 5) key = '5';
+            else if (gBase >= 10) key = esE1 ? '10-11-E1' : '10-11-E2E3';
+            else key = esE1 ? '6-9-E1' : '6-9-E2E3';
             const rangos = MATRIZ_RANGOS[key] || [];
 
             rangos.forEach(r => {
@@ -8276,10 +8295,12 @@
               const puestoNivelFinal = idxN >= 0 ? idxN + 1 : "-";
 
               const gNum = extraerGradoBase(grupoEst);
-              let mKey = '6-9';
-              if (gNum <= 4) mKey = '3-4';
-              else if (gNum === 5) mKey = '5';
-              else if (gNum >= 10) mKey = '10-11';
+              const esE1 = parseInt(currentPeriodo) === 1;
+              let mKey;
+              if (gNum <= 4)       mKey = '3-4';
+              else if (gNum === 5)  mKey = '5';
+              else if (gNum >= 10) mKey = esE1 ? '10-11-E1' : '10-11-E2E3';
+              else                 mKey = esE1 ? '6-9-E1'   : '6-9-E2E3';
               const config = MATRIZ_RANGOS[mKey];
 
               // Calcular puestos por cada asignatura (DENTRO DEL GRUPO)
@@ -8577,13 +8598,69 @@
             });
           }
 
+
+          async function fetchAllSupabase(table, filterFn = (q) => q) {
+            let allData = [];
+            let from = 0;
+            let step = 999;
+            while(true) {
+              let query = supabaseClient.from(table).select('*');
+              query = filterFn(query);
+              const { data, error } = await query.range(from, from + step);
+              if (error) { console.error("Pagination error:", error); break; }
+              if (!data || data.length === 0) break;
+              allData = allData.concat(data);
+              if (data.length <= step) break;
+              from += step + 1;
+            }
+            return allData;
+          }
+
+          async function obtenerDatosCompletos(periodoObj) {
+            const [notasData, compData] = await Promise.all([
+              fetchAllSupabase('eval_estudiantes_notas', q => q.eq('periodo', periodoObj)),
+              fetchAllSupabase('eval_estudiantes_completos', q => q.eq('periodo', periodoObj))
+            ]);
+            const resNotas = { data: notasData };
+            const resComp = { data: compData };
+            const normComp = (list) => (list || []).map(d => {
+              const nr = {};
+              if (d.respuestas) Object.keys(d.respuestas).forEach(q => { nr[q] = d.respuestas[q].pts >= 1 ? 1 : 0; });
+              return { 
+                zipgrade_id: d.student_id, 
+                estudiante_nombre: d.estudiante_nombre, 
+                respuestas: nr, 
+                porcentaje: d.percent_correct, 
+                periodo: d.periodo, 
+                grado: d.grado 
+              };
+            });
+            const todosDataRaw = [...(resNotas.data || []), ...normComp(resComp.data)];
+
+            const mergedMap = new Map();
+            todosDataRaw.forEach(t => {
+              const key = t.zipgrade_id ? t.zipgrade_id.toString().trim() : '';
+              if (!key) return;
+              if (mergedMap.has(key)) {
+                mergedMap.get(key).respuestas = { ...mergedMap.get(key).respuestas, ...(t.respuestas || {}) };
+              } else {
+                mergedMap.set(key, { ...t, respuestas: { ...(t.respuestas || {}) } });
+              }
+            });
+            return Array.from(mergedMap.values());
+          }
+
           async function cargarGruposInformeGrupal() {
             showLoading(true);
             try {
               // Consultar solo Notas para asegurar la consistencia sin duplicados
-              const { data: resNotas } = await supabaseClient.from('eval_estudiantes_notas').select('grado').eq('periodo', currentPeriodo);
+              const [resNotas, resComp] = await Promise.all([
+                supabaseClient.from('eval_estudiantes_notas').select('grado').eq('periodo', currentPeriodo),
+                supabaseClient.from('eval_estudiantes_completos').select('grado').eq('periodo', currentPeriodo)
+              ]);
+              const combinedGroups = [...(resNotas.data || []), ...(resComp.data || [])];
 
-              const groupsNotas = resNotas ? resNotas.map(d => d.grado.toString()) : [];
+              const groupsNotas = combinedGroups.map(d => (d.grado || '').toString());
               let uniqueGroups = [...new Set(groupsNotas)].filter(esGrupoValido);
 
               if (currentRole !== 'superadmin') {
@@ -8624,20 +8701,7 @@
             if (!grupo) return;
             showLoading(true);
             try {
-              const { data: todosDataRaw, error } = await supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo);
-              if (error) throw error;
-
-              const mergedMap = new Map();
-              (todosDataRaw || []).forEach(t => {
-                const key = t.zipgrade_id ? t.zipgrade_id.toString().trim() : '';
-                if (!key) return;
-                if (mergedMap.has(key)) {
-                  mergedMap.get(key).respuestas = { ...mergedMap.get(key).respuestas, ...(t.respuestas || {}) };
-                } else {
-                  mergedMap.set(key, { ...t, respuestas: { ...(t.respuestas || {}) } });
-                }
-              });
-              const todosData = Array.from(mergedMap.values());
+              const todosData = await obtenerDatosCompletos(currentPeriodo);
 
               const estudiantesGrupo = todosData.filter(t => {
                 const g = t.grado ? t.grado.toString().trim() : extraerGrupo(t.zipgrade_id);
@@ -8651,8 +8715,12 @@
               }
 
               const gNum = extraerGradoBase(grupo);
-              let mKey = '6-9';
-              if (gNum <= 4) mKey = '3-4'; else if (gNum === 5) mKey = '5'; else if (gNum >= 10) mKey = '10-11';
+              const esE1 = parseInt(currentPeriodo) === 1;
+              let mKey;
+              if (gNum <= 4)       mKey = '3-4';
+              else if (gNum === 5)  mKey = '5';
+              else if (gNum >= 10) mKey = esE1 ? '10-11-E1' : '10-11-E2E3';
+              else                 mKey = esE1 ? '6-9-E1'   : '6-9-E2E3';
               let config = MATRIZ_RANGOS[mKey];
 
               let profesMap = {};
@@ -8862,8 +8930,12 @@
             const grupo = $('asig-sel-grado').value;
             if (!grupo) return;
             const gNum = extraerGradoBase(grupo);
-            let mKey = '6-9';
-            if (gNum <= 4) mKey = '3-4'; else if (gNum === 5) mKey = '5'; else if (gNum >= 10) mKey = '10-11';
+            const esE1 = parseInt(currentPeriodo) === 1;
+            let mKey;
+            if (gNum <= 4)       mKey = '3-4';
+            else if (gNum === 5)  mKey = '5';
+            else if (gNum >= 10) mKey = esE1 ? '10-11-E1' : '10-11-E2E3';
+            else                 mKey = esE1 ? '6-9-E1'   : '6-9-E2E3';
             const configFull = MATRIZ_RANGOS[mKey];
             let uniqueAsig = [...new Set(configFull.map(m => m.label))];
 
@@ -8889,20 +8961,7 @@
 
             showLoading(true);
             try {
-              const { data: todosDataRaw, error } = await supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', currentPeriodo);
-              if (error) throw error;
-
-              const mergedMap = new Map();
-              (todosDataRaw || []).forEach(t => {
-                const key = t.zipgrade_id ? t.zipgrade_id.toString().trim() : '';
-                if (!key) return;
-                if (mergedMap.has(key)) {
-                  mergedMap.get(key).respuestas = { ...mergedMap.get(key).respuestas, ...(t.respuestas || {}) };
-                } else {
-                  mergedMap.set(key, { ...t, respuestas: { ...(t.respuestas || {}) } });
-                }
-              });
-              const todosData = Array.from(mergedMap.values());
+              const todosData = await obtenerDatosCompletos(currentPeriodo);
 
               const estudiantesGrupo = todosData.filter(t => {
                 const g = t.grado ? t.grado.toString().trim() : extraerGrupo(t.zipgrade_id);
@@ -8915,8 +8974,12 @@
               }
 
               const gNum = extraerGradoBase(grupo);
-              let mKey = '6-9';
-              if (gNum <= 4) mKey = '3-4'; else if (gNum === 5) mKey = '5'; else if (gNum >= 10) mKey = '10-11';
+              const esE1 = parseInt(currentPeriodo) === 1;
+              let mKey;
+              if (gNum <= 4)       mKey = '3-4';
+              else if (gNum === 5)  mKey = '5';
+              else if (gNum >= 10) mKey = esE1 ? '10-11-E1' : '10-11-E2E3';
+              else                 mKey = esE1 ? '6-9-E1'   : '6-9-E2E3';
               const configFull = MATRIZ_RANGOS[mKey];
 
               // Mapeo de materias seleccionadas
@@ -9112,6 +9175,38 @@
             setTimeout(() => printWindow.print(), 500);
           }
 
+          async function obtenerDatosCompletosHistorico() {
+            const [resNotas, resComp] = await Promise.all([
+              supabaseClient.from('eval_estudiantes_notas').select('*').order('periodo', { ascending: true }),
+              supabaseClient.from('eval_estudiantes_completos').select('*').order('periodo', { ascending: true })
+            ]);
+            const normComp = (list) => (list || []).map(d => {
+              const nr = {};
+              if (d.respuestas) Object.keys(d.respuestas).forEach(q => { nr[q] = d.respuestas[q].pts >= 1 ? 1 : 0; });
+              return { 
+                zipgrade_id: d.student_id, 
+                estudiante_nombre: d.estudiante_nombre, 
+                respuestas: nr, 
+                porcentaje: d.percent_correct, 
+                periodo: d.periodo, 
+                grado: d.grado 
+              };
+            });
+            const todosDataRaw = [...(resNotas.data || []), ...normComp(resComp.data)];
+
+            const mergedMap = new Map();
+            todosDataRaw.forEach(t => {
+              const key = t.zipgrade_id ? t.zipgrade_id.toString().trim() + '_' + t.periodo : '';
+              if (!key) return;
+              if (mergedMap.has(key)) {
+                mergedMap.get(key).respuestas = { ...mergedMap.get(key).respuestas, ...(t.respuestas || {}) };
+              } else {
+                mergedMap.set(key, { ...t, respuestas: { ...(t.respuestas || {}) } });
+              }
+            });
+            return Array.from(mergedMap.values());
+          }
+
           async function imprimirTodoElGrado() {
             const grupo = $('rep-grado').value;
             if (!grupo) return;
@@ -9126,23 +9221,7 @@
 
             showLoading(true);
             try {
-              const { data: todosDataRaw, error } = await supabaseClient.from('eval_estudiantes_notas')
-                .select('*')
-                .order('periodo', { ascending: true });
-
-              if (error) throw error;
-
-              const mergedMap = new Map();
-              (todosDataRaw || []).forEach(t => {
-                const key = t.zipgrade_id ? t.zipgrade_id.toString().trim() + '_' + t.periodo : '';
-                if (!key) return;
-                if (mergedMap.has(key)) {
-                  mergedMap.get(key).respuestas = { ...mergedMap.get(key).respuestas, ...(t.respuestas || {}) };
-                } else {
-                  mergedMap.set(key, { ...t, respuestas: { ...(t.respuestas || {}) } });
-                }
-              });
-              const todosData = Array.from(mergedMap.values());
+              const todosData = await obtenerDatosCompletosHistorico();
 
               const estudiantesActuales = todosData.filter(t => extraerGrupo(t.zipgrade_id) === grupo && t.periodo === parseInt(currentPeriodo))
                 .sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre, 'es', { sensitivity: 'base' }));
@@ -9157,10 +9236,12 @@
               const estudiantesNivel = todosData.filter(t => t.periodo === parseInt(currentPeriodo) && extraerGradoBase(extraerGrupo(t.zipgrade_id)) === gNum);
               const sortedNivel = [...estudiantesNivel].sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
 
-              let mKey = '6-9';
-              if (gNum <= 4) mKey = '3-4';
-              else if (gNum === 5) mKey = '5';
-              else if (gNum >= 10) mKey = '10-11';
+              const esE1 = parseInt(currentPeriodo) === 1;
+              let mKey;
+              if (gNum <= 4)       mKey = '3-4';
+              else if (gNum === 5)  mKey = '5';
+              else if (gNum >= 10) mKey = esE1 ? '10-11-E1' : '10-11-E2E3';
+              else                 mKey = esE1 ? '6-9-E1'   : '6-9-E2E3';
               const config = MATRIZ_RANGOS[mKey];
 
               const historicosMap = {};
@@ -9273,8 +9354,10 @@
                     });
                   } catch (e) { console.error("Error initing charts:", e); }
                 }
-                window.onload = () => {
-                  initCharts();
+                                window.onload = () => {
+                  try {
+                    initCharts();
+                  } catch (e) { console.error(e); }
                   setTimeout(() => window.print(), 1000);
                 };
               ${sEnd}
@@ -9298,23 +9381,8 @@
 
             showLoading(true);
             try {
-              const { data: todosDataRaw, error } = await supabaseClient.from('eval_estudiantes_notas')
-                .select('*')
-                .order('periodo', { ascending: true });
 
-              if (error) throw error;
-
-              const mergedMap = new Map();
-              (todosDataRaw || []).forEach(t => {
-                const key = t.zipgrade_id ? t.zipgrade_id.toString().trim() + '_' + t.periodo : '';
-                if (!key) return;
-                if (mergedMap.has(key)) {
-                  mergedMap.get(key).respuestas = { ...mergedMap.get(key).respuestas, ...(t.respuestas || {}) };
-                } else {
-                  mergedMap.set(key, { ...t, respuestas: { ...(t.respuestas || {}) } });
-                }
-              });
-              const todosData = Array.from(mergedMap.values());
+              const todosData = await obtenerDatosCompletosHistorico();
 
               // 1. Filtrar estudiantes de la sede y rango seleccionado
               const estudiantesSede = todosData.filter(t => {
@@ -9349,10 +9417,12 @@
                 const estudiantesNivel = todosData.filter(t => t.periodo === parseInt(currentPeriodo) && extraerGradoBase(extraerGrupo(t.zipgrade_id)) === gNum);
                 const sortedNivel = [...estudiantesNivel].sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
 
-                let mKey = '6-9';
-                if (gNum <= 4) mKey = '3-4';
-                else if (gNum === 5) mKey = '5';
-                else if (gNum >= 10) mKey = '10-11';
+                const esE1 = parseInt(currentPeriodo) === 1;
+                let mKey;
+                if (gNum <= 4)       mKey = '3-4';
+                else if (gNum === 5)  mKey = '5';
+                else if (gNum >= 10) mKey = esE1 ? '10-11-E1' : '10-11-E2E3';
+                else                 mKey = esE1 ? '6-9-E1'   : '6-9-E2E3';
                 const config = MATRIZ_RANGOS[mKey];
                 const isSuperior = gNum >= 10;
 
@@ -9478,15 +9548,10 @@
           async function cargarEstadisticas() {
             showLoading(true);
             try {
-              const { data, error } = await supabaseClient.from('eval_estudiantes_notas')
-                .select('*')
-                .eq('periodo', currentPeriodo);
-
-              if (error) throw error;
-              let dataTemp = data || [];
+              let dataTemp = await obtenerDatosCompletos(currentPeriodo);
 
               if (dataTemp.length === 0 && currentPeriodo === 2) {
-                const { data: fallbackData } = await supabaseClient.from('eval_estudiantes_notas').select('*').eq('periodo', 1);
+                const fallbackData = await obtenerDatosCompletos(1);
                 if (fallbackData && fallbackData.length > 0) dataTemp = fallbackData;
               }
 
@@ -9697,8 +9762,12 @@
 
             const estudiantes = dataPeriodoActual.filter(d => extraerGrupo(d.zipgrade_id) === grupo);
             const gNum = extraerGradoBase(grupo);
-            let mKey = '6-9';
-            if (gNum <= 4) mKey = '3-4'; else if (gNum === 5) mKey = '5'; else if (gNum >= 10) mKey = '10-11';
+            const esE1 = parseInt(currentPeriodo) === 1;
+            let mKey;
+            if (gNum <= 4)       mKey = '3-4';
+            else if (gNum === 5)  mKey = '5';
+            else if (gNum >= 10) mKey = esE1 ? '10-11-E1' : '10-11-E2E3';
+            else                 mKey = esE1 ? '6-9-E1'   : '6-9-E2E3';
             const config = MATRIZ_RANGOS[mKey];
 
             const labels = config.map(c => c.label);
@@ -9773,8 +9842,12 @@
             if (sedesUnicas.length === 0) return;
 
             // 3. Determinar configuración de materias
-            let mKey = '6-9';
-            if (gBase <= 4) mKey = '3-4'; else if (gBase === 5) mKey = '5'; else if (gBase >= 10) mKey = '10-11';
+            const esE1 = parseInt(currentPeriodo) === 1;
+            let mKey;
+            if (gBase <= 4)       mKey = '3-4';
+            else if (gBase === 5)  mKey = '5';
+            else if (gBase >= 10) mKey = esE1 ? '10-11-E1' : '10-11-E2E3';
+            else                  mKey = esE1 ? '6-9-E1'   : '6-9-E2E3';
             const config = MATRIZ_RANGOS[mKey];
             const labels = config.map(c => c.label);
 
@@ -9861,8 +9934,12 @@
 
             const gruposUnicos = [...new Set(estudiantesNivel.map(d => extraerGrupo(d.zipgrade_id)))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
-            let mKey = '6-9';
-            if (gBase <= 4) mKey = '3-4'; else if (gBase === 5) mKey = '5'; else if (gBase >= 10) mKey = '10-11';
+            const esE1 = parseInt(currentPeriodo) === 1;
+            let mKey;
+            if (gBase <= 4)       mKey = '3-4';
+            else if (gBase === 5)  mKey = '5';
+            else if (gBase >= 10) mKey = esE1 ? '10-11-E1' : '10-11-E2E3';
+            else                  mKey = esE1 ? '6-9-E1'   : '6-9-E2E3';
             const config = MATRIZ_RANGOS[mKey];
             const labels = config.map(c => c.label);
 

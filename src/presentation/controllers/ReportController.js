@@ -105,7 +105,8 @@ export class ReportController {
 
       const grupo = resData[0].grado || resData[0].zipgrade_id || '';
       const gBase = extraerGradoBase(grupo);
-      const dataProcesada = ReportService.procesarReporteIndividual(resData[0], gBase);
+      const periodo = parseInt(window.currentPeriodo) || 2;
+      const dataProcesada = ReportService.procesarReporteIndividual(resData[0], gBase, periodo);
       this.renderReporteIndividual(dataProcesada);
     } catch (err) {
       console.error('Error al cargar reporte individual por zipId:', err);
@@ -211,7 +212,8 @@ export class ReportController {
       }
 
       const baseGrade = extraerGradoBase(grupo);
-      const resGrupal = ReportService.procesarReporteGrupal(filtered, baseGrade);
+      const periodo = parseInt(window.currentPeriodo) || 2;
+      const resGrupal = ReportService.procesarReporteGrupal(filtered, baseGrade, periodo);
       this.renderReporteGrupal(grupo, resGrupal);
     } catch (err) {
       console.error('Error al cargar reporte grupal:', err);
@@ -300,7 +302,7 @@ export class ReportController {
         return;
       }
 
-      const comparativo = ReportService.procesarComparativoSedes(data, gradoBase);
+      const comparativo = ReportService.procesarComparativoSedes(data, gradoBase, parseInt(window.currentPeriodo) || 2);
       this.renderReporteAsignatura(gradoBase, comparativo);
     } catch (err) {
       console.error('Error al cargar reporte de asignatura:', err);
