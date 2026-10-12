@@ -8027,7 +8027,8 @@
             for (let i = start; i <= end; i++) {
               const opt = document.createElement('option');
               opt.value = i;
-              opt.textContent = i;
+              const displayNum = (parseInt(currentPeriodo) >= 2 && i > 60) ? (i - 60) : i;
+              opt.textContent = displayNum;
               sel.appendChild(opt);
             }
 
@@ -8057,7 +8058,7 @@
                 .select('*')
                 .eq('grado', gBase)
                 .eq('periodo', currentPeriodo)
-                .or(`asignatura.ilike."${queryAsig}",asignatura.ilike."${asigLabel}"`)
+                .or(`asignatura.ilike."${queryAsig}",asignatura.ilike."${asigLabel}",asignatura.ilike."%${asigLabel}%"`)
                 .eq('pregunta_num', qNum)
                 .limit(1);
 
@@ -8101,12 +8102,13 @@
 
               const respKey = keyFound ? keyFound.trim().toUpperCase() : null;
 
-              // Renderizar Título e Información
-              $('est-det-pregunta-num').innerText = `Pregunta #${qNum} - ${asigLabel}`;
+              // Renderizar Título e Información con número físico del examen
+              const displayNum = (parseInt(currentPeriodo) >= 2 && parseInt(qNum) > 60) ? (parseInt(qNum) - 60) : qNum;
+              $('est-det-pregunta-num').innerText = `Pregunta #${displayNum} - ${asigLabel}`;
 
               // Texto e Imagen Pregunta (ID CORREGIDOS)
               const txtPreg = qData ? qData.texto_pregunta : "Pregunta no encontrada en el banco.";
-              renderMedia('est-det-pregunta-texto', 'est-det-pregunta-media', txtPreg, gBase, asigLabel, qNum);
+              renderMedia('est-det-pregunta-texto', 'est-det-pregunta-media', txtPreg, gBase, asigLabel, displayNum);
 
               // Opciones
               const opts = ['a', 'b', 'c', 'd'];
@@ -8118,7 +8120,7 @@
 
                 if (qData) {
                   const content = qData[`opcion_${o}`];
-                  renderMedia(`est-txt-${o}`, `est-media-opt-${o}`, content, gBase, asigLabel, qNum, o);
+                  renderMedia(`est-txt-${o}`, `est-media-opt-${o}`, content, gBase, asigLabel, displayNum, o);
                 } else {
                   if (txt) txt.innerHTML = "(Sin texto)";
                   if ($(`est-media-opt-${o}`)) $(`est-media-opt-${o}`).innerHTML = "";
