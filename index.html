@@ -5397,6 +5397,102 @@
 
           // Variables globales movidas al inicio del script.
 
+          /**
+           * Normaliza un string de asignatura para comparacion tolerante.
+           * Elimina tildes, convierte a mayusculas y recorta espacios.
+           */
+          function normAsig(str) {
+            return (str || '').toString()
+              .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+              .toUpperCase().trim();
+          }
+
+          /**
+           * Mapa de equivalencias entre nombres de asignaturas en la BD
+           * y sus labels visuales en la UI.
+           */
+          const ASIG_EQUIVALENCIAS = {
+            'CIENCIAS NATURALES': ['BIOLOGIA', 'CIENCIAS NATURALES', 'NATURALES'],
+            'BIOLOGIA':           ['BIOLOGIA', 'CIENCIAS NATURALES', 'NATURALES'],
+            'MATEMATICAS':        ['MATEMATICAS', 'CALCULO', 'TRIGONOMETRIA'],
+            'CALCULO':            ['MATEMATICAS', 'CALCULO', 'TRIGONOMETRIA'],
+            'TRIGONOMETRIA':      ['MATEMATICAS', 'CALCULO', 'TRIGONOMETRIA'],
+            'LENGUAJE':           ['LENGUAJE', 'LECTURA CRITICA', 'ESPANOL', 'LECTO'],
+            'LECTURA CRITICA':    ['LENGUAJE', 'LECTURA CRITICA', 'ESPANOL', 'LECTO'],
+            'ESPANOL':            ['LENGUAJE', 'LECTURA CRITICA', 'ESPANOL', 'LECTO'],
+            'LECTO':              ['LENGUAJE', 'LECTURA CRITICA', 'ESPANOL', 'LECTO'],
+            'CIENCIAS SOCIALES':  ['CIENCIAS SOCIALES', 'SOCIALES'],
+            'SOCIALES':           ['CIENCIAS SOCIALES', 'SOCIALES'],
+            'COMPETENCIAS CIUDADANAS': ['COMPETENCIAS CIUDADANAS', 'COMPETENCIAS', 'CIUDADANAS'],
+            'COMPETENCIAS':       ['COMPETENCIAS CIUDADANAS', 'COMPETENCIAS', 'CIUDADANAS'],
+            'FISICA':             ['FISICA'],
+            'QUIMICA':            ['QUIMICA'],
+            'INGLES':             ['INGLES'],
+            'FILOSOFIA':          ['FILOSOFIA'],
+            'ETICA':              ['ETICA']
+          };
+
+          /**
+           * Verifica si una asignatura del docente cubre el label visual de la UI.
+           * Tolerante a mapeos: Ciencias Naturales <-> Biologia, Lenguaje <-> Lectura Critica, etc.
+           * @param {string[]} myPermissions - Asignaturas del docente (nombres de BD)
+           * @param {string}   asigLabel     - Label visual de la asignatura en la UI
+           * @param {number}   gNum          - Numero de grado base
+           * @returns {boolean}
+           */
+          function checkSubjectPermission(myPermissions, asigLabel, gNum) {
+            if (!myPermissions || myPermissions.length === 0) return false;
+            const labelNorm = normAsig(asigLabel);
+
+            return myPermissions.some(function(perm) {
+              var permNorm = normAsig(perm);
+
+              // Coincidencia exacta normalizada
+              if (permNorm === labelNorm) return true;
+
+              // Coincidencia mediante tabla de equivalencias
+              var equivalentes = ASIG_EQUIVALENCIAS[permNorm] || [];
+              if (equivalentes.indexOf(labelNorm) !== -1) return true;
+
+              // Coincidencia inversa
+              var equivalentesLabel = ASIG_EQUIVALENCIAS[labelNorm] || [];
+              if (equivalentesLabel.indexOf(permNorm) !== -1) return true;
+
+              return false;
+            });
+          }
+
+          /**
+           * Determina si una asignatura de la BD es evaluada en el sistema.
+           * Excluye ETICA (marca de director) y asignaturas no evaluadas.
+           * @param {string} asignatura - Nombre de asignatura en BD
+           * @param {string|number} grado - Grupo o grado (ej: '602', 6)
+           * @returns {boolean}
+           */
+          function isSubjectEvaluated(asignatura, grado) {
+            if (!asignatura) return false;
+            var norm = normAsig(asignatura);
+
+            // ETICA es la marca de director, no es asignatura evaluada
+            if (norm === 'ETICA') return false;
+
+            // Lista de asignaturas evaluadas en el sistema
+            var evaluadas = [
+              'MATEMATICAS', 'CALCULO', 'TRIGONOMETRIA',
+              'LENGUAJE', 'LECTURA CRITICA', 'ESPANOL', 'LECTO',
+              'CIENCIAS NATURALES', 'BIOLOGIA', 'NATURALES',
+              'FISICA', 'QUIMICA',
+              'CIENCIAS SOCIALES', 'SOCIALES',
+              'COMPETENCIAS CIUDADANAS', 'COMPETENCIAS', 'CIUDADANAS',
+              'INGLES', 'FILOSOFIA'
+            ];
+
+            return evaluadas.some(function(e) {
+              return norm === e || norm.indexOf(e) !== -1 || e.indexOf(norm) !== -1;
+            });
+          }
+
+
           function calcularPuestoNivel(zipId, gradoBase) {
             if (!dataPeriodoActual || dataPeriodoActual.length === 0) return "-";
             const estudiantesNivel = dataPeriodoActual.filter(t => extraerGradoBase(extraerGrupo(t.zipgrade_id)) === gradoBase);
@@ -5827,25 +5923,37 @@
 
               // --- RESTRICCIONES DE ROL LECTOR (BLOQUEO ESTRICTO POR REQUERIMIENTO) ---
               if (currentRole === 'lector') {
-                const isDirector = assignedGrade && assignedGrade.length > 0;
+                // Es director de grupo si tiene una entrada con asignatura=ETICA en docentes_privacidad
+                // (Regla de negocio: al marcar "Es Director" se guarda ETICA para ese grupo)
+                const isDirector = userPermissions && userPermissions.some(p => p.tipo === 'ASIGNACION' && (p.asignatura || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim() === 'ETICA');
+                // Fallback: también es director si tiene grado_asignado en el perfil
+                const isDirectorFallback = assignedGrade && assignedGrade.length > 0;
+                const esDirectorGrupo = isDirector || isDirectorFallback;
 
                 // 1. Ocultar Informe Individual SIEMPRE para lectores
                 if (individualTab) individualTab.style.display = 'none';
                 if ($('m-nav-individual')) $('m-nav-individual').style.display = 'none';
 
-                // 2. Ocultar Informe Grupal si NO es director
-                if (!isDirector) {
+                // 2. Informe Grupal: SOLO para directores de grupo (tienen ETICA asignada)
+                if (!esDirectorGrupo) {
                   if (grupalTab) grupalTab.style.display = 'none';
                   if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'none';
                 } else {
-                  // Es director: mostrar grupal pero la lgica de carga (cargarGradosReporte) filtrar solo su grupo
+                  // Es director: puede ver el informe grupal de su(s) grupo(s)
                   if (grupalTab) grupalTab.style.display = 'block';
                   if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'flex';
-
                   if ($('btn-print-grupal')) $('btn-print-grupal').style.display = 'flex';
                 }
-                if (asigTab) asigTab.style.display = 'block';
-                if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'flex';
+
+                // 3. Informe por Asignatura: visible para cualquier docente con asignaciones evaluadas
+                const tieneAsignacionEvaluada = userPermissions && userPermissions.some(p => p.tipo === 'ASIGNACION' && isSubjectEvaluated(p.asignatura, p.grado));
+                if (tieneAsignacionEvaluada) {
+                  if (asigTab) asigTab.style.display = 'block';
+                  if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'flex';
+                } else {
+                  if (asigTab) asigTab.style.display = 'none';
+                  if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'none';
+                }
               }
 
               // --- VISIBILIDAD DE ANÁLISIS POR ESTUDIANTE (TODOS LOS ROLES) ---
@@ -5887,19 +5995,16 @@
             } else if ($('estadisticas-container').style.display === 'block') {
               cargarEstadisticas();
             } else if ($('grupal-container').style.display === 'block') {
-              if ($('gru-sel-grado').value) {
-                if (window.reportController && typeof window.reportController.cargarReporteGrupal === 'function') {
-                   window.reportController.cargarReporteGrupal($('gru-sel-grado').value);
-                }
-                generarInformeGrupal(); 
-              } else cargarGruposInformeGrupal();
+              // Limpiar selectores y contenido para obligar a elegir de nuevo en el nuevo periodo
+              if ($('gru-sel-grado')) $('gru-sel-grado').value = "";
+              if ($('grupal-content')) $('grupal-content').innerHTML = '<p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un periodo de evaluacion y luego elija un grupo.</p>';
+              await cargarGruposInformeGrupal();
             } else if ($('asignatura-container').style.display === 'block') {
-              if ($('asig-sel-grado').value && $('asig-sel-materia').value) {
-                if (window.reportController && typeof window.reportController.cargarReporteAsignatura === 'function') {
-                   window.reportController.cargarReporteAsignatura($('asig-sel-grado').value);
-                }
-                generarInformeAsignatura();
-              } else cargarGruposInformeAsignatura();
+              // Limpiar selectores y contenido para obligar a elegir de nuevo en el nuevo periodo
+              if ($('asig-sel-grado')) $('asig-sel-grado').value = "";
+              if ($('asig-sel-materia')) $('asig-sel-materia').innerHTML = '<option value="">Seleccione grupo primero...</option>';
+              if ($('asignatura-content')) $('asignatura-content').innerHTML = '<p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un periodo de evaluacion, grupo y asignatura para ver el detalle.</p>';
+              await cargarGruposInformeAsignatura();
             }
           }
 
@@ -6131,11 +6236,35 @@
               // Filtrar localmente las que pertenecen al nivel seleccionado (ej: 9 -> 9, 901, 902...)
               let filteredData = data ? data.filter(d => extraerGradoBase(d.grado).toString() === nivel.toString()) : [];
 
+              // Incluir asignaturas oficiales según MATRIZ_RANGOS del período actual
+              const gBaseNivel = extraerGradoBase(nivel);
+              const esE1Nivel = parseInt(currentPeriodo) === 1;
+              let keyMatriz;
+              if (gBaseNivel <= 4) keyMatriz = '3-4';
+              else if (gBaseNivel === 5) keyMatriz = '5';
+              else if (gBaseNivel >= 10) keyMatriz = esE1Nivel ? '10-11-E1' : '10-11-E2E3';
+              else keyMatriz = esE1Nivel ? '6-9-E1' : '6-9-E2E3';
+              const rangosNivel = typeof MATRIZ_RANGOS !== 'undefined' ? MATRIZ_RANGOS[keyMatriz] : [];
+              const labelsMatriz = rangosNivel ? rangosNivel.map(r => {
+                if (r.label === 'Matematicas') return 'Matemáticas';
+                if (r.label === 'Ingles') return 'Inglés';
+                if (r.label === 'Biologia') return 'Biología';
+                if (r.label === 'Fisica') return 'Física';
+                if (r.label === 'Quimica') return 'Química';
+                if (r.label === 'Competencias Ciudadanas') return 'Competencias';
+                if (r.label === 'Ciencias Sociales') return 'Sociales';
+                if (r.label === 'Ciencias Naturales') return (gBaseNivel < 10) ? 'Biología' : 'Ciencias Naturales';
+                return r.label;
+              }) : [];
+
               // --- Mapeo Visual: Ciencias Naturales -> Biología en 3-9 ---
-              let unique = [...new Set(filteredData.map(d => {
-                if (parseInt(nivel) < 10 && normalizeText(d.asignatura).includes("naturales")) return "Biología";
-                return d.asignatura;
-              }))].sort();
+              let unique = [...new Set([
+                ...filteredData.map(d => {
+                  if (parseInt(nivel) < 10 && normalizeText(d.asignatura).includes("naturales")) return "Biología";
+                  return d.asignatura;
+                }),
+                ...labelsMatriz
+              ])].sort();
 
               // --- Filtro de Privacidad: Solo mostrar asignaturas que el docente DICTA en este nivel ---
               if (currentRole !== 'superadmin' && currentRole !== 'admin') {
@@ -6226,7 +6355,7 @@
               // Consultar preguntas usando queryAsig (el nombre real en DB)
               let { data } = await supabaseClient.from('eval_preguntas')
                 .select('pregunta_num').eq('grado', g).eq('periodo', currentPeriodo)
-                .or(`asignatura.eq."${queryAsig}",asignatura.eq."${a}"`) // Intentar ambos por si acaso
+                .or(`asignatura.ilike."${queryAsig}",asignatura.ilike."${a}",asignatura.ilike."%${a}%"`)
                 .order('pregunta_num');
 
               if (!data || data.length === 0) {
@@ -6239,7 +6368,7 @@
                  else if (gBase >= 10) key = esE1 ? '10-11-E1' : '10-11-E2E3';
                  else key = esE1 ? '6-9-E1' : '6-9-E2E3';
                  const rangos = typeof MATRIZ_RANGOS !== 'undefined' ? MATRIZ_RANGOS[key] : [];
-                 const rangoAsig = rangos ? rangos.find(r => r.label.toLowerCase() === a.toLowerCase() || r.label.toLowerCase() === queryAsig.toLowerCase()) : null;
+                 const rangoAsig = rangos ? rangos.find(r => r.label.toLowerCase() === a.toLowerCase() || r.label.toLowerCase() === queryAsig.toLowerCase() || normalizeText(r.label) === normalizeText(a)) : null;
                  
                  const pSel = $('sel-pregunta');
                  if (!rangoAsig) {
@@ -6247,7 +6376,10 @@
                  } else {
                    const qs = [];
                    for (let i = rangoAsig.start; i <= rangoAsig.end; i++) qs.push(i);
-                   pSel.innerHTML = qs.map(p => `<option value="${p}">#${p}</option>`).join('');
+                   pSel.innerHTML = qs.map(p => {
+                     const displayNum = (parseInt(currentPeriodo) >= 2 && p > 60) ? (p - 60) : p;
+                     return `<option value="${p}">#${displayNum}</option>`;
+                   }).join('');
                    mostrarAnalisis();
                  }
                  showLoading(false);
@@ -6260,7 +6392,10 @@
               if (uniqueP.length === 0) {
                 pSel.innerHTML = '<option value="">Sin preguntas</option>';
               } else {
-                pSel.innerHTML = uniqueP.map(p => `<option value="${p}">#${p}</option>`).join('');
+                pSel.innerHTML = uniqueP.map(p => {
+                  const displayNum = (parseInt(currentPeriodo) >= 2 && p > 60) ? (p - 60) : p;
+                  return `<option value="${p}">#${displayNum}</option>`;
+                }).join('');
                 mostrarAnalisis();
               }
             } catch (e) {
@@ -6294,7 +6429,7 @@
               // 1. Banco de preguntas (Protección contra duplicados con limit 1)
               let { data: pregData } = await supabaseClient.from('eval_preguntas')
                 .select('*').eq('grado', g).eq('periodo', currentPeriodo)
-                .or(`asignatura.ilike."${queryAsig}",asignatura.ilike."${a}"`)
+                .or(`asignatura.ilike."${queryAsig}",asignatura.ilike."${a}",asignatura.ilike."%${a}%"`)
                 .eq('pregunta_num', n).limit(1);
 
               if (!pregData || pregData.length === 0) {
@@ -6345,13 +6480,15 @@
                 updateChart([rA, rB, rC, rD], stats.key);
               }
 
+              const displayNum = (parseInt(currentPeriodo) >= 2 && parseInt(n) > 60) ? (parseInt(n) - 60) : n;
+
               const mapping = preg || {
-                pregunta_num: n, texto_pregunta: `Pregunta #${n} (Sin texto en banco)`,
+                pregunta_num: displayNum, texto_pregunta: `Pregunta #${displayNum} (Sin texto en banco)`,
                 opcion_a: "A", opcion_b: "B", opcion_c: "C", opcion_d: "D"
               };
 
-              $('pregunta-display-num').innerText = `Pregunta #${n} - ${a}`;
-              renderMedia('pregunta-texto', 'pregunta-media', mapping.texto_pregunta, g, a, n);
+              $('pregunta-display-num').innerText = `Pregunta #${displayNum} - ${a}`;
+              renderMedia('pregunta-texto', 'pregunta-media', mapping.texto_pregunta, g, a, displayNum);
 
               const labels = ["opcion_a", "opcion_b", "opcion_c", "opcion_d"];
               const opts = ["A", "B", "C", "D"];
@@ -8639,9 +8776,40 @@
             const histFiltrado = historico.filter(h => h.periodo <= curP).sort((a, b) => a.periodo - b.periodo);
             if (histFiltrado.length < 1) return;
 
+            // Obtener el grado base del estudiante para seleccionar la MATRIZ_RANGOS correcta
+            const grupoEst = est.grado ? est.grado.toString().trim() : extraerGrupo(est.zipgrade_id);
+            const gNum = extraerGradoBase(grupoEst);
+
+            // Función para obtener la config correcta según el período
+            function getConfigParaPeriodo(periodoNum) {
+              const esE1 = parseInt(periodoNum) === 1;
+              let mKey;
+              if (gNum <= 4)       mKey = '3-4';
+              else if (gNum === 5)  mKey = '5';
+              else if (gNum >= 10) mKey = esE1 ? '10-11-E1' : '10-11-E2E3';
+              else                 mKey = esE1 ? '6-9-E1'   : '6-9-E2E3';
+              return MATRIZ_RANGOS[mKey] || [];
+            }
+
+            // Calcular el porcentaje desde las respuestas correctas (igual que el informe visual)
+            // Esto garantiza que la gráfica muestre el mismo promedio que aparece en el boletín
+            function calcularPctDesdeRespuestas(h) {
+              if (!h.respuestas) return Math.round(h.porcentaje || 0);
+              const config = getConfigParaPeriodo(h.periodo);
+              if (!config || config.length === 0) return Math.round(h.porcentaje || 0);
+              let okTotal = 0, totalPregs = 0;
+              config.forEach(subj => {
+                for (let i = subj.start; i <= subj.end; i++) {
+                  totalPregs++;
+                  if (h.respuestas[i] === 1) okTotal++;
+                }
+              });
+              return totalPregs > 0 ? Math.round((okTotal / totalPregs) * 100) : Math.round(h.porcentaje || 0);
+            }
+
             const labels = histFiltrado.map(h => h.periodo === 3 ? 'EF' : 'E' + h.periodo);
-            const data = histFiltrado.map(h => Math.round(h.porcentaje));
-            const colors = histFiltrado.map(h => getValoration(Math.round(h.porcentaje)).color);
+            const data = histFiltrado.map(h => calcularPctDesdeRespuestas(h));
+            const colors = histFiltrado.map(h => getValoration(calcularPctDesdeRespuestas(h)).color);
 
             new Chart(ctx, {
               type: 'line',
@@ -8744,11 +8912,20 @@
                     uniqueGroups = uniqueGroups.filter(g => ['301', '401', '501'].includes(g.toString()));
                   }
                 } else {
-                  // Lectores (Directores de Grupo): Solo ven sus grupos asignados
-                  const direccion = window.assignedGroups || [];
+                  // Lectores (Docentes): Informe Grupal SOLO para directores de grupo.
+                  // Un director tiene asignatura=ETICA en docentes_privacidad para su grupo.
+                  const gruposDirector = (userPermissions || [])
+                    .filter(p => p.tipo === 'ASIGNACION' && (p.asignatura || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim() === 'ETICA')
+                    .map(p => (p.grado || '').toString())
+                    .filter(g => g);
+
+                  // Fallback: si no tiene ETICA pero sí assignedGroups (perfil antiguo)
+                  const direccionFallback = window.assignedGroups || [];
+                  const allowedGrupal = [...new Set([...gruposDirector, ...direccionFallback])];
+
                   uniqueGroups = uniqueGroups.filter(g => {
                     const gBase = extraerGradoBase(g);
-                    return direccion.some(d => d === g.toString() || d === gBase.toString());
+                    return allowedGrupal.some(d => d === g.toString() || d === gBase.toString());
                   });
 
                   // RESTRICCIÓN ADICIONAL CENTRAL PRIMARIA
@@ -9276,6 +9453,31 @@
             return Array.from(mergedMap.values());
           }
 
+
+          // Pre-calcula el porcentaje correcto desde las respuestas para cada entrada del histórico
+          // Usa la MATRIZ_RANGOS del período correspondiente (E1 vs E2/E3) para el grado del estudiante
+          // Garantiza que la gráfica muestre el mismo promedio que aparece en el boletín impreso
+          function calcularPctHistoricoParaImpresion(h) {
+            if (!h.respuestas) return Math.round(h.porcentaje || 0);
+            const gH = extraerGradoBase(h.grado ? h.grado.toString().trim() : extraerGrupo(h.zipgrade_id));
+            const esE1H = parseInt(h.periodo) === 1;
+            let mKeyH;
+            if (gH <= 4)       mKeyH = '3-4';
+            else if (gH === 5)  mKeyH = '5';
+            else if (gH >= 10) mKeyH = esE1H ? '10-11-E1' : '10-11-E2E3';
+            else               mKeyH = esE1H ? '6-9-E1'   : '6-9-E2E3';
+            const cfgH = MATRIZ_RANGOS[mKeyH] || [];
+            if (cfgH.length === 0) return Math.round(h.porcentaje || 0);
+            let okH = 0, totalH = 0;
+            cfgH.forEach(subj => {
+              for (let i = subj.start; i <= subj.end; i++) {
+                totalH++;
+                if (h.respuestas[i] === 1) okH++;
+              }
+            });
+            return totalH > 0 ? Math.round((okH / totalH) * 100) : Math.round(h.porcentaje || 0);
+          }
+
           async function imprimirTodoElGrado() {
             const grupo = $('rep-grado').value;
             if (!grupo) return;
@@ -9320,9 +9522,13 @@
               else                 mKey = esE1 ? '6-9-E1'   : '6-9-E2E3';
               const config = MATRIZ_RANGOS[mKey];
 
+
               const historicosMap = {};
               estudiantesActuales.forEach(a => {
-                historicosMap[a.zipgrade_id] = todosData.filter(t => t.zipgrade_id === a.zipgrade_id).sort((x, y) => x.periodo - y.periodo);
+                historicosMap[a.zipgrade_id] = todosData
+                  .filter(t => t.zipgrade_id === a.zipgrade_id)
+                  .sort((x, y) => x.periodo - y.periodo)
+                  .map(h => ({ ...h, porcentaje: calcularPctHistoricoParaImpresion(h) }));
               });
 
               const sortedGrupoParaPuesto = [...estudiantesActuales].sort((a, b) => (b.porcentaje || 0) - (a.porcentaje || 0));
@@ -9414,7 +9620,7 @@
                         data: {
                           labels: hist.map(h => h.periodo === 3 ? 'EF' : 'E' + h.periodo),
                           datasets: [{
-                            data: hist.map(h => Math.round(h.porcentaje)),
+                            data: hist.map(h => h.porcentaje),
                             borderColor: '#4f46e5',
                             backgroundColor: 'rgba(79, 70, 229, 0.1)',
                             pointBackgroundColor: hist.map(h => getVal(h.porcentaje).color),
@@ -9526,7 +9732,10 @@
                     puestosMaterias[subj.label] = subjRank.findIndex(r => r.id === est.zipgrade_id) + 1;
                   });
 
-                  historicosMap[est.zipgrade_id] = todosData.filter(t => t.zipgrade_id === est.zipgrade_id).sort((x, y) => x.periodo - y.periodo);
+                  historicosMap[est.zipgrade_id] = todosData
+                    .filter(t => t.zipgrade_id === est.zipgrade_id)
+                    .sort((x, y) => x.periodo - y.periodo)
+                    .map(h => ({ ...h, porcentaje: calcularPctHistoricoParaImpresion(h) }));
                   const puestoGrupo = sortedGrupoParaPuesto.findIndex(t => t.zipgrade_id === est.zipgrade_id) + 1;
                   const pNivel = sortedNivel.findIndex(t => t.zipgrade_id === est.zipgrade_id) + 1;
                   const tNivel = sortedNivel.length;
@@ -9594,9 +9803,9 @@
                         data: {
                           labels: hist.map(h => h.periodo === 3 ? 'EF' : 'E' + h.periodo),
                           datasets: [{
-                            data: hist.map(h => Math.round(h.porcentaje)),
+                            data: hist.map(h => h.porcentaje),
                             borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                            pointBackgroundColor: hist.map(h => getValoration(Math.round(h.porcentaje)).color),
+                            pointBackgroundColor: hist.map(h => getValoration(h.porcentaje).color),
                             pointRadius: 5, borderWidth: 2, tension: 0.3, fill: true
                           }]
                         },

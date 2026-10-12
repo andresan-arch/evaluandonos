@@ -13,3 +13,6 @@ backticks.txt
 csv/
 .vercel
 .env*
+scratch/
+*.tmp
+test_*.json
