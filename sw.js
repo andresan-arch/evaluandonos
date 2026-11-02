@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eval-cache-v119';
+const CACHE_NAME = 'eval-cache-v120';
 const urlsToCache = [
   './',
   './index.html',
