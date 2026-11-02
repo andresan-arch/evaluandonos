@@ -184,3 +184,27 @@ Regla vigente para esta etapa:
 1. Realizar pruebas integradas en el entorno local/producción con el archivo `src/app.js` activo.
 2. Iniciar la fase de migración progresiva de las llamadas HTML internas para consumir directamente los módulos globales expuestos.
 3. Mantener el monitoreo de errores a través de la consola del navegador para confirmar cero impacto funcional.
+
+## 11. Bitácora de Cambios: Normalización Supabase y Rol Tesis (Noviembre 2026)
+
+### 11.1 Depuración de Duplicados ('TOTAL') en Supabase
+- **Causa raíz:** Coexistencia de cargas históricas de mayo (`... TOTAL`) con las de octubre (`...`) en `eval_resultados`, `eval_estudiantes_notas` y `eval_estudiantes_completos`, lo que duplicaba el conteo a 182 evaluados en Grado 9 Periodo 1.
+- **Acciones ejecutadas:**
+  - Renombrados `EVALUÁNDONOS 10 1P 2026 TOTAL` y `EVALUÁNDONOS 11 1P 2026 TOTAL` a su estándar sin TOTAL en todas las tablas (`eval_resultados`, `eval_estudiantes_notas`, `eval_estudiantes_completos`).
+  - Unificados 7 estudiantes huérfanos de Grado 9 P1 en `eval_estudiantes_notas`.
+  - Eliminados los lotes duplicados con sufijo TOTAL de Grado 9 en `eval_resultados` (120 filas) y `eval_estudiantes_completos` (95 filas).
+  - Estado: **0 registros restantes con la palabra TOTAL en toda la base de datos**.
+
+### 11.2 Corrección de Pregunta 12 (Matemáticas Grado 9 en E1 y E2)
+- **Causa raíz:** En ZipGrade se configuraron claves dobles (válidas dos opciones). El algoritmo de importación sumaba el total de aciertos a una letra y luego sumaba de nuevo la otra letra como distractor, inflando los evaluados a 113 (E2) y 117 (E1).
+- **Acciones ejecutadas:**
+  - **E2 (Periodo 2, ID 49725):** Clave actualizada a `'A, B'`, B corregida a 37 aciertos, A en 17, total evaluados = **96**.
+  - **E1 (Periodo 1, ID 49785):** Clave actualizada a `'C, D'`, C corregida a 27 aciertos, D en 28, total evaluados = **89** (90 con examen en blanco).
+  - **Soporte frontend:** En `mostrarAnalisis()`, `updateChart()` y `mostrarAnalisisEstudiante()`, ahora se procesan claves compuestas y se resaltan en verde ambas opciones correctas en las listas y en el gráfico.
+
+### 11.3 Nuevo Rol 'tesis'
+- **Acceso:** Solo permite ver pestañas de **Análisis** (General y Por Estudiante) y **Estadísticas**.
+- **Oculto:** Todo el menú de Informes (Individual, Grupal, Asignatura) y módulos administrativos.
+- **Alcance de datos:** Restringido a los grupos **901** y **903** (Análisis general Grado 9; Estadísticas recalcula promedios únicamente con 901 y 903).
+- **Anonimización:** En Análisis por Estudiante, el selector muestra el código ZipGrade (`Código ZipGrade: {student_id}`) en lugar del nombre real del estudiante.
+- **Despliegue:** Versión de caché de PWA incrementada a **`v116`** en `sw.js` y `constants.js` y desplegada a Vercel Producción.
