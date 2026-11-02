@@ -2688,6 +2688,59 @@
             <canvas id="chart-comparativo-grupos"></canvas>
           </div>
         </div>
+
+        <div class="card" style="margin-bottom: 2rem;">
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--bg); padding-bottom: 0.5rem; flex-wrap: wrap; gap: 10px;">
+            <h2 class="question-title" style="margin: 0; border: none;">Comparativo de Pruebas por Nivel y Asignatura</h2>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <label style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">PRUEBA:</label>
+              <select id="evol-nivel-periodo" onchange="poblarAsignaturasEvolucionNivel(); actualizarGraficoEvolucionNivel();"
+                style="width: auto; padding: 5px 15px; font-weight: 700;">
+                <option value="1">E1 (Solo E1)</option>
+                <option value="2">E2 (E1 vs E2)</option>
+                <option value="3">EF (E1 vs E2 vs EF)</option>
+              </select>
+              <label style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">NIVEL:</label>
+              <select id="evol-nivel-grado" onchange="poblarAsignaturasEvolucionNivel(); actualizarGraficoEvolucionNivel();"
+                style="width: auto; padding: 5px 15px;">
+                <option value="">Cargando...</option>
+              </select>
+              <label style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">ASIGNATURA:</label>
+              <select id="evol-nivel-asig" onchange="actualizarGraficoEvolucionNivel()"
+                style="width: auto; padding: 5px 15px;">
+                <option value="">Cargando...</option>
+              </select>
+            </div>
+          </div>
+          <div class="chart-container" style="height: 400px;">
+            <canvas id="chart-evolucion-nivel-asig"></canvas>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 2rem;">
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--bg); padding-bottom: 0.5rem; flex-wrap: wrap; gap: 10px;">
+            <h2 class="question-title" style="margin: 0; border: none;">Comparativo de Pruebas por Grupo</h2>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <label style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">PRUEBA:</label>
+              <select id="evol-grupo-periodo" onchange="actualizarGraficoEvolucionGrupo()"
+                style="width: auto; padding: 5px 15px; font-weight: 700;">
+                <option value="1">E1 (Solo E1)</option>
+                <option value="2">E2 (E1 vs E2)</option>
+                <option value="3">EF (E1 vs E2 vs EF)</option>
+              </select>
+              <label style="font-weight: 700; font-size: 0.85rem; color: var(--primary);">GRUPO:</label>
+              <select id="evol-grupo-grado" onchange="actualizarGraficoEvolucionGrupo()"
+                style="width: auto; padding: 5px 15px;">
+                <option value="">Cargando...</option>
+              </select>
+            </div>
+          </div>
+          <div class="chart-container" style="height: 450px;">
+            <canvas id="chart-evolucion-grupo-pruebas"></canvas>
+          </div>
+        </div>
       </div>
 
       <!-- Informe Grupal (Contenedor) -->
@@ -3238,7 +3291,7 @@
       <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
       <script>
-        var CURRENT_APP_VERSION = "v120";
+        var CURRENT_APP_VERSION = "v121";
         window.MathJax = {
           tex: {
             inlineMath: [['$', '$'], ['\\(', '\\)']],
@@ -5147,6 +5200,8 @@
           let totalGradoMap = {};
           let myChart = null;
           let chartGrados = null, chartMaterias = null, chartSedes = null, chartComparativo = null, chartComparativoNuevo = null;
+          let chartEvolucionNivel = null, chartEvolucionGrupo = null;
+          let cacheDatosEstadisticasPorPeriodo = {};
           let currentDetalleData = [];
           let isStudentMode = false;
           let studentId = "";
@@ -5164,7 +5219,7 @@
 
           function syncPeriodoSelects(val) {
             const v = val ? val.toString() : '';
-            const ids = ['sel-periodo', 'sel-est-det-periodo', 'gru-sel-periodo', 'rep-periodo', 'asig-sel-periodo'];
+            const ids = ['sel-periodo', 'sel-est-det-periodo', 'gru-sel-periodo', 'rep-periodo', 'asig-sel-periodo', 'evol-nivel-periodo', 'evol-grupo-periodo'];
             ids.forEach(id => {
               const el = $(id);
               if (el) el.value = v;
@@ -10137,11 +10192,23 @@
           async function cargarEstadisticas() {
             showLoading(true);
             try {
-              let dataTemp = await obtenerDatosCompletos(currentPeriodo);
+              const pActivo = parseInt(currentPeriodo) || 1;
+              let dataTemp = await obtenerDatosCompletos(pActivo);
 
-              if (dataTemp.length === 0 && currentPeriodo === 2) {
+              if (dataTemp.length === 0 && pActivo === 2) {
                 const fallbackData = await obtenerDatosCompletos(1);
                 if (fallbackData && fallbackData.length > 0) dataTemp = fallbackData;
+              } else if (dataTemp.length === 0 && pActivo === 3) {
+                const fallbackData2 = await obtenerDatosCompletos(2);
+                if (fallbackData2 && fallbackData2.length > 0) dataTemp = fallbackData2;
+                else {
+                  const fallbackData1 = await obtenerDatosCompletos(1);
+                  if (fallbackData1 && fallbackData1.length > 0) dataTemp = fallbackData1;
+                }
+              }
+
+              if (dataTemp.length > 0 && currentPeriodo) {
+                cacheDatosEstadisticasPorPeriodo[parseInt(currentPeriodo)] = dataTemp;
               }
 
               dataPeriodoActual = dataTemp;
@@ -10210,6 +10277,22 @@
                 selComp.innerHTML = gradosUnicos.map(g => `<option value="${g}">${g}°</option>`).join('');
               }
 
+              const selEvolNivelPer = $('evol-nivel-periodo');
+              if (selEvolNivelPer) selEvolNivelPer.value = (parseInt(currentPeriodo) || 3).toString();
+              const selEvolGrupoPer = $('evol-grupo-periodo');
+              if (selEvolGrupoPer) selEvolGrupoPer.value = (parseInt(currentPeriodo) || 3).toString();
+
+              const selEvolNivelGrado = $('evol-nivel-grado');
+              if (selEvolNivelGrado) {
+                selEvolNivelGrado.innerHTML = gradosUnicos.map(g => `<option value="${g}">${g}°</option>`).join('');
+              }
+              poblarAsignaturasEvolucionNivel();
+
+              const selEvolGrupoGrado = $('evol-grupo-grado');
+              if (selEvolGrupoGrado) {
+                selEvolGrupoGrado.innerHTML = gruposUnicos.map(g => `<option value="${g}">${g}</option>`).join('');
+              }
+
               // 2. Gráfico: Promedio Detallado por Grupo (Grados)
               const promediosGrado = {};
               const conteoGrado = {};
@@ -10267,6 +10350,8 @@
               actualizarGraficoAsignaturas();
               actualizarGraficoNivelAsignaturas();
               actualizarGraficoComparativoGrupos();
+              await actualizarGraficoEvolucionNivel();
+              await actualizarGraficoEvolucionGrupo();
 
             } catch (error) {
               console.error("Error al cargar estadísticas:", error);
@@ -10637,6 +10722,322 @@
                       minRotation: 0
                     }
                   }
+                }
+              }
+            });
+          }
+
+          async function obtenerDatosHastaPeriodo(maxPeriodo) {
+            const maxP = Math.min(Math.max(parseInt(maxPeriodo) || 1, 1), 3);
+            const faltantes = [];
+            for (let p = 1; p <= maxP; p++) {
+              if (!cacheDatosEstadisticasPorPeriodo[p]) faltantes.push(p);
+            }
+            if (faltantes.length > 0) {
+              const resultados = await Promise.all(faltantes.map(p => obtenerDatosCompletos(p)));
+              faltantes.forEach((p, idx) => {
+                cacheDatosEstadisticasPorPeriodo[p] = resultados[idx] || [];
+              });
+            }
+            const res = {};
+            for (let p = 1; p <= maxP; p++) {
+              res[p] = cacheDatosEstadisticasPorPeriodo[p] || [];
+            }
+            return res;
+          }
+
+          function esGrupoPermitidoEstadisticas(grupo) {
+            if (!grupo) return false;
+            const gStr = grupo.toString().trim();
+            const gBase = extraerGradoBase(gStr);
+            if (gBase <= 0) return false;
+
+            if (currentRole === 'tesis') {
+              return ['901', '903'].includes(gStr);
+            }
+            if (currentRole === 'superadmin') {
+              return true;
+            }
+
+            const assignedLower = (window.assignedGrade || "").toString().toLowerCase();
+            const gBaseAssigned = extraerGradoBase(window.assignedGrade);
+            const esDePrimaria = assignedLower === "primaria" || (gBaseAssigned >= 1 && gBaseAssigned <= 5);
+            const mySede = window.userSede || 'Central';
+
+            if (currentRole === 'admin') {
+              if (detectarSede(gStr) !== mySede) return false;
+              if (esDePrimaria && mySede === 'Central') {
+                return ['301', '401', '501'].includes(gStr);
+              }
+              return true;
+            }
+
+            const direccion = window.assignedGroups || [];
+            const dictan = (userPermissions || [])
+              .filter(p => p.tipo === 'ASIGNACION')
+              .map(p => p.grado.toString());
+
+            const hasPerm = dictan.some(d => d === gStr || d === gBase.toString()) ||
+              direccion.some(d => d === gStr || d === gBase.toString());
+
+            if (esDePrimaria && mySede === 'Central') {
+              return ['301', '401', '501'].includes(gStr) && hasPerm;
+            }
+            return hasPerm;
+          }
+
+          function obtenerConfigMatrizPorPeriodo(gBase, periodoNum) {
+            const esE1 = parseInt(periodoNum) === 1;
+            let mKey;
+            if (gBase <= 4)       mKey = '3-4';
+            else if (gBase === 5)  mKey = '5';
+            else if (gBase >= 10) mKey = esE1 ? '10-11-E1' : '10-11-E2E3';
+            else                  mKey = esE1 ? '6-9-E1'   : '6-9-E2E3';
+            return MATRIZ_RANGOS[mKey] || [];
+          }
+
+          function buscarRangoMateriaEnConfig(config, asigLabel, gBase) {
+            if (!config || !asigLabel) return null;
+            const normTarget = normalizeText(asigLabel);
+            let found = config.find(c => normalizeText(c.label) === normTarget);
+            if (!found && gBase < 10 && (normTarget.includes('biologia') || normTarget.includes('naturales'))) {
+              found = config.find(c => normalizeText(c.label).includes('biologia') || normalizeText(c.label).includes('naturales'));
+            }
+            if (!found && (normTarget.includes('sociales') || normTarget.includes('ciudadanas'))) {
+              found = config.find(c => normalizeText(c.label).includes(normTarget));
+            }
+            return found || null;
+          }
+
+          function obtenerAsignaturasPermitidasEstadisticas(gBase, grupoOpcional = null, maxPeriodo = 3) {
+            const baseConfig = obtenerConfigMatrizPorPeriodo(gBase, maxPeriodo);
+            const labels = baseConfig.map(c => (gBase < 10 && normalizeText(c.label).includes('naturales')) ? 'Biologia' : c.label);
+
+            if (currentRole === 'tesis') {
+              return labels.filter(l => normalizeText(l).includes('matematicas'));
+            }
+            if (currentRole === 'superadmin' || currentRole === 'admin') {
+              return labels;
+            }
+
+            const assignedLower = (window.assignedGrade || "").toString().toLowerCase();
+            const gBaseAssigned = extraerGradoBase(window.assignedGrade);
+            const esDePrimaria = assignedLower === "primaria" || (gBaseAssigned >= 1 && gBaseAssigned <= 5);
+            if (esDePrimaria && gBase <= 5) {
+              return labels;
+            }
+
+            if (grupoOpcional) {
+              const gStr = grupoOpcional.toString().trim();
+              const direccion = window.assignedGroups || [];
+              const esDirector = direccion.includes(gStr) || (userPermissions || []).some(p =>
+                p.tipo === 'ASIGNACION' &&
+                p.grado.toString() === gStr &&
+                normalizeText(p.asignatura) === 'etica'
+              );
+              if (esDirector) return labels;
+            }
+
+            const myPermissions = (userPermissions || [])
+              .filter(p => {
+                if (p.tipo !== 'ASIGNACION') return false;
+                if (grupoOpcional) {
+                  return p.grado.toString() === grupoOpcional.toString() || extraerGradoBase(p.grado) === gBase;
+                }
+                return extraerGradoBase(p.grado) === gBase;
+              })
+              .map(p => p.asignatura);
+
+            const filtradas = labels.filter(a => checkSubjectPermission(myPermissions, a, gBase));
+            return filtradas.length > 0 ? filtradas : labels;
+          }
+
+          function poblarAsignaturasEvolucionNivel() {
+            const selGrado = $('evol-nivel-grado');
+            const selAsig = $('evol-nivel-asig');
+            const selPer = $('evol-nivel-periodo');
+            if (!selGrado || !selAsig) return;
+
+            const gBase = parseInt(selGrado.value);
+            if (!gBase) return;
+            const maxP = selPer ? (parseInt(selPer.value) || 3) : 3;
+            const prevAsig = selAsig.value;
+            const permitidas = obtenerAsignaturasPermitidasEstadisticas(gBase, null, maxP);
+
+            selAsig.innerHTML = permitidas.map(a => `<option value="${a}">${a}</option>`).join('');
+            if (prevAsig && permitidas.includes(prevAsig)) {
+              selAsig.value = prevAsig;
+            }
+          }
+
+          async function actualizarGraficoEvolucionNivel() {
+            const selPer = $('evol-nivel-periodo');
+            const selGrado = $('evol-nivel-grado');
+            const selAsig = $('evol-nivel-asig');
+            if (!selPer || !selGrado || !selAsig) return;
+
+            const maxP = parseInt(selPer.value) || parseInt(currentPeriodo) || 1;
+            const gBase = parseInt(selGrado.value);
+            const asig = selAsig.value;
+            if (!gBase || !asig) return;
+
+            const datosPorPeriodo = await obtenerDatosHastaPeriodo(maxP);
+            const periodosList = [];
+            for (let p = 1; p <= maxP; p++) periodosList.push(p);
+
+            const labels = periodosList.map(p => p === 3 ? 'EF' : 'E' + p);
+            const colores = { 1: '#4f46e5', 2: '#10b981', 3: '#f59e0b' };
+
+            const valores = periodosList.map(p => {
+              const rawList = datosPorPeriodo[p] || [];
+              const estNivel = rawList.filter(d => {
+                const grp = (d.grado || extraerGrupo(d.zipgrade_id)).toString().trim();
+                return extraerGradoBase(grp) === gBase && esGrupoPermitidoEstadisticas(grp);
+              });
+              const configP = obtenerConfigMatrizPorPeriodo(gBase, p);
+              const rango = buscarRangoMateriaEnConfig(configP, asig, gBase);
+              if (!rango || estNivel.length === 0) return 0;
+
+              let suma = 0;
+              let validos = 0;
+              const totalPregs = rango.end - rango.start + 1;
+              estNivel.forEach(est => {
+                if (!est.respuestas) return;
+                let ok = 0;
+                for (let i = rango.start; i <= rango.end; i++) {
+                  if (est.respuestas[i] === 1) ok++;
+                }
+                suma += Math.round((ok / totalPregs) * 100);
+                validos++;
+              });
+              return validos > 0 ? Math.round(suma / validos) : 0;
+            });
+
+            if (chartEvolucionNivel) chartEvolucionNivel.destroy();
+            const canvas = $('chart-evolucion-nivel-asig');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            chartEvolucionNivel = new Chart(ctx, {
+              type: 'bar',
+              plugins: [ChartDataLabels, nivelesHorizontalesPlugin],
+              data: {
+                labels: labels,
+                datasets: [{
+                  label: `${gBase}° — ${asig}`,
+                  data: valores,
+                  backgroundColor: periodosList.map(p => colores[p] || '#4f46e5'),
+                  borderRadius: 8,
+                  maxBarThickness: 90
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: { padding: { left: 55 } },
+                plugins: {
+                  legend: { display: true, position: 'top', labels: { font: { size: 11, weight: 'bold' } } },
+                  datalabels: {
+                    color: '#fff',
+                    font: { weight: 'bold', size: 16 },
+                    anchor: 'end',
+                    align: 'bottom',
+                    formatter: v => v > 0 ? v : ''
+                  }
+                },
+                scales: {
+                  y: { min: 0, max: 100, ticks: { callback: v => v }, title: { display: true, text: 'Promedio', font: { weight: 'bold' } } },
+                  x: { ticks: { color: '#000', font: { weight: 'bold', size: 14 } } }
+                }
+              }
+            });
+          }
+
+          async function actualizarGraficoEvolucionGrupo() {
+            const selPer = $('evol-grupo-periodo');
+            const selGrupo = $('evol-grupo-grado');
+            if (!selPer || !selGrupo) return;
+
+            const maxP = parseInt(selPer.value) || parseInt(currentPeriodo) || 1;
+            const grupo = selGrupo.value;
+            if (!grupo || !esGrupoPermitidoEstadisticas(grupo)) return;
+
+            const gBase = extraerGradoBase(grupo);
+            const asignaturas = obtenerAsignaturasPermitidasEstadisticas(gBase, grupo, maxP);
+            if (asignaturas.length === 0) return;
+
+            const datosPorPeriodo = await obtenerDatosHastaPeriodo(maxP);
+            const periodosList = [];
+            for (let p = 1; p <= maxP; p++) periodosList.push(p);
+
+            const colores = { 1: '#4f46e5', 2: '#10b981', 3: '#f59e0b' };
+
+            const datasets = periodosList.map(p => {
+              const rawList = datosPorPeriodo[p] || [];
+              const estGrupo = rawList.filter(d => (d.grado || extraerGrupo(d.zipgrade_id)).toString().trim() === grupo.toString().trim());
+              const configP = obtenerConfigMatrizPorPeriodo(gBase, p);
+
+              const data = asignaturas.map(asigLabel => {
+                const rango = buscarRangoMateriaEnConfig(configP, asigLabel, gBase);
+                if (!rango || estGrupo.length === 0) return 0;
+
+                let suma = 0;
+                let validos = 0;
+                const totalPregs = rango.end - rango.start + 1;
+                estGrupo.forEach(est => {
+                  if (!est.respuestas) return;
+                  let ok = 0;
+                  for (let i = rango.start; i <= rango.end; i++) {
+                    if (est.respuestas[i] === 1) ok++;
+                  }
+                  suma += Math.round((ok / totalPregs) * 100);
+                  validos++;
+                });
+                return validos > 0 ? Math.round(suma / validos) : 0;
+              });
+
+              return {
+                label: p === 3 ? 'EF' : 'E' + p,
+                data: data,
+                backgroundColor: colores[p] || '#4f46e5',
+                borderRadius: 6,
+                borderWidth: 1,
+                borderColor: 'white'
+              };
+            });
+
+            if (chartEvolucionGrupo) chartEvolucionGrupo.destroy();
+            const canvas = $('chart-evolucion-grupo-pruebas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            chartEvolucionGrupo = new Chart(ctx, {
+              type: 'bar',
+              plugins: [ChartDataLabels, nivelesHorizontalesPlugin],
+              data: {
+                labels: asignaturas,
+                datasets: datasets
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: { padding: { left: 55 } },
+                plugins: {
+                  legend: { display: true, position: 'top', labels: { font: { size: 11, weight: 'bold' }, usePointStyle: true } },
+                  datalabels: {
+                    color: '#fff',
+                    font: { weight: 'bold', size: 13 },
+                    anchor: 'center',
+                    align: 'center',
+                    formatter: v => v > 0 ? v : ''
+                  },
+                  tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y }
+                  }
+                },
+                scales: {
+                  y: { min: 0, max: 100, ticks: { callback: v => v }, title: { display: true, text: 'Promedio', font: { weight: 'bold' } } },
+                  x: { ticks: { color: '#000', font: { weight: 'bold', size: 12 }, autoSkip: false, maxRotation: 45, minRotation: 0 } }
                 }
               }
             });
