@@ -208,3 +208,84 @@ Regla vigente para esta etapa:
 - **Alcance de datos:** Restringido a los grupos **901** y **903** (Análisis general Grado 9; Estadísticas recalcula promedios únicamente con 901 y 903).
 - **Anonimización:** En Análisis por Estudiante, el selector muestra el código ZipGrade (`Código ZipGrade: {student_id}`) en lugar del nombre real del estudiante.
 - **Despliegue:** Versión de caché de PWA incrementada a **`v116`** en `sw.js` y `constants.js` y desplegada a Vercel Producción.
+
+### 11.4 Corrección de Validación en Registro de Usuarios (Docente/Staff)
+- **Problema:** El modal de nuevo docente/staff arrojaba falsamente "El correo ya está registrado" cuando la contraseña tenía menos de 6 caracteres (debido a que capturaba cualquier HTTP 422 como duplicado). Además, `perfiles_rol_check` en Supabase no incluía el rol `'tesis'`.
+- **Acciones ejecutadas:**
+  - Validación en frontend de contraseña mínima de 6 caracteres.
+  - Distinción entre `weak_password` y `user_already_exists`.
+  - Mecanismo de auto-enlace para cuentas creadas en Auth pero sin fila en `perfiles`.
+  - Versión bump a **`v117`** y desplegado en Vercel Producción.
+
+### 11.5 Extracción y Sincronización de Preguntas de Matemáticas Grado 9 (E1, E2, EF)
+- **Origen:** Archivos Excel en carpeta `Preguntas matematicas 9/`:
+  - `Prueba ICFES y Análisis Diagnóstico E1 2026.xlsx` (20 preguntas, Periodo 1).
+  - `Prueba ICFES y Análisis Diagnóstico E2 2026.xlsx` (20 preguntas, Periodo 2).
+  - `Prueba ICFES y Análisis Diagnóstico EF 2026.xlsx` (20 preguntas, Periodo 3).
+- **Archivos CSV Generados:**
+  - `csv/preguntas_matematicas_9_E1.csv`
+  - `csv/preguntas_matematicas_9_E2.csv`
+  - `csv/preguntas_matematicas_9_EF.csv`
+  - `csv/preguntas_matematicas_9_todas.csv` (unificado con 60 preguntas).
+- **Sincronización en Supabase (`eval_preguntas`):**
+  - **Periodo 1:** 20 preguntas actualizadas por ID (eliminando desalineaciones previas).
+  - **Periodo 2:** 20 preguntas actualizadas por ID (reemplazando distractores obsoletos de P16-P20).
+  - **Periodo 3 (EF):** 20 preguntas insertadas limpiamente.
+  - **Resultado:** Exactamente 60 registros en `eval_preguntas` para Grado 9 Matemáticas, **0 duplicados**.
+
+
+### 11.6 Renderizado de Imágenes Intercaladas (`//`) y Carga de Imágenes en EF (`v119`)
+- **Problema 1 (Segundo texto omitido tras un solo `//`, ej. Pregunta #14 de E2 Matemáticas 9°):**
+  - `renderMedia()` dividía por `//` asumiendo que los índices impares eran exclusivamente URLs o vacíos (`// //`), por lo que en textos con un único `//` intermedio (`"El valor del determinante  //  del ejercicio anterior es:"`) el segundo fragmento de texto caía en el índice impar (slot de imagen) y era reemplazado por la URL predictiva.
+- **Problema 2 (Imágenes de EF no visibles):**
+  - Los recursos de EF en Supabase Storage (`2026/EF/3m9.png`, `5m9.png`, `6m9.png`, `7m9.png`, `15m9.png`) usan letra de asignatura en minúscula (`m`), mientras que `CURRENT_APP_VERSION` (`v117`) estaba desincronizado respecto a `sw.js` (`v118`), impidiendo que los navegadores limpiaran la caché antigua del Service Worker. Además, `verDetallePreguntaAdmin()` usaba `currentPeriodo` global en vez del selector `#aimg-periodo` y exigía espacios alrededor de `" // "`.
+- **Acciones ejecutadas:**
+  - Se implementó `parsearPartesMedia(content)` en `index.html`, normalizando cualquier combinación de `//` simple (`Texto 1 // Texto 2`, `// Texto`, `Texto //`, `//`), doble (`Texto 1 // // Texto 2`), URLs explícitas y `|||` en una secuencia alternada `[texto, imagen, texto, ...]` sin perder texto posterior a `//`.
+  - Se sincronizó `verDetallePreguntaAdmin()`, `removerImagenMapeo()`, `obtenerUrlPredictiva(..., periodoOverride)` y `setPeriodo(p)` (`syncPeriodoSelects`).
+  - Se sincronizó la versión de caché a **`v119`** tanto en `src/shared/constants.js` (`CURRENT_APP_VERSION`) como en `sw.js` (`CACHE_NAME`).
+
+
+### Iteración v120 — Rol `tesis` (Matemáticas en Grupos 901 y 903) y Protección de Signo de Moneda (`\$`) en MathJax
+- **Restricción del rol `tesis` en Análisis General y por Estudiante**:
+  - En `cargarGrados()` y `cargarAsignaturas()` de `index.html`, cuando `currentRole === 'tesis'`, el selector de grado ofrece `9° (Grupos 901 y 903)`, `Grupo 901` y `Grupo 903`, y el selector de asignatura muestra y autoselecciona únicamente `Matematicas`.
+  - En `mostrarAnalisis()`, las métricas de aciertos y distribución por opción (`A, B, C, D`) para `currentRole === 'tesis'` se calculan exclusivamente a partir de los registros de `eval_estudiantes_completos` pertenecientes a `['901', '903']` (o al subgrupo elegido), excluyendo otros grupos de 9° (`902` y sedes rurales).
+  - En `cargarAsignaturasEstudiante()` (Análisis por Estudiante), para `currentRole === 'tesis'` solo se habilita y autoselecciona `Matematicas`.
+- **Restricción del rol `tesis` en Estadísticas**:
+  - En `cargarEstadisticas()`, `actualizarGraficoAsignaturas()`, `actualizarGraficoNivelAsignaturas()` y `actualizarGraficoComparativoGrupos()`, tanto `dataPeriodoActual` como `dataTodoPeriodo` quedan acotados exclusivamente a los grupos `901` y `903`, y la configuración de asignaturas se filtra únicamente a `Matematicas` (preguntas 1 a 20).
+- **Escritura Matemática y Signo de Moneda (`\$`)**:
+  - Se eliminó la carga duplicada de `tex-mml-chtml.js` en `<head>` para que `window.MathJax` aplique siempre `ignoreHtmlClass: 'tex2jax_ignore'`.
+  - Se implementó `formatearTextoMatematico(text)` en `index.html` y se conectó en `renderMedia()`, envolviendo los signos de moneda (`$4500 y $1000`, `$39.000`, etc.) y signos `$` impares en `<span class="tex2jax_ignore">&#36;</span>`, preservando intactas las expresiones matemáticas reales en LaTeX (`$...$`, `$$...$$`, `\(...\)`).
+- **Actualización de Caché PWA**:
+  - Se sincronizó la versión a **`v120`** en `src/shared/constants.js`, `index.html` y `sw.js`.
+
+
+### Iteración v121 — Gráficas Comparativas de las 3 Pruebas (E1 / E2 / EF) en Estadísticas
+- **Nuevas Gráficas en `#estadisticas-container` (`index.html`)**:
+  1. **Comparativo de Pruebas por Nivel y Asignatura (`#chart-evolucion-nivel-asig`)**:
+     - Selectores: **Prueba (`#evol-nivel-periodo`)**, **Nivel (`#evol-nivel-grado`)** y **Asignatura (`#evol-nivel-asig`)**.
+     - Comportamiento progresivo: al elegir `E1` grafica `E1`; al elegir `E2` grafica `E1 vs E2`; al elegir `EF` grafica `E1 vs E2 vs EF`, resolviendo dinámicamente los rangos de preguntas de cada periodo mediante `obtenerConfigMatrizPorPeriodo(gBase, p)` y `buscarRangoMateriaEnConfig()`.
+  2. **Comparativo de Pruebas por Grupo (`#chart-evolucion-grupo-pruebas`)**:
+     - Selectores: **Prueba (`#evol-grupo-periodo`)** y **Grupo (`#evol-grupo-grado`)**.
+     - Grafica el comparativo acumulado por asignaturas para el grupo seleccionado desde `E1` hasta la prueba elegida (`E1`, `E1 y E2`, o `E1, E2 y EF`).
+- **Respeto Estricto de Permisos por Rol (`esGrupoPermitidoEstadisticas` y `obtenerAsignaturasPermitidasEstadisticas`)**:
+  - `superadmin`: todos los niveles, grupos y asignaturas.
+  - `admin`: niveles y grupos de su sede (y restricción Primaria Central si aplica), con todas sus asignaturas.
+  - `lector` (docente): únicamente los niveles, grupos y asignaturas donde tiene asignación académica o dirección de grupo.
+  - `tesis`: restringido exclusivamente al nivel `9°` (calculado solo sobre `901` y `903`), grupos `901` y `903`, y asignatura `Matematicas`.
+- **Actualización de Caché PWA**:
+  - Se sincronizó la versión a **`v121`** en `src/shared/constants.js`, `index.html` y `sw.js`.
+
+
+### Iteración v122 — Corrección de Fusión de Datos en Estadísticas/Reportes y Bloqueo de EF sin Resultados
+- **Causa Raíz 1 (Sobrescritura de respuestas válidas por respuestas en blanco de `eval_estudiantes_completos`)**:
+  - En `obtenerDatosCompletos()`, `obtenerDatosCompletosHistorico()` y `generarReporteIndividual()`, la función `normComp` convertía cualquier pregunta con `pts: 0` (incluyendo preguntas sin respuesta `stu: ""` en cargas parciales de `eval_estudiantes_completos`) en `0` y sobrescribía los aciertos (`1`) ya almacenados en `eval_estudiantes_notas` (afectando las preguntas 21–60 y 101–120 de 9° en E1).
+  - **Solución**: Se implementaron `normalizarRegistroCompleto(d)` y `fusionarRespuestasEstudiante(prev, next)` en `index.html`, de modo que las preguntas con `stu === ""` y `pts == 0` no sobrescriban respuestas válidas y cualquier `1` prevalezca al fusionar hojas (`S1` + `S2`) o tablas, recalculando además `porcentaje` mediante `calcularPctHistoricoParaImpresion(est)`.
+- **Causa Raíz 2 (Visualización errónea de estadísticas en `EF` y desfase de matriz `E1` vs `E2`)**:
+  - En `cargarEstadisticas()`, cuando `currentPeriodo` era `null` al abrir Estadísticas, `pActivo` caía a `1` (`E1`) pero `currentPeriodo` permanecía `null`, haciendo que `parseInt(currentPeriodo) === 1` fuera `false` y se aplicara la matriz `6-9-E2E3` sobre datos de `E1`.
+  - Además, cuando se seleccionaba `EF` (`periodo = 3`, que aún no tiene resultados cargados), un fallback cargaba los datos de `E2` (`periodo = 2`) y los guardaba dentro de `cacheDatosEstadisticasPorPeriodo[3]`, haciendo que `EF` mostrara exactamente los mismos datos de `E2`.
+  - **Solución**:
+    - Se eliminó el fallback entre periodos en `cargarEstadisticas()`: cada periodo almacena únicamente sus propios registros en `cacheDatosEstadisticasPorPeriodo[pActivo]`.
+    - Si `currentPeriodo` es `null` al entrar a Estadísticas, se inicializa formalmente en `1` (`E1`) sincronizando las pestañas y selectores.
+    - Si un periodo (`EF`) no tiene resultados cargados (`0` registros), se limpian las gráficas del periodo activo, se deshabilita la opción `EF (Sin resultados aún)` en los selectores comparativos (`#evol-nivel-periodo` y `#evol-grupo-periodo`), y `actualizarGraficoEvolucionNivel()` / `actualizarGraficoEvolucionGrupo()` filtran `periodosList` para graficar únicamente evaluaciones que tengan datos reales.
+- **Actualización de Caché PWA**:
+  - Se sincronizó la versión a **`v122`** en `src/shared/constants.js` y `sw.js`.
