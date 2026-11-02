@@ -25,6 +25,7 @@ export const APP_CONFIG = {
     admin: 'admin',
     lector: 'lector',
     docente: 'docente',
+    tesis: 'tesis',
     estudiante: 'estudiante'
   }
 };

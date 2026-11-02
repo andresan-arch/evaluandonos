@@ -2243,6 +2243,7 @@
                       <select id="nu-rol"
                         style="width:100%; padding:10px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.9rem; margin-top: 3px; box-sizing:border-box;">
                         <option value="lector">Docente (Lector)</option>
+                        <option value="tesis">Investigador (Tesis)</option>
                         <option value="admin">Administrador</option>
                         <option value="superadmin">Super Administrador</option>
                       </select>
@@ -5167,6 +5168,11 @@
           async function switchMainTab(tab) {
             showLoading(true);
             try {
+              if (typeof currentRole !== 'undefined' && currentRole === 'tesis') {
+                if (!['analisis', 'estudiante_detalle', 'estadisticas'].includes(tab)) {
+                  tab = 'analisis';
+                }
+              }
               if (tab === 'informes') {
                 tab = 'individual';
               }
@@ -5834,7 +5840,7 @@
                 const sedesRurales = ['PUEBLILLO', 'SENDERO', 'YANACONAS', 'PISOJE BAJO', 'PRIMARIA'];
                 const isPrimariaDocente = assignedLower === "primaria";
 
-                if (sedesRurales.includes(userSedeClean) || sedesRurales.includes(profileSede) || isPrimariaDocente) {
+                if (role !== 'tesis' && (sedesRurales.includes(userSedeClean) || sedesRurales.includes(profileSede) || isPrimariaDocente)) {
                   console.log(`🌟 Elevando permisos a ADMIN por pertenecer a sede rural o ser docente de Primaria: ${userSedeClean || profileSede || 'Primaria'}`);
                   currentRole = 'admin';
                   document.body.classList.add('is-admin');
@@ -5891,7 +5897,7 @@
               if ($('user-email')) $('user-email').innerText = user.email;
               if ($('user-avatar')) $('user-avatar').innerText = userName.charAt(0).toUpperCase();
               if ($('user-role-label')) {
-                const roleTexts = { 'superadmin': 'Super Administrador', 'admin': 'Administrador Sede', 'lector': 'Docente' };
+                const roleTexts = { 'superadmin': 'Super Administrador', 'admin': 'Administrador Sede', 'lector': 'Docente', 'tesis': 'Investigador (Tesis)' };
                 $('user-role-label').innerText = roleTexts[currentRole] || 'Docente';
               }
 
@@ -5954,6 +5960,33 @@
                   if (asigTab) asigTab.style.display = 'none';
                   if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'none';
                 }
+              }
+
+              // --- RESTRICCIONES DE ROL TESIS (SOLO ANÁLISIS Y ESTADÍSTICAS) ---
+              if (currentRole === 'tesis') {
+                // Ocultar informes por completo
+                const menuInformes = $('menu-informes');
+                if (menuInformes && menuInformes.parentElement) menuInformes.parentElement.style.display = 'none';
+                if ($('m-nav-informes')) $('m-nav-informes').style.display = 'none';
+                if ($('m-nav-individual')) $('m-nav-individual').style.display = 'none';
+                if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'none';
+                if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'none';
+                if (individualTab) individualTab.style.display = 'none';
+                if (grupalTab) grupalTab.style.display = 'none';
+                if (asigTab) asigTab.style.display = 'none';
+
+                // Ocultar botones de administración y arquitectura limpia
+                if ($('clean-arch-trigger')) $('clean-arch-trigger').style.display = 'none';
+                adminBtns.forEach(btn => btn.style.display = 'none');
+                adminElements.forEach(el => el.style.display = 'none');
+                printButtons.forEach(el => el.style.display = 'none');
+
+                // Asegurar visibilidad de Análisis y Estadísticas
+                if ($('tab-estadisticas')) $('tab-estadisticas').style.display = 'flex';
+                if ($('m-nav-estadisticas')) $('m-nav-estadisticas').style.display = 'flex';
+                if ($('m-nav-analisis')) $('m-nav-analisis').style.display = 'flex';
+                const menuAnalisis = $('menu-analisis');
+                if (menuAnalisis && menuAnalisis.parentElement) menuAnalisis.parentElement.style.display = 'block';
               }
 
               // --- VISIBILIDAD DE ANÁLISIS POR ESTUDIANTE (TODOS LOS ROLES) ---
@@ -6092,7 +6125,9 @@
               let uniqueLevels = [...new Set(dataCombined.map(d => extraerGradoBase(d.grado)))]
                 .filter(l => l > 0 && l <= 11);
 
-              if (currentRole !== 'superadmin') {
+              if (currentRole === 'tesis') {
+                uniqueLevels = [9];
+              } else if (currentRole !== 'superadmin') {
                 const assignedLower = (window.assignedGrade || "").toString().toLowerCase();
                 const gBaseAssigned = extraerGradoBase(window.assignedGrade);
                 const esDePrimaria = assignedLower === "primaria" || (gBaseAssigned >= 1 && gBaseAssigned <= 5);
@@ -6493,8 +6528,9 @@
               const labels = ["opcion_a", "opcion_b", "opcion_c", "opcion_d"];
               const opts = ["A", "B", "C", "D"];
 
+              const correctKeys = (stats.key || "").trim().toUpperCase().split(/[,/ ]+/).filter(Boolean);
               const optionsHtml = opts.map((o, i) => {
-                const isCorrect = (o === (stats.key || "").trim().toUpperCase());
+                const isCorrect = correctKeys.includes(o);
                 return `
             <div class="option ${isCorrect ? 'correct' : ''}">
               <div class="option-letter">${o}</div>
@@ -6631,7 +6667,8 @@
             if (myChart) myChart.destroy();
             const ctx = $('barChart').getContext('2d');
             const labels = ['A', 'B', 'C', 'D'];
-            const colors = labels.map(o => o === key ? '#10b981' : '#6366f1');
+            const keys = (key || "").trim().toUpperCase().split(/[,/ ]+/).filter(Boolean);
+            const colors = labels.map(o => keys.includes(o) ? '#10b981' : '#6366f1');
 
             myChart = new Chart(ctx, {
               type: 'bar',
@@ -7902,7 +7939,9 @@
                 .filter(esGrupoValido);
 
               // --- Filtro de Privacidad: Solo mostrar grados permitidos ---
-              if (currentRole !== 'superadmin') {
+              if (currentRole === 'tesis') {
+                uniqueGrados = uniqueGrados.filter(g => ['901', '903'].includes(g.toString()));
+              } else if (currentRole !== 'superadmin') {
                 const assignedLower = (window.assignedGrade || "").toString().toLowerCase();
                 const gBaseAssigned = extraerGradoBase(window.assignedGrade);
                 const esDePrimaria = assignedLower === "primaria" || (gBaseAssigned >= 1 && gBaseAssigned <= 5);
@@ -7964,14 +8003,20 @@
                 uniqueEst.push(e);
               }
             });
-            uniqueEst.sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre));
+            if (currentRole === 'tesis') {
+              uniqueEst.sort((a, b) => (a.student_id || '').localeCompare(b.student_id || '', undefined, { numeric: true }));
+            } else {
+              uniqueEst.sort((a, b) => a.estudiante_nombre.localeCompare(b.estudiante_nombre));
+            }
 
             const sel = $('sel-est-det-nombre');
             sel.innerHTML = '<option value="">Seleccione estudiante...</option>';
             uniqueEst.forEach(e => {
               const opt = document.createElement('option');
               opt.value = e.estudiante_nombre;
-              opt.textContent = e.estudiante_nombre;
+              opt.textContent = (currentRole === 'tesis')
+                ? (e.student_id ? `Código ZipGrade: ${e.student_id}` : 'Código no disponible')
+                : e.estudiante_nombre;
               sel.appendChild(opt);
             });
             showLoading(false);
@@ -8126,23 +8171,26 @@
                   if ($(`est-media-opt-${o}`)) $(`est-media-opt-${o}`).innerHTML = "";
                 }
 
-                if (o.toUpperCase() === respKey) optDiv.classList.add('correct');
+                const validKeys = (respKey || "").split(/[,/ ]+/).map(k => k.trim().toUpperCase()).filter(Boolean);
+                if (validKeys.includes(o.toUpperCase())) optDiv.classList.add('correct');
                 if (respEst && o.toUpperCase() === respEst.stu) {
                   optDiv.classList.add('selected');
-                  if (o.toUpperCase() !== respKey) optDiv.classList.add('incorrect');
+                  if (!validKeys.includes(o.toUpperCase())) optDiv.classList.add('incorrect');
                 }
               });
 
               // Resumen
               if (respEst) {
+                const validKeys = (respKey || "").split(/[,/ ]+/).map(k => k.trim().toUpperCase()).filter(Boolean);
+                const isStudentCorrect = validKeys.includes((respEst.stu || '').toUpperCase());
                 $('est-det-resp-est').textContent = respEst.stu || "-";
                 $('est-det-resp-key').textContent = respKey || "-";
-                $('est-det-pts').textContent = respEst.pts || 0;
-                $('est-det-box-pts').style.background = respEst.pts > 0 ? '#f0fdf4' : '#fef2f2';
+                $('est-det-pts').textContent = isStudentCorrect ? Math.max(respEst.pts || 0, 1) : (respEst.pts || 0);
+                $('est-det-box-pts').style.background = (isStudentCorrect || respEst.pts > 0) ? '#f0fdf4' : '#fef2f2';
 
                 const badge = $('est-det-status-badge');
                 if (badge) {
-                  badge.innerHTML = respEst.pts > 0
+                  badge.innerHTML = (isStudentCorrect || respEst.pts > 0)
                     ? '<span style="background:#10b981; color:white; padding:5px 15px; border-radius:20px; font-weight:800; font-size:0.8rem;">ACIERTO ✅</span>'
                     : '<span style="background:#ef4444; color:white; padding:5px 15px; border-radius:20px; font-weight:800; font-size:0.8rem;">INCORRECTO ❌</span>';
                 }
@@ -9861,7 +9909,10 @@
                 .filter(g => extraerGradoBase(g) > 0);
 
               // --- Filtro de Privacidad: Solo mostrar grupos permitidos ---
-              if (currentRole !== 'superadmin') {
+              if (currentRole === 'tesis') {
+                gruposUnicos = gruposUnicos.filter(g => ['901', '903'].includes(g.toString()));
+                dataPeriodoActual = dataPeriodoActual.filter(d => ['901', '903'].includes(extraerGrupo(d.zipgrade_id)));
+              } else if (currentRole !== 'superadmin') {
                 const assignedLower = (window.assignedGrade || "").toString().toLowerCase();
                 const gBaseAssigned = extraerGradoBase(window.assignedGrade);
                 const esDePrimaria = assignedLower === "primaria" || (gBaseAssigned >= 1 && gBaseAssigned <= 5);
