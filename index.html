@@ -2100,7 +2100,7 @@
         <!-- Izquierda: Pestañas de Período -->
         <div class="period-tabs"
           style="margin: 0; background: #f1f5f9; padding: 4px; border-radius: 12px; display: flex; gap: 5px; border: 1px solid #cbd5e1;">
-          <div id="tab-1" class="period-tab active" onclick="setPeriodo(1)"
+          <div id="tab-1" class="period-tab" onclick="setPeriodo(1)"
             style="font-size: 0.85rem; padding: 8px 20px; font-weight: 800; border-radius: 8px; cursor:pointer;">E1
           </div>
           <div id="tab-2" class="period-tab" onclick="setPeriodo(2)"
@@ -2339,13 +2339,24 @@
             <!-- VISTA 1: ANÁLISIS GENERAL -->
             <div id="analisis-general-view">
               <div id="filtros-container" class="controls"
-                style="display: grid; grid-template-columns: 1fr 1.5fr 0.8fr; gap: 0.8rem; align-items: end; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); padding: 1rem; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.5); width: 100%; box-sizing: border-box; margin-bottom: 2rem;">
+                style="display: grid; grid-template-columns: 1.1fr 1fr 1.5fr 0.8fr; gap: 0.8rem; align-items: end; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); padding: 1rem; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.5); width: 100%; box-sizing: border-box; margin-bottom: 2rem;">
+                <div class="control-group">
+                  <label
+                    style="display: block; font-size: 0.75rem; font-weight: 800; color: #4338ca; margin-bottom: 8px; text-transform: uppercase;">Evaluación</label>
+                  <select id="sel-periodo" onchange="onPeriodoSelectChange(this.value)"
+                    style="width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #6366f1; background: white; font-weight: 700; color: #312e81;">
+                    <option value="">Seleccione evaluación...</option>
+                    <option value="1">Evaluación 1 (E1)</option>
+                    <option value="2">Evaluación 2 (E2)</option>
+                    <option value="3">Evaluación Final (EF)</option>
+                  </select>
+                </div>
                 <div class="control-group">
                   <label
                     style="display: block; font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 8px; text-transform: uppercase;">Grado</label>
                   <select id="sel-grado" onchange="cargarAsignaturas()"
                     style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #cbd5e1; background: white;">
-                    <option value="">Grado...</option>
+                    <option value="">Seleccione evaluación primero...</option>
                   </select>
                 </div>
                 <div class="control-group" id="card-asig"
@@ -2365,6 +2376,15 @@
                     <option value=""># Pregunta</option>
                   </select>
                 </div>
+              </div>
+
+              <div id="analisis-empty-msg"
+                style="text-align: center; padding: 3rem 1.5rem; background: white; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">📋</div>
+                <h3 style="margin: 0 0 0.5rem 0; color: #1e293b; font-size: 1.25rem; font-weight: 800;">Selecciona una Evaluación</h3>
+                <p style="margin: 0; color: #64748b; font-size: 0.95rem; max-width: 500px; margin: 0 auto;">
+                  Por favor selecciona si deseas consultar la <strong>Evaluación 1 (E1)</strong>, <strong>Evaluación 2 (E2)</strong> o <strong>Evaluación Final (EF)</strong> para desplegar los filtros.
+                </p>
               </div>
 
               <div class="dashboard-grid">
@@ -2424,9 +2444,16 @@
                     cada estudiante.</p>
                 </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                  <select id="sel-est-det-periodo" onchange="onPeriodoSelectChange(this.value)"
+                    style="padding:10px; border-radius:10px; border:2px solid #a5b4fc; font-weight:700; background:rgba(255,255,255,0.25); color:white; outline:none; cursor:pointer;">
+                    <option value="" style="color:#000;">Evaluación...</option>
+                    <option value="1" style="color:#000;">Evaluación 1 (E1)</option>
+                    <option value="2" style="color:#000;">Evaluación 2 (E2)</option>
+                    <option value="3" style="color:#000;">Evaluación Final (EF)</option>
+                  </select>
                   <select id="sel-est-det-grado" onchange="cargarEstudiantesDetalle()"
                     style="padding:10px; border-radius:10px; border:none; font-weight:700; background:rgba(255,255,255,0.2); color:white; outline:none; cursor:pointer;">
-                    <option value="" style="color:#000;">Grado...</option>
+                    <option value="" style="color:#000;">Seleccione evaluación primero...</option>
                   </select>
                   <select id="sel-est-det-nombre" onchange="cargarAsignaturasEstudiante()"
                     style="padding:10px; border-radius:10px; border:none; font-weight:700; background:rgba(255,255,255,0.2); color:white; outline:none; cursor:pointer;">
@@ -2442,6 +2469,15 @@
                   </select>
                 </div>
               </div>
+            </div>
+
+            <div id="est-det-empty-msg"
+              style="text-align: center; padding: 3rem 1.5rem; background: white; border-radius: 20px; border: 1px solid #e2e8f0; margin-top: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+              <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">👤</div>
+              <h3 style="margin: 0 0 0.5rem 0; color: #1e293b; font-size: 1.25rem; font-weight: 800;">Selecciona una Evaluación</h3>
+              <p style="margin: 0; color: #64748b; font-size: 0.95rem; max-width: 500px; margin: 0 auto;">
+                Selecciona la evaluación a consultar (E1, E2 o EF) en la esquina superior para consultar el análisis detallado por estudiante.
+              </p>
             </div>
 
             <div id="est-det-content" style="display:none; margin-top:20px;">
@@ -2549,6 +2585,16 @@
           <div id="rep-filters"
             style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:2rem;">
             <div>
+              <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem; color:#4338ca;">Evaluación</label>
+              <select id="rep-periodo" onchange="onPeriodoSelectChange(this.value)"
+                style="width:100%; padding:10px; border-radius:10px; border:2px solid #6366f1; font-weight:700; color:#312e81;">
+                <option value="">Seleccione evaluación...</option>
+                <option value="1">Evaluación 1 (E1)</option>
+                <option value="2">Evaluación 2 (E2)</option>
+                <option value="3">Evaluación Final (EF)</option>
+              </select>
+            </div>
+            <div>
               <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Sede</label>
               <select id="rep-sede" onchange="cargarGradosReporte()"
                 style="width:100%; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
@@ -2563,7 +2609,9 @@
             <div>
               <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Grado</label>
               <select id="rep-grado" onchange="cargarEstudiantesReporte()"
-                style="width:100%; padding:10px; border-radius:10px; border:1px solid #e2e8f0;"></select>
+                style="width:100%; padding:10px; border-radius:10px; border:1px solid #e2e8f0;">
+                <option value="">Seleccione evaluación primero...</option>
+              </select>
             </div>
             <div>
               <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Estudiante</label>
@@ -2646,13 +2694,21 @@
       <!-- Informe Grupal (Contenedor) -->
       <div id="grupal-container" style="display:none; margin-top:2rem;">
         <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 10px;">
             <h2 style="color:var(--primary); margin:0;">Informe General por Grupo</h2>
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <label style="font-weight: 700; font-size: 0.85rem;">GRUPO:</label>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <label style="font-weight: 700; font-size: 0.85rem; color:#4338ca;">EVALUACIÓN:</label>
+              <select id="gru-sel-periodo" onchange="onPeriodoSelectChange(this.value)"
+                style="width: auto; padding: 8px 16px; border-radius: 10px; border: 2px solid #6366f1; font-weight: 700; color: #312e81;">
+                <option value="">Seleccione...</option>
+                <option value="1">E1</option>
+                <option value="2">E2</option>
+                <option value="3">EF</option>
+              </select>
+              <label style="font-weight: 700; font-size: 0.85rem; margin-left: 10px;">GRUPO:</label>
               <select id="gru-sel-grado" onchange="generarInformeGrupal()"
                 style="width: auto; padding: 8px 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                <option value="">Seleccione grupo...</option>
+                <option value="">Seleccione evaluación primero...</option>
               </select>
               <button id="btn-print-grupal" onclick="imprimirInformeGrupal()"
                 style="display:none; background:#4036e5; color:white; border:none; padding:8px 16px; border-radius:10px; font-weight:700; cursor:pointer; align-items:center; gap:8px; font-size:0.75rem;">
@@ -2663,8 +2719,7 @@
 
           <div id="grupal-content"
             style="overflow: auto; max-height: 75vh; background: white; border-radius: 12px; border: 1px solid #e2e8f0; -webkit-overflow-scrolling: touch; position: relative;">
-            <p style="text-align:center; color:#64748b; padding:3rem;">Seleccione un grupo para generar el informe
-              detallado.</p>
+            <p style="text-align:center; color:#64748b; padding:3rem;">Seleccione una evaluación (E1, E2 o EF) y luego elija un grupo.</p>
           </div>
         </div>
       </div>
@@ -2672,13 +2727,21 @@
       <!-- Informe por Asignatura (Contenedor) -->
       <div id="asignatura-container" style="display:none; margin-top:2rem;">
         <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 10px;">
             <h2 style="color:var(--primary); margin:0;">Análisis por Asignatura</h2>
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <label style="font-weight: 700; font-size: 0.85rem;">GRUPO:</label>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <label style="font-weight: 700; font-size: 0.85rem; color:#4338ca;">EVALUACIÓN:</label>
+              <select id="asig-sel-periodo" onchange="onPeriodoSelectChange(this.value)"
+                style="width: auto; padding: 8px 16px; border-radius: 10px; border: 2px solid #6366f1; font-weight: 700; color: #312e81;">
+                <option value="">Seleccione...</option>
+                <option value="1">E1</option>
+                <option value="2">E2</option>
+                <option value="3">EF</option>
+              </select>
+              <label style="font-weight: 700; font-size: 0.85rem; margin-left:10px;">GRUPO:</label>
               <select id="asig-sel-grado" onchange="cargarMateriasInformeAsignatura()"
                 style="width: auto; padding: 8px 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                <option value="">Seleccione grupo...</option>
+                <option value="">Seleccione evaluación primero...</option>
               </select>
               <label style="font-weight: 700; font-size: 0.85rem; margin-left:10px;">ASIGNATURA:</label>
               <select id="asig-sel-materia" onchange="generarInformeAsignatura()"
@@ -5062,7 +5125,7 @@
 
           // --- UTILIDADES GLOBALES ---
           var $ = id => document.getElementById(id);
-          let currentPeriodo = parseInt(localStorage.getItem('currentPeriodo')) || 2;
+          let currentPeriodo = null;
           window.currentYear = parseInt(localStorage.getItem('currentYear')) || new Date().getFullYear();
           let assignedGrade = null;
           let userPermissions = [];
@@ -5090,14 +5153,68 @@
             if (el) el.style.display = show ? 'flex' : 'none';
           }
 
+          function syncPeriodoSelects(val) {
+            const v = val ? val.toString() : '';
+            const ids = ['sel-periodo', 'sel-est-det-periodo', 'gru-sel-periodo', 'rep-periodo', 'asig-sel-periodo'];
+            ids.forEach(id => {
+              const el = $(id);
+              if (el) el.value = v;
+            });
+          }
+
+          function resetViewsOnEmptyPeriodo() {
+            // 1. Análisis General
+            if ($('sel-grado')) $('sel-grado').innerHTML = '<option value="">Seleccione evaluación primero...</option>';
+            if ($('sel-asig')) $('sel-asig').innerHTML = '<option value="">Seleccione evaluación primero...</option>';
+            if ($('sel-pregunta')) $('sel-pregunta').innerHTML = '<option value=""># Pregunta</option>';
+            if ($('analisis-empty-msg')) $('analisis-empty-msg').style.display = 'block';
+            const dashGrid = document.querySelector('.dashboard-grid');
+            if (dashGrid) dashGrid.style.display = 'none';
+
+            // 2. Análisis por Estudiante
+            if ($('sel-est-det-grado')) $('sel-est-det-grado').innerHTML = '<option value="">Seleccione evaluación primero...</option>';
+            if ($('sel-est-det-nombre')) $('sel-est-det-nombre').innerHTML = '<option value="">Estudiante...</option>';
+            if ($('sel-est-det-asig')) $('sel-est-det-asig').innerHTML = '<option value="">Materia...</option>';
+            if ($('sel-est-det-preg')) $('sel-est-det-preg').innerHTML = '<option value="">#...</option>';
+            if ($('est-det-content')) $('est-det-content').style.display = 'none';
+            if ($('est-det-empty-msg')) $('est-det-empty-msg').style.display = 'block';
+
+            // 3. Informe Grupal
+            if ($('gru-sel-grado')) $('gru-sel-grado').innerHTML = '<option value="">Seleccione evaluación primero...</option>';
+            if ($('grupal-content')) $('grupal-content').innerHTML = '<p style="text-align:center; color:#64748b; padding:3rem;">Seleccione una evaluación (E1, E2 o EF) y luego elija un grupo.</p>';
+
+            // 4. Informe Individual
+            if ($('rep-grado')) $('rep-grado').innerHTML = '<option value="">Seleccione evaluación primero...</option>';
+            if ($('rep-estudiante')) $('rep-estudiante').innerHTML = '<option value="">Seleccione grado primero...</option>';
+            if ($('reporte-content')) $('reporte-content').style.display = 'none';
+
+            // 5. Informe Asignatura
+            if ($('asig-sel-grado')) $('asig-sel-grado').innerHTML = '<option value="">Seleccione evaluación primero...</option>';
+            if ($('asig-sel-materia')) $('asig-sel-materia').innerHTML = '<option value="">Seleccione grupo primero...</option>';
+            if ($('asignatura-content')) $('asignatura-content').innerHTML = '<p style="text-align:center; color:#64748b; padding:3rem;">Seleccione una evaluación (E1, E2 o EF), grupo y asignatura para ver el detalle.</p>';
+          }
+
+          async function onPeriodoSelectChange(val) {
+            if (!val) {
+              await setPeriodo(null);
+            } else {
+              await setPeriodo(parseInt(val, 10));
+            }
+          }
+
           async function init() {
-            console.log("🚀 Iniciando aplicación...");
+            if (!currentPeriodo) {
+              console.log("ℹ️ No hay evaluación seleccionada. Esperando selección...");
+              resetViewsOnEmptyPeriodo();
+              return;
+            }
+            console.log("🚀 Iniciando aplicación con evaluación:", currentPeriodo);
             showLoading(true);
             try {
-              // 1. Verificar si hay datos en el periodo actual
-              const { data: hasData } = await supabaseClient.from('eval_resultados').select('periodo').eq('periodo', currentPeriodo).limit(1);
-
-              // Eliminada la lógica de auto-revertir el periodo, ya que impedía a los usuarios cambiar de periodo si este estaba vacío.
+              if ($('analisis-empty-msg')) $('analisis-empty-msg').style.display = 'none';
+              if ($('est-det-empty-msg')) $('est-det-empty-msg').style.display = 'none';
+              const dashGrid = document.querySelector('.dashboard-grid');
+              if (dashGrid) dashGrid.style.display = 'grid';
               await cargarGrados();
             } catch (err) {
               console.error("Error en init:", err);
@@ -6014,6 +6131,7 @@
             document.querySelectorAll('.period-tab').forEach((t, i) => {
               t.classList.toggle('active', (i + 1) === p);
             });
+            if (typeof syncPeriodoSelects === 'function') syncPeriodoSelects(p);
 
             // Reiniciar filtros de grados y dependientes
             await init();
@@ -6073,16 +6191,17 @@
             "INGLES": "I"
           };
 
-          function obtenerUrlPredictiva(grado, materia, num, opcion = "", index = 1) {
+          function obtenerUrlPredictiva(grado, materia, num, opcion = "", index = 1, periodoOverride = null) {
             const normalizar = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
             const cod = MATERIA_ADIVINAR[normalizar(materia)] || "X";
             const gNum = parseInt(grado) || 0;
             const anio = "2026";
+            const per = periodoOverride !== null ? Number(periodoOverride) : Number(currentPeriodo);
 
-            // Determinar el nombre del examen según el periodo actual
+            // Determinar el nombre del examen según el periodo
             let examen = "E1";
-            if (currentPeriodo == 2) examen = "E2";
-            if (currentPeriodo == 3) examen = "EF";
+            if (per == 2) examen = "E2";
+            if (per == 3) examen = "EF";
 
             // Soporte para múltiples imágenes (_1, _2, etc.)
             // La primera imagen (index 1) no lleva sufijo.
@@ -6216,6 +6335,15 @@
                 sel.innerHTML = '<option value="">Sin datos...</option>';
               } else {
                 sel.innerHTML = '<option value="">Nivel...</option>' + uniqueLevels.map(l => `<option value="${l}">${l}° Grado</option>`).join('');
+                if (currentRole === 'tesis' && uniqueLevels.includes(9)) {
+                  sel.value = '9';
+                  await cargarAsignaturas();
+                  const asigSel = $('sel-asig');
+                  if (asigSel) {
+                    asigSel.value = 'Matemáticas';
+                    if (typeof onAsigChange === 'function') onAsigChange(asigSel);
+                  }
+                }
               }
             } catch (e) {
               console.error("Error fatal al cargar grados:", e);
@@ -6302,7 +6430,9 @@
               ])].sort();
 
               // --- Filtro de Privacidad: Solo mostrar asignaturas que el docente DICTA en este nivel ---
-              if (currentRole !== 'superadmin' && currentRole !== 'admin') {
+              if (currentRole === 'tesis') {
+                unique = ['Matemáticas'];
+              } else if (currentRole !== 'superadmin' && currentRole !== 'admin') {
                 const assignedLower = (window.assignedGrade || "").toString().toLowerCase();
                 const gBaseAssigned = extraerGradoBase(window.assignedGrade);
                 const esDePrimaria = assignedLower === "primaria" || (gBaseAssigned >= 1 && gBaseAssigned <= 5);
@@ -6553,6 +6683,64 @@
             showLoading(false);
           }
 
+          function parsearPartesMedia(content) {
+            if (!content) return [];
+            const str = content.toString().trim();
+            if (!str) return [];
+            if (str.includes('|||')) {
+              return str.split('|||');
+            }
+            // Dividir por // pero protegiendo protocolos http:// y https://
+            const temp = str.split('//');
+            const rawParts = [];
+            for (let i = 0; i < temp.length; i++) {
+              if (i > 0 && (rawParts.length > 0 && rawParts[rawParts.length - 1].trim().match(/https?:$/i))) {
+                rawParts[rawParts.length - 1] += '//' + temp[i];
+              } else {
+                rawParts.push(temp[i]);
+              }
+            }
+            if (rawParts.length === 1) {
+              if (rawParts[0].trim().toLowerCase().startsWith("http")) {
+                return ["", rawParts[0]];
+              }
+              return rawParts;
+            }
+            // Normalizar a arreglo alternado [texto0, img1, texto1, img2, ...]
+            // Soporta tanto "Texto 1 // // Texto 2" como "Texto 1 // Texto 2", "// Texto", "Texto //", "//" y URLs explícitas
+            const parts = [];
+            for (let i = 0; i < rawParts.length; i++) {
+              const rawSeg = rawParts[i];
+              const trimmed = rawSeg.trim();
+              const isUrl = /^https?:\/\//i.test(trimmed);
+              if (i === 0) {
+                if (isUrl) {
+                  parts.push("", trimmed);
+                } else {
+                  parts.push(rawSeg);
+                }
+              } else if (parts.length % 2 === 1) {
+                // El siguiente slot esperado es IMAGEN (índice impar)
+                if (isUrl) {
+                  parts.push(trimmed);
+                } else if (trimmed === "") {
+                  parts.push("");
+                } else {
+                  // Hay texto inmediatamente después de un solo '//': insertar slot de imagen predictiva y luego el texto
+                  parts.push("", rawSeg);
+                }
+              } else {
+                // El siguiente slot esperado es TEXTO (índice par, ej. después de '// //' o de una URL explícita)
+                if (isUrl) {
+                  parts.push("", trimmed);
+                } else {
+                  parts.push(rawSeg);
+                }
+              }
+            }
+            return parts;
+          }
+
           function renderMedia(textId, mediaId, content, grado, asig, num, opcion = "") {
             const textElem = $(textId);
             const mediaElem = $(mediaId);
@@ -6563,25 +6751,7 @@
               return;
             }
 
-            const str = content.toString().trim();
-            let parts = [];
-            if (str.includes('|||')) {
-              parts = str.split('|||');
-            } else {
-              // Dividir por // pero protegiendo protocolos http:// y https://
-              const temp = str.split('//');
-              for (let i = 0; i < temp.length; i++) {
-                if (i > 0 && (parts.length > 0 && parts[parts.length - 1].trim().match(/https?:$/i))) {
-                  parts[parts.length - 1] += '//' + temp[i];
-                } else {
-                  parts.push(temp[i]);
-                }
-              }
-              // Caso especial: si es una URL sola, tratarla como imagen
-              if (parts.length === 1 && parts[0].trim().toLowerCase().startsWith("http")) {
-                parts = ["", parts[0]];
-              }
-            }
+            const parts = parsearPartesMedia(content);
 
             // Limpiamos contenedores
             textElem.innerHTML = "";
@@ -6649,7 +6819,7 @@
                 <img src="${imgUrl}" 
                      style="max-width:100%; border-radius:16px; border:1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);" 
                      title="Imagen ${imageCounter}"
-                     onerror="this.style.display='none';">
+                     onerror="if (!this.dataset.tLower) { this.dataset.tLower = '1'; this.src = this.src.replace(/\\/([^\\/]+)$/, (m, f) => '/' + f.toLowerCase()); } else if (!this.dataset.tUpper) { this.dataset.tUpper = '1'; this.src = this.src.replace(/\\/([^\\/]+)$/, (m, f) => '/' + f.toUpperCase()); } else { this.style.display='none'; }">
               </div>`;
                 }
               }
@@ -6762,9 +6932,8 @@
               const val = data[f.key] || '';
               const opcLetra = (f.key.length === 8 && f.key.startsWith('opcion_')) ? f.key.slice(-1).toUpperCase() : '';
 
-              // Generalizar visualización de múltiples partes
-              const separator = val.includes(" // ") ? " // " : (val.includes(" ||| ") ? " ||| " : null);
-              const parts = separator ? val.split(separator) : [val];
+              // Generalizar visualización de múltiples partes con la misma lógica de renderMedia
+              const parts = parsearPartesMedia(val);
 
               let textDisplay = "";
               let previewHtml = '';
@@ -6776,29 +6945,19 @@
                 } else {
                   imageCounter++;
                   let url = pPart.trim();
-                  if (!url.startsWith("http")) {
-                    url = obtenerUrlPredictiva(g, a, num, opcLetra, imageCounter);
+                  if (!url.toLowerCase().startsWith("http")) {
+                    url = obtenerUrlPredictiva(g, a, num, opcLetra, imageCounter, p);
                   }
                   if (url) {
                     previewHtml += `
                     <div style="margin-top:5px; position:relative; display:inline-block; margin-right:5px;">
-                      <img src="${url}" style="max-height:45px; border-radius:4px; border:1px solid #ddd;" onerror="this.style.opacity='0.3'">
+                      <img src="${url}" style="max-height:45px; border-radius:4px; border:1px solid #ddd;" onerror="if (!this.dataset.tLower) { this.dataset.tLower = '1'; this.src = this.src.replace(/\\/([^\\/]+)$/, (m, fn) => '/' + fn.toLowerCase()); } else if (!this.dataset.tUpper) { this.dataset.tUpper = '1'; this.src = this.src.replace(/\\/([^\\/]+)$/, (m, fn) => '/' + fn.toUpperCase()); } else { this.style.opacity='0.3'; }">
                       <button onclick="removerImagenMapeo('${data.id}', '${f.key}')" 
                         style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; border:none; width:18px; height:18px; border-radius:50%; font-size:10px; cursor:pointer;" title="Eliminar Imagen">×</button>
                     </div>`;
                   }
                 }
               });
-
-              // Caso especial: si es una URL directa sin separadores
-              if (!separator && val.startsWith("http")) {
-                previewHtml = `
-                <div style="margin-top:5px; position:relative; display:inline-block;">
-                  <img src="${val}" style="max-height:45px; border-radius:4px; border:1px solid #ddd;">
-                  <button onclick="removerImagenMapeo('${data.id}', '${f.key}')" 
-                    style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; border:none; width:18px; height:18px; border-radius:50%; font-size:10px; cursor:pointer;" title="Eliminar Imagen">×</button>
-                </div>`;
-              }
 
               if (!previewHtml) previewHtml = `<span style="color:#64748b; font-size:0.65rem;">(Sin Imagen)</span>`;
 
@@ -6851,8 +7010,11 @@
               let newContent = "";
               if (curr && curr[colName]) {
                 const str = curr[colName].toString();
-                if (str.includes(" ||| ")) newContent = str.split(" ||| ")[0];
-                else if (!str.startsWith("http")) newContent = str;
+                newContent = parsearPartesMedia(str)
+                  .filter((_, idx) => idx % 2 === 0)
+                  .map(s => s.trim())
+                  .filter(Boolean)
+                  .join(" ");
               }
 
               const { error } = await supabaseClient.from('eval_preguntas').update({ [colName]: newContent }).eq('id', rowId);
@@ -7174,19 +7336,51 @@
 
                 if (!isEdit) {
                   if (!pass) throw new Error('La contraseña es obligatoria para nuevos usuarios.');
+                  if (pass.length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres.');
+                  let userId = null;
                   const { data, error } = await supabaseClient.auth.signUp({
                     email, password: pass, options: { data: { nombre, name: nombre } }
                   });
                   if (error) {
-                    if (error.message.includes('already registered') || error.status === 422) throw new Error('El correo ya está registrado.');
-                    throw error;
+                    if (error.code === 'weak_password' || (error.message && error.message.toLowerCase().includes('at least 6 characters'))) {
+                      throw new Error('La contraseña debe tener al menos 6 caracteres.');
+                    }
+                    if (error.code === 'user_already_exists' || (error.message && error.message.toLowerCase().includes('already registered')) || error.status === 422) {
+                      // Verificar si ya existe en perfiles
+                      const { data: pExist } = await supabaseClient.from('perfiles').select('id').eq('email', email).maybeSingle();
+                      if (pExist) {
+                        throw new Error('El correo ya está registrado.');
+                      }
+                      // Si existe en Auth pero faltó en perfiles, intentar autenticar con la clave para recuperar el ID
+                      const { data: loginData, error: loginErr } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+                      if (!loginErr && loginData?.user?.id) {
+                        userId = loginData.user.id;
+                      } else {
+                        throw new Error('El correo ya existe en Supabase Auth pero no en perfiles. Elimínalo en Supabase (Authentication > Users) o ingresa su contraseña correcta.');
+                      }
+                    } else {
+                      throw new Error(error.message || 'Error al registrar el usuario.');
+                    }
+                  } else {
+                    userId = data.user?.id;
                   }
-                  const userId = data.user.id;
+
+                  if (!userId) throw new Error('No se pudo obtener el identificador de usuario.');
                   const { error: pErr } = await supabaseClient.from('perfiles').insert({ id: userId, email, nombre, rol, grado_asignado });
-                  if (pErr) throw pErr;
+                  if (pErr) {
+                    if (pErr.code === '23514') {
+                      throw new Error('Error en BD: El rol \"' + rol + '\" no está permitido en la restricción perfiles_rol_check de Supabase.');
+                    }
+                    throw pErr;
+                  }
                 } else {
                   const { error: pErr } = await supabaseClient.from('perfiles').update({ email, nombre, rol, grado_asignado }).eq('id', id);
-                  if (pErr) throw pErr;
+                  if (pErr) {
+                    if (pErr.code === '23514') {
+                      throw new Error('Error en BD: El rol \"' + rol + '\" no está permitido en la restricción perfiles_rol_check de Supabase.');
+                    }
+                    throw pErr;
+                  }
                 }
 
                 // --- ACTUALIZAR DOCENTES_PRIVACIDAD ---
