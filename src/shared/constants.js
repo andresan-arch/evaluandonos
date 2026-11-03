@@ -1,5 +1,5 @@
 // --- CONFIGURACIONES GLOBALES (CONSTANTES) ---
-var CURRENT_APP_VERSION = 'v122';
+var CURRENT_APP_VERSION = 'v123';
 var SB_URL = 'https://txnecdeccianklqqyrav.supabase.co';
 var SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4bmVjZGVjY2lhbmtscXF5cmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MDQzMDIsImV4cCI6MjA5MTk4MDMwMn0.e2ybyt2Y8yHsZwRC-MZqi_qK525-CWpk-huQcQy-icM";
 
@@ -36,7 +36,9 @@ const MATRIZ_RANGOS = {
     { start: 31,  end: 50,  label: 'Ciencias Sociales' },
     { start: 51,  end: 70,  label: 'Lenguaje' },
     { start: 71,  end: 80,  label: 'Biologia' },
-    { start: 81,  end: 100, label: 'Ingles' }
+    { start: 81,  end: 90,  label: 'Fisica' },
+    { start: 91,  end: 100, label: 'Quimica' },
+    { start: 101, end: 120, label: 'Ingles' }
   ],
 
   // E2/E3 (2P y 3P) — doble hoja 60+60, numeracion virtual 1-120 con offset

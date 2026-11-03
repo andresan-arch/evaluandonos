@@ -130,22 +130,49 @@ function detectarSede(gradoStr) {
 }
 
 function detectarPeriodo(quizName) {
-  if (!quizName) return parseInt(currentPeriodo) || 1;
+  if (!quizName) return (typeof currentPeriodo !== 'undefined' ? parseInt(currentPeriodo) : 1) || 1;
   const name = quizName.toString().toUpperCase();
 
-  // Prioridad 1: Patrones claros como 1P, P1, Periodo 1
-  if (/(?:1P|P1|PERIODO\s*1|[ _\-]1(?!\d))/i.test(name)) return 1;
-  if (/(?:2P|P2|PERIODO\s*2|[ _\-]2(?!\d))/i.test(name)) return 2;
-  if (/(?:3P|P3|PERIODO\s*3|[ _\-]3(?!\d)|FINAL|FIN)/i.test(name)) return 3;
+  // Prioridad 1: Tokens explícitos de prueba/periodo (1P/P1/E1, 2P/P2/E2, 3P/P3/E3/EF/FINAL)
+  // Se evalúan antes de cualquier número suelto para no confundir el grado (ej. "EVALUÁNDONOS 3 2P") con el periodo
+  if (/(?:^|[\s_\-/\\])(?:1P|P1|E1|PERIODO\s*1)(?=$|[\s_\-/\\.])/i.test(name)) return 1;
+  if (/(?:^|[\s_\-/\\])(?:2P|P2|E2|PERIODO\s*2)(?=$|[\s_\-/\\.])/i.test(name)) return 2;
+  if (/(?:^|[\s_\-/\\])(?:3P|P3|E3|EF|PERIODO\s*3|FINAL|FIN)(?=$|[\s_\-/\\.])/i.test(name)) return 3;
 
-  // Prioridad 2: Si tiene "Evaluandonos" y un número solo
-  if (name.includes("EVALUANDONOS")) {
-    if (/\b1\b/.test(name)) return 1;
-    if (/\b2\b/.test(name)) return 2;
-    if (/\b3\b/.test(name)) return 3;
+  return (typeof currentPeriodo !== 'undefined' ? parseInt(currentPeriodo) : 1) || 1;
+}
+
+/**
+ * Determina si un archivo/quiz CSV corresponde a la Segunda Sesión (S2, preguntas 1 a 60 -> 61 a 120).
+ * Regla de negocio:
+ * - E1 (periodo 1): 1 sola sesión de 1 a 120 preguntas -> SIEMPRE retorna false (offset 0).
+ * - E2 y EF (periodo 2 y 3): 2 sesiones de 1 a 60 preguntas en Bachillerato (S1: 1-60, S2: 1-60 con offset +60 -> 61-120).
+ */
+function esSegundaSesionCSV(quizName, fileName, periodoDetectado) {
+  const p = parseInt(periodoDetectado) || detectarPeriodo((quizName || '') + ' ' + (fileName || ''));
+  if (p === 1) return false;
+  const combined = ((quizName || '') + ' ' + (fileName || '')).toString();
+  return /(?:^|[\s_\-/\\])(?:s2|sec(?:ci[oó]n)?\s*2|ses(?:i[oó]n)?\s*2|parte\s*2|hoja\s*2)(?=$|[\s_\-/\\.]|\b)/i.test(combined);
+}
+
+/**
+ * Extrae el grado (3 a 11) desde el nombre del quiz o nombre del archivo CSV sin confundirse
+ * con tokens de periodo (1P, 2P, 3P, E1, E2, EF), sesión (S1, S2) ni año (2026).
+ */
+function extraerGradoDeQuizCSV(quizName, fileName) {
+  const sources = [quizName || '', fileName || ''];
+  for (const src of sources) {
+    if (!src) continue;
+    const cleaned = src.toString()
+      .replace(/\b20\d{2}\d*\b/g, ' ')
+      .replace(/(?:^|[\s_\-/\\])(?:[123]P|P[123]|E[123F]|PERIODO\s*[123])(?=$|[\s_\-/\\.])/gi, ' ')
+      .replace(/(?:^|[\s_\-/\\])(?:S[12]|SEC(?:CI[OÓ]N)?\s*[12]|SES(?:I[OÓ]N)?\s*[12]|PARTE\s*[12]|HOJA\s*[12])(?=$|[\s_\-/\\.])/gi, ' ');
+    const match1011 = cleaned.match(/(?:^|[^\d])(10|11)(?!\d)/);
+    if (match1011) return match1011[1];
+    const match39 = cleaned.match(/(?:^|[^\d])([3-9])(?!\d)/);
+    if (match39) return match39[1];
   }
-
-  return parseInt(currentPeriodo) || 1;
+  return "0";
 }
 
 function isSubjectEvaluated(subject, grade) {

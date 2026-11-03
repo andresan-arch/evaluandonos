@@ -289,3 +289,20 @@ Regla vigente para esta etapa:
     - Si un periodo (`EF`) no tiene resultados cargados (`0` registros), se limpian las gráficas del periodo activo, se deshabilita la opción `EF (Sin resultados aún)` en los selectores comparativos (`#evol-nivel-periodo` y `#evol-grupo-periodo`), y `actualizarGraficoEvolucionNivel()` / `actualizarGraficoEvolucionGrupo()` filtran `periodosList` para graficar únicamente evaluaciones que tengan datos reales.
 - **Actualización de Caché PWA**:
   - Se sincronizó la versión a **`v122`** en `src/shared/constants.js` y `sw.js`.
+
+
+### Iteración v123 — Restauración de Datos E1 (9°), Corrección de Matriz 10-11-E1 y Reglas de Lectura CSV por Sesiones (E1 1–120 vs E2/EF 1–60 en S1/S2)
+- **Restauración de Registros Completos de 9° en `E1` (`periodo = 1`) en Supabase**:
+  - En la base de datos de Supabase, las preguntas `21–60` (`Competencias Ciudadanas` y `Ciencias Sociales`) y `101–120` (`Ingles`) de Grado 9° en `E1` habían sido sobrescritas previamente por un archivo parcial de una sola sesión, haciendo que el grupo `901` mostrara `11%, 7%, 11%` en lugar de sus promedios reales.
+  - Se restauraron en Supabase los 97 registros completos de Grado 9° (`E1`, preguntas `1` a `120`) en `eval_estudiantes_notas` y `eval_estudiantes_completos` desde `Totales/completos/quiz-EVALUNDONOS 9 1P 2026 TOTAL-full.csv` y las 60 filas faltantes de `eval_resultados` desde el backup oficial (`Backups/Backup_Datos_Evaluandonos_2026-05-21_21-30.json`), quedando verificados los promedios reales de `901` en `E1`: `Matematicas: 40%`, `Ciencias Sociales: 81%`, `Ingles: 54%`, `Competencias Ciudadanas: 77%`, `Biologia: 64%`, `Lenguaje: 48%`.
+- **Corrección de `MATRIZ_RANGOS['10-11-E1']` (`src/shared/constants.js` y `src/shared/constants/MATRIZ_RANGOS.js`)**:
+  - Se corrigió la matriz de 10° y 11° para `E1` (120 preguntas en una sola sesión): `Matematicas (1–20)`, `Competencias Ciudadanas (21–30)`, `Ciencias Sociales (31–50)`, `Lenguaje (51–70)`, `Biologia (71–80)`, `Fisica (81–90)`, `Quimica (91–100)` e `Ingles (101–120)`.
+- **Unificación de la Lógica de Lectura de CSV por Sesiones (`E1` 1–120 vs `E2`/`EF` 1–60 en `S1` y `S2`)**:
+  - Se implementaron `esSegundaSesionCSV(quizName, fileName, periodoDetectado)` y `extraerGradoDeQuizCSV(quizName, fileName)` en `src/shared/helpers.js`, `src/shared/utils/normalization.js`, `src/presentation/controllers/AdminController.js` e `index.html` (`procesarBancoPreguntas`, `procesarConsolidado`, `procesarEstudiantes`, `procesarCompletos`):
+    - **`E1` (`periodo = 1`)**: 1 sola sesión numerada de `1` a `120` (`Q1–Q120`, `Stu1–Stu120`, `1–120`) -> `offset = 0` siempre.
+    - **`E2` y `EF` (`periodo = 2` y `3`)**: 2 sesiones numeradas de `1` a `60` en los CSV de Bachillerato:
+      - **Sesión 1 (`S1`)**: preguntas `1` a `60` -> se almacenan como `1` a `60` (`offset = 0`).
+      - **Sesión 2 (`S2`)**: preguntas `1` a `60` -> se almacenan como `61` a `120` (`offset = +60` cuando `qNum <= 60`).
+    - Se corrigió la extracción de grado desde el nombre del quiz/archivo para que títulos como `"EVALUÁNDONOS 2P 10_S2"` o `"EVALUÁNDONOS 3 EF 2026"` no confundan el periodo (`2P`, `3P`, `EF`) con el grado (`10`, `11`, `3`).
+- **Actualización de Caché PWA**:
+  - Se sincronizó la versión a **`v123`** en `src/shared/constants.js`, `index.html` y `sw.js`.

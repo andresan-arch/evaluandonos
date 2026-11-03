@@ -75,19 +75,23 @@ export function detectarPeriodo(quizName, currentPeriodo = 1) {
   if (!quizName) return parseInt(currentPeriodo) || 1;
   const name = quizName.toString().toUpperCase();
 
-  // Prioridad 1: Patrones claros como 1P, P1, Periodo 1
-  if (/(?:1P|P1|PERIODO\s*1|[ _\-]1(?!\d))/i.test(name)) return 1;
-  if (/(?:2P|P2|PERIODO\s*2|[ _\-]2(?!\d))/i.test(name)) return 2;
-  if (/(?:3P|P3|PERIODO\s*3|[ _\-]3(?!\d)|FINAL|FIN)/i.test(name)) return 3;
-
-  // Prioridad 2: Si tiene "Evaluandonos" y un número solo
-  if (name.includes("EVALUANDONOS")) {
-    if (/\b1\b/.test(name)) return 1;
-    if (/\b2\b/.test(name)) return 2;
-    if (/\b3\b/.test(name)) return 3;
-  }
+  if (/(?:^|[\s_\-/\\])(?:1P|P1|E1|PERIODO\s*1)(?=$|[\s_\-/\\.])/i.test(name)) return 1;
+  if (/(?:^|[\s_\-/\\])(?:2P|P2|E2|PERIODO\s*2)(?=$|[\s_\-/\\.])/i.test(name)) return 2;
+  if (/(?:^|[\s_\-/\\])(?:3P|P3|E3|EF|PERIODO\s*3|FINAL|FIN)(?=$|[\s_\-/\\.])/i.test(name)) return 3;
 
   return parseInt(currentPeriodo) || 1;
+}
+
+/**
+ * Determina si un archivo/quiz CSV corresponde a la Segunda Sesión (S2, preguntas 1 a 60 -> 61 a 120).
+ * - E1 (periodo 1): 1 sola sesión de 1 a 120 preguntas -> SIEMPRE false.
+ * - E2 y EF (periodo 2 y 3): 2 sesiones de 1 a 60 preguntas (S1: 1-60, S2: 1-60 con offset +60 -> 61-120).
+ */
+export function esSegundaSesionCSV(quizName, fileName, periodoDetectado) {
+  const p = parseInt(periodoDetectado) || detectarPeriodo((quizName || '') + ' ' + (fileName || ''));
+  if (p === 1) return false;
+  const combined = ((quizName || '') + ' ' + (fileName || '')).toString();
+  return /(?:^|[\s_\-/\\])(?:s2|sec(?:ci[oó]n)?\s*2|ses(?:i[oó]n)?\s*2|parte\s*2|hoja\s*2)(?=$|[\s_\-/\\.]|\b)/i.test(combined);
 }
 
 /**

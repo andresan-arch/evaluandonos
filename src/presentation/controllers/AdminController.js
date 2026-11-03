@@ -4,7 +4,7 @@
  */
 
 import { AdminService } from '../../domain/services/index.js';
-import { extraerGradoBase, detectarPeriodo, detectarSede, getCurrentYear } from '../../shared/utils/normalization.js';
+import { extraerGradoBase, detectarPeriodo, detectarSede, esSegundaSesionCSV, getCurrentYear } from '../../shared/utils/normalization.js';
 
 export class AdminController {
   constructor() {
@@ -149,9 +149,6 @@ export class AdminController {
       return;
     }
 
-    // Detectar periodo a partir del nombre del archivo o quiz
-    const periodo = detectarPeriodo(filename);
-
     const config = {
       header: true,
       skipEmptyLines: true,
@@ -160,10 +157,16 @@ export class AdminController {
         const resultados = [];
 
         rows.forEach(row => {
-          const zipId = row['ZipGradeID'] || row['External ID'] || row['zipgrade_id'] || row['ID'];
+          const zipId = row['ZipGradeID'] || row['ZipGrade ID'] || row['External ID'] || row['zipgrade_id'] || row['ID'];
           const nombre = row['First Name'] || row['Last Name'] || row['nombre'] || row['Student Name'];
-          const correctas = parseInt(row['Percent Correct'] || row['Score'] || row['correctas'], 10);
+          const correctas = parseInt(row['Num Correct'] || row['# Correct'] || row['Percent Correct'] || row['Score'] || row['correctas'], 10);
           const total = parseInt(row['Total Questions'] || row['preguntas'] || row['total_preguntas'], 10);
+          const quizName = (row['Quiz Name'] || row['Quiz_Name'] || '').toString().trim();
+
+          // E1: 1 sesión de 1-120 (offset 0). E2 y EF: 2 sesiones de 1-60 (S1 offset 0, S2 offset +60)
+          const periodoRow = detectarPeriodo(quizName || filename);
+          const isS2 = esSegundaSesionCSV(quizName, filename, periodoRow);
+          const offset = isS2 ? 60 : 0;
 
           if (zipId && nombre && !isNaN(correctas)) {
             const respuestas = {};
@@ -171,8 +174,9 @@ export class AdminController {
             Object.keys(row).forEach(key => {
               const match = key.match(/^Q(\d+)$/i);
               if (match) {
-                const num = parseInt(match[1], 10);
-                respuestas[num] = row[key] === '1' || row[key] === 'Correct' ? 1 : 0;
+                let num = parseInt(match[1], 10);
+                if (offset > 0 && num <= 60) num += offset;
+                respuestas[num] = row[key] === '1' || row[key] === 1 || row[key] === 'Correct' ? 1 : 0;
               }
             });
 
@@ -185,7 +189,7 @@ export class AdminController {
               respuestas,
               porcentaje: Math.round((correctas / (total || 1)) * 100),
               grado: gBase,
-              periodo,
+              periodo: periodoRow,
               anio: getCurrentYear()
             });
           }
@@ -198,7 +202,7 @@ export class AdminController {
 
         const res = await AdminService.subirResultados(resultados);
         if (res.success) {
-          alert(`Sincronización exitosa: ${res.count} resultados cargados para el periodo P${periodo}.`);
+          alert(`Sincronización exitosa: ${res.count} resultados cargados.`);
         } else {
           alert(`Error al guardar resultados: ${res.error}`);
         }

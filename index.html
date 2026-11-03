@@ -3291,7 +3291,7 @@
       <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
       <script>
-        var CURRENT_APP_VERSION = "v121";
+        var CURRENT_APP_VERSION = "v123";
         window.MathJax = {
           tex: {
             inlineMath: [['$', '$'], ['\\(', '\\)']],
@@ -5172,8 +5172,8 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
         <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
-        <script src="src/shared/constants.js"></script>
-        <script src="src/shared/helpers.js"></script>
+        <script src="src/shared/constants.js?v=123"></script>
+        <script src="src/shared/helpers.js?v=123"></script>
         <script>
           // --- CONFIGURACIÓN Y ESTADO GLOBAL ---
 
@@ -7725,8 +7725,43 @@
             init();
           }
 
+          // --- REGLAS DE NUMERACIÓN DE SESIONES CSV (E1 vs E2 y EF) ---
+          // E1 (periodo 1): 1 sola sesión numerada de 1 a 120 (Bachillerato) o 1-45 / 1-90 (Primaria) -> offset 0.
+          // E2 y EF (periodo 2 y 3): 2 sesiones numeradas de 1 a 60 en los CSV de Bachillerato:
+          //   - Sesión 1 (S1): preguntas 1 a 60 -> se almacenan como 1 a 60 (offset 0).
+          //   - Sesión 2 (S2): preguntas 1 a 60 -> se almacenan como 61 a 120 (offset +60 cuando qNum <= 60).
+          function _esSegundaSesionCSV(quizName, fileName, periodoDetectado) {
+            if (typeof esSegundaSesionCSV === 'function') {
+              return esSegundaSesionCSV(quizName, fileName, periodoDetectado);
+            }
+            const p = parseInt(periodoDetectado) || 1;
+            if (p === 1) return false;
+            const combined = ((quizName || '') + ' ' + (fileName || '')).toString();
+            return /(?:^|[\s_\-/\\])(?:s2|sec(?:ci[oó]n)?\s*2|ses(?:i[oó]n)?\s*2|parte\s*2|hoja\s*2)(?=$|[\s_\-/\\.]|\b)/i.test(combined);
+          }
+
+          function _extraerGradoDeQuizCSV(quizName, fileName) {
+            if (typeof extraerGradoDeQuizCSV === 'function') {
+              return extraerGradoDeQuizCSV(quizName, fileName);
+            }
+            const sources = [quizName || '', fileName || ''];
+            for (const src of sources) {
+              if (!src) continue;
+              const cleaned = src.toString()
+                .replace(/\b20\d{2}\d*\b/g, ' ')
+                .replace(/(?:^|[\s_\-/\\])(?:[123]P|P[123]|E[123F]|PERIODO\s*[123])(?=$|[\s_\-/\\.])/gi, ' ')
+                .replace(/(?:^|[\s_\-/\\])(?:S[12]|SEC(?:CI[OÓ]N)?\s*[12]|SES(?:I[OÓ]N)?\s*[12]|PARTE\s*[12]|HOJA\s*[12])(?=$|[\s_\-/\\.])/gi, ' ');
+              const match1011 = cleaned.match(/(?:^|[^\d])(10|11)(?!\d)/);
+              if (match1011) return match1011[1];
+              const match39 = cleaned.match(/(?:^|[^\d])([3-9])(?!\d)/);
+              if (match39) return match39[1];
+            }
+            return "0";
+          }
+
           async function procesarBancoPreguntas(rows, header, silent = false, fileName = "") {
             const gIdx = getColIdx(header, ["Grado", "Grade", "Nivel"]);
+            const pIdx = getColIdx(header, ["Periodo", "Período", "Evaluacion", "Evaluación", "Prueba"]);
             const qNumIdx = getColIdx(header, ["Pregunta", "Question_Number", "No.", "Num", "pregunta_num", "# Pregunta", "#"]);
             const asigIdx = getColIdx(header, ["Asignatura", "Subject", "Materia", "Area"]);
             const txtIdx = getColIdx(header, ["Texto de la Pregunta", "Question Text", "Texto", "Enunciado"]);
@@ -7735,28 +7770,44 @@
             const optCIdx = getColIdx(header, ["Opción C", "Option C", "C", "Opcion C"]);
             const optDIdx = getColIdx(header, ["Opción D", "Option D", "D", "Opcion D"]);
 
-            console.log("Indices Banco:", { gIdx, qNumIdx, asigIdx, txtIdx, optAIdx, optBIdx, optCIdx, optDIdx });
+            console.log("Indices Banco:", { gIdx, pIdx, qNumIdx, asigIdx, txtIdx, optAIdx, optBIdx, optCIdx, optDIdx });
 
             if (qNumIdx === -1) {
               throw new Error(`No se encontró la columna de "Número de Pregunta" en el archivo. Asegúrate de que tenga un encabezado como "# Pregunta", "pregunta_num" o "Pregunta".\r\n\r\nEncabezados detectados: ${header.join(' | ')}`);
             }
 
-            const periodoDetectado = detectarPeriodo(fileName);
+            const periodoArchivo = detectarPeriodo(fileName);
             const batchPreguntas = [];
             let lastGrado = 0;
 
             for (const row of rows) {
-              const pNum = parseInt(row[qNumIdx]) || 0;
+              let pNum = parseInt(row[qNumIdx]) || 0;
               if (!pNum && (!txtIdx || !row[txtIdx])) continue;
 
               const grado = (gIdx !== -1) ? (parseInt(row[gIdx]) || lastGrado) : lastGrado;
               if (grado) lastGrado = grado;
 
+              let periodoFila = periodoArchivo;
+              if (pIdx !== -1 && row[pIdx]) {
+                const rawP = row[pIdx].toString().trim();
+                periodoFila = /^[123]$/.test(rawP) ? parseInt(rawP, 10) : detectarPeriodo(rawP);
+              }
+
               const asig = (asigIdx !== -1 ? (row[asigIdx] || "General") : "General").trim();
+              const asigNorm = normalizeText(asig);
+              const esAsigSesion2 = asigNorm.includes("competencia") || asigNorm.includes("ciudadana") ||
+                asigNorm.includes("natural") || asigNorm.includes("biologia") ||
+                asigNorm.includes("fisica") || asigNorm.includes("quimica") ||
+                asigNorm.includes("lenguaje") || asigNorm.includes("lectura") || asigNorm.includes("espanol");
+
+              // Si es E2 o EF (periodo >= 2) en Bachillerato (grado >= 6) y la pregunta viene numerada 1..60 en la Sesión 2, aplicar offset +60 (61..120)
+              if (periodoFila >= 2 && grado >= 6 && pNum >= 1 && pNum <= 60 && (_esSegundaSesionCSV("", fileName, periodoFila) || esAsigSesion2)) {
+                pNum += 60;
+              }
 
               batchPreguntas.push({
                 grado,
-                periodo: periodoDetectado,
+                periodo: periodoFila,
                 asignatura: asig,
                 pregunta_num: pNum,
                 texto_pregunta: (txtIdx !== -1 ? (row[txtIdx] || "") : "").trim(),
@@ -7771,11 +7822,12 @@
               throw new Error("No se detectaron preguntas válidas. Verifica que los nombres de las columnas sean correctos (Grado, Pregunta, Asignatura, Texto, A, B, C, D).");
             }
 
+            const periodosBanco = [...new Set(batchPreguntas.map(p => p.periodo))];
             if (!silent) {
-              if (!confirm(`¿Cargar ${batchPreguntas.length} preguntas del periodo ${periodoDetectado} al banco?`)) return;
+              if (!confirm(`¿Cargar ${batchPreguntas.length} preguntas del periodo ${periodosBanco.join(', ')} al banco?`)) return;
             }
 
-            updateStatus(`⏳ Guardando ${batchPreguntas.length} preguntas -> Detectado: Periodo ${periodoDetectado}...`);
+            updateStatus(`⏳ Guardando ${batchPreguntas.length} preguntas -> Detectado: Periodo ${periodosBanco.join(', ')}...`);
 
             // Borrado granular: por cada combinación única de (grado, asignatura, periodo) presente en el archivo
             const uniqueCombs = [...new Set(batchPreguntas.map(p => `${p.grado}|${p.asignatura}|${p.periodo}`))];
@@ -7824,32 +7876,37 @@
               if (!pNum) continue;
 
               const quizRaw = row[quizIdx] || "Evaluación";
-              const quiz = quizRaw.toString().trim(); // Limpieza de espacios accidentales
+              const quiz = quizRaw.toString().trim();
 
-              // Intentar detectar periodo del nombre del quiz, si falla, intentar del nombre del archivo
+              // Detectar periodo del nombre del quiz y del nombre del archivo
               let periodoDetectado = detectarPeriodo(quiz);
-              if (fileName && (periodoDetectado === currentPeriodo || periodoDetectado === 1)) {
+              if (fileName) {
                 const pFile = detectarPeriodo(fileName);
-                if (pFile !== currentPeriodo) periodoDetectado = pFile;
+                if (periodoDetectado === currentPeriodo || (periodoDetectado === 1 && pFile !== 1)) {
+                  periodoDetectado = pFile;
+                }
               }
 
               periodosDetectados.add(periodoDetectado);
 
-              // Detectar S2 y aplicar offset de +60 a la pregunta
+              // Regla E1 vs E2/EF:
+              // - E1 (periodo 1): 1 sola sesión de 1 a 120 preguntas -> sin offset.
+              // - E2 y EF (periodo 2 y 3): 2 sesiones de 1 a 60 preguntas -> S2 aplica offset +60 (61 a 120).
+              const isS2 = _esSegundaSesionCSV(quiz, fileName, periodoDetectado);
               let pNumShifted = pNum;
-              const nameLower = (quiz + " " + fileName).toLowerCase();
-              if (nameLower.includes('s2')) {
+              if (isS2 && pNum <= 60) {
                 pNumShifted += 60;
               }
 
-              // Detectar grado del nombre del quiz si no hay columna
-              let gradoRaw = "0";
-              const matchG = quiz.match(/(\d+)/);
-              if (matchG) gradoRaw = matchG[1];
+              // Extraer grado sin confundirse con tokens de periodo ("2P", "3P") o sesión ("S1", "S2")
+              let gradoRaw = _extraerGradoDeQuizCSV(quiz, fileName);
+              if (gradoRaw === "0" && classIdx !== -1 && row[classIdx]) {
+                gradoRaw = row[classIdx].toString().trim();
+              }
 
-              // Crucial: eval_resultados debe usar el grado base (6, 7, 8... 11) para que el filtrado sea correcto
               let gradoBase = extraerGradoBase(gradoRaw);
               let sedeDetectada = detectarSede(gradoRaw);
+              if (!gradoBase) continue;
 
               // Limpiar para cálculo
               const p_corr = parseFloat((row[porcIdx] || "0").toString().replace(',', '.')) || 0;
@@ -7865,7 +7922,6 @@
                 const val = (row[pair[0]] || "").toString().toUpperCase();
                 const pct = parseFloat((row[pair[1]] || "0").toString().replace(',', '.')) || 0;
                 if (dist.hasOwnProperty(val)) {
-                  // Si es la respuesta correcta, usamos la cantidad real de aciertos
                   if (val === correctKey) {
                     dist[val] = c_corr;
                   } else {
@@ -7874,11 +7930,13 @@
                 }
               });
 
+              const quizNormalizado = (isS2 && !/s2/i.test(quiz)) ? `${quiz}_S2` : quiz;
+
               batchResultados.push({
                 grado: gradoBase,
                 periodo: periodoDetectado,
                 sede: sedeDetectada,
-                quiz_name: quiz,
+                quiz_name: quizNormalizado,
                 pregunta_num: pNumShifted,
                 key: correctKey,
                 cant_correctas: c_corr,
@@ -7898,16 +7956,22 @@
 
             updateStatus("⏳ Guardando estadísticas generales...");
 
-            // Borrado granular: por cada combinación única de (grado, periodo, quiz_name)
-            const uniqueCombs = [...new Set(batchResultados.map(r => `${r.grado}|${r.periodo}|${r.quiz_name}`))];
-            console.log('🗑️ [procesarConsolidado] Combinaciones a borrar:', uniqueCombs);
-            for (const comb of uniqueCombs) {
-              const [g, p, q] = comb.split('|');
+            // Borrado quirúrgico por (grado, periodo) y rango de preguntas para que S2 (61-120) nunca borre S1 (1-60)
+            const gruposPreguntas = {};
+            batchResultados.forEach(r => {
+              const key = `${r.grado}|${r.periodo}`;
+              if (!gruposPreguntas[key]) gruposPreguntas[key] = new Set();
+              gruposPreguntas[key].add(r.pregunta_num);
+            });
+            console.log('🗑️ [procesarConsolidado] Actualizando rangos por grado|periodo:', Object.keys(gruposPreguntas));
+            for (const [key, numSet] of Object.entries(gruposPreguntas)) {
+              const [g, p] = key.split('|');
+              const nums = Array.from(numSet);
               await supabaseClient.from('eval_resultados')
                 .delete()
                 .eq('grado', g)
                 .eq('periodo', p)
-                .eq('quiz_name', q);
+                .in('pregunta_num', nums);
             }
 
             const { error } = await supabaseClient.from('eval_resultados').insert(batchResultados);
@@ -7916,8 +7980,7 @@
           }
 
           async function procesarEstudiantes(rows, header, silent = false, fileName = "") {
-            // Solo capturar columnas que sean exactamente Q seguido de dígitos (Q1, Q2, ... Q120)
-            // Evita capturar "Quiz Name", "Quiz_Name", "Key Version", etc.
+            // Solo capturar columnas que sean exactamente Q seguido de dígitos (Q1..Q120 en E1, Q1..Q60 por sesión en E2/EF)
             const qCols = [];
             header.forEach((h, i) => {
               if (h && /^Q\d+$/i.test(h.toString().trim())) qCols.push(i);
@@ -7944,7 +8007,7 @@
             function _extraerGrupoLocal(zipId) {
               if (!zipId) return "";
               let s = zipId.toString().trim();
-              if (s.includes("-")) return s; // ya tiene formato grupo
+              if (s.includes("-")) return s;
               if (s.startsWith("0") && s.length > 1) s = s.replace(/^0+/, '');
               const len = s.length;
               if (len === 5) {
@@ -7967,22 +8030,19 @@
               if (!g) return false;
               const s = g.toString().trim().toUpperCase();
               if (CENTRAL_PERMITIDOS.includes(s)) return true;
-              // Sedes rurales con sufijo
               if (/-PJ$|-YA$|-SE$|-PU$/.test(s)) {
                 const base = parseInt(s);
                 return base >= 1 && base <= 11;
               }
               return false;
             }
-            // Usar funciones locales (con fallback a helpers.js si está disponible)
             const _exGrupo = (typeof extraerGrupo === 'function') ? extraerGrupo : _extraerGrupoLocal;
             const _esValido = (typeof esGrupoValido === 'function') ? (g) => {
-              // Asegurar que la función del helpers.js incluye 703 (parche por caché)
               if (CENTRAL_PERMITIDOS.includes(g ? g.toString().trim().toUpperCase() : '')) return true;
               return esGrupoValido(g);
             } : _esGrupoValidoLocal;
 
-            const resultadosEstudiantes = [];
+            const resultadosPorEstudiante = new Map();
             for (const row of rows) {
               const zipId = (row[zipIdIdx] || "").toString().trim();
               if (!zipId || zipId.toLowerCase() === "primary key") continue;
@@ -7990,72 +8050,78 @@
               const quizRaw = row[quizIdx] || "";
               const quizName = quizRaw.toString().trim();
 
-              // Obtener grupo: prioridad al Class del CSV (refleja el grupo real del quiz)
-              // El ZipGrade ID siempre codifica el grupo original del estudiante (fijo),
-              // pero la columna Class del CSV indica el grupo donde presentó ESTE quiz.
-              // Normalizar Class: ZipGrade exporta '11-01' pero el sistema usa '1101'
               const classRaw = (row[classIdx] || "").toString().trim();
-              const classVal = classRaw.replace(/^(\d{1,2})-(\d{2})$/, '$1$2'); // '11-01' → '1101', '6-01' → '601'
-              let grupo = _exGrupo(zipId); // fallback: grupo del ID
+              const classVal = classRaw.replace(/^(\d{1,2})-(\d{2})$/, '$1$2');
+              let grupo = _exGrupo(zipId);
 
-              // Si Class tiene un grupo válido, usarlo como grupo real del período
               if (_esValido(classVal)) {
                 grupo = classVal;
-              } else if (!_esValido(grupo)) {
-                // Si ni el ID ni el Class dan un grupo válido, descartar
               }
-
-              if (!_esValido(grupo)) continue; // Ignorar si el grupo no es válido
-
+              if (!_esValido(grupo)) continue;
 
               const sede = (typeof detectarSede === 'function') ? detectarSede(grupo) : (/-PJ$/i.test(grupo) ? 'Pisoje Bajo' : /-YA$/i.test(grupo) ? 'Yanaconas' : /-SE$/i.test(grupo) ? 'Sendero' : /-PU$/i.test(grupo) ? 'Pueblillo' : 'Central');
               const gradoNumBase = (typeof extraerGradoBase === 'function') ? extraerGradoBase(grupo) : parseInt(grupo.toString().startsWith('10') || grupo.toString().startsWith('11') ? grupo.substring(0, 2) : grupo.substring(0, 1)) || 0;
               let gradoLimpio = grupo || gradoNumBase.toString();
 
-
               if (!gradoLimpio) {
-                const matchG = quizName.match(/(\d+)/);
-                if (matchG) gradoLimpio = matchG[1];
+                gradoLimpio = _extraerGradoDeQuizCSV(quizName, fileName);
               }
 
               const nombre = ((row[lNameIdx] || "").trim() + " " + (row[fNameIdx] || "").trim()).trim();
+              if (!nombre) continue;
 
               let periodoDetectado = detectarPeriodo(quizName);
-              if (fileName && (periodoDetectado === currentPeriodo || periodoDetectado === 1)) {
+              if (fileName) {
                 const pFile = detectarPeriodo(fileName);
-                if (pFile !== currentPeriodo) periodoDetectado = pFile;
+                if (periodoDetectado === currentPeriodo || (periodoDetectado === 1 && pFile !== 1)) {
+                  periodoDetectado = pFile;
+                }
               }
 
-              const quizNameRaw = quizName || "";
-              const esParte2 = /_S2/i.test(quizNameRaw) || /_S2/i.test(fileName || '');
+              // Regla E1 vs E2/EF:
+              // - E1 (periodo 1): 1 sola sesión numerada 1 a 120 -> offset 0.
+              // - E2 y EF (periodo 2 y 3): 2 sesiones numeradas 1 a 60 (S1: 1-60 offset 0, S2: 1-60 offset +60 -> 61-120).
+              const esParte2 = _esSegundaSesionCSV(quizName, fileName, periodoDetectado);
               const offset = esParte2 ? 60 : 0;
 
               const respuestas = {};
               qCols.forEach((colIdx) => {
                 const match = header[colIdx].toString().trim().match(/^Q(\d+)$/i);
                 if (match) {
-                  const num = parseInt(match[1], 10) + offset;
-                  respuestas[num] = parseInt(row[colIdx]) || 0;
+                  let num = parseInt(match[1], 10);
+                  if (offset > 0 && num <= 60) num += offset;
+                  const valRaw = (row[colIdx] !== undefined && row[colIdx] !== null) ? row[colIdx].toString().trim() : "";
+                  if (valRaw !== "") {
+                    respuestas[num] = parseInt(valRaw, 10) || 0;
+                  }
                 }
               });
 
-              if (!nombre) continue;
-
               const p_total = parseFloat((row[porcIdx] || "0").toString().replace(',', '.')) || 0;
+              const mapKey = `${zipId}|${periodoDetectado}`;
 
-              resultadosEstudiantes.push({
-                estudiante_nombre: nombre,
-                zipgrade_id: zipId,
-                grado: gradoLimpio,
-                sede: sede,
-                periodo: periodoDetectado,
-                quiz_name: quizName,
-                total_correctas: parseInt(row[okIdx]) || 0,
-                porcentaje: p_total,
-                respuestas: respuestas
-              });
+              if (resultadosPorEstudiante.has(mapKey)) {
+                const prev = resultadosPorEstudiante.get(mapKey);
+                prev.respuestas = { ...prev.respuestas, ...respuestas };
+                prev.total_correctas = Object.values(prev.respuestas).filter(v => v === 1 || v === '1' || v === true).length;
+                const totalEsperado = gradoNumBase <= 4 ? 45 : (gradoNumBase === 5 ? 90 : (Object.keys(prev.respuestas).length <= 60 ? 60 : 120));
+                prev.porcentaje = Math.round((prev.total_correctas / totalEsperado) * 100);
+              } else {
+                resultadosPorEstudiante.set(mapKey, {
+                  estudiante_nombre: nombre,
+                  zipgrade_id: zipId,
+                  grado: gradoLimpio,
+                  sede: sede,
+                  periodo: periodoDetectado,
+                  quiz_name: quizName,
+                  total_correctas: parseInt(row[okIdx]) || 0,
+                  porcentaje: p_total,
+                  respuestas: respuestas
+                });
+              }
             }
 
+            const resultadosEstudiantes = Array.from(resultadosPorEstudiante.values());
             if (resultadosEstudiantes.length === 0) return;
 
             if (!silent) {
@@ -8068,8 +8134,7 @@
               console.log('💾 Muestra del primer registro:', JSON.stringify(resultadosEstudiantes[0], null, 2));
               console.log('💾 Muestra del último registro:', JSON.stringify(resultadosEstudiantes[resultadosEstudiantes.length - 1], null, 2));
 
-              // NOTA: Se eliminó el borrado previo para evitar perder la Parte 1 al subir la Parte 2.
-              // En su lugar, hacemos un merge de respuestas y un UPSERT.
+              // Merge de respuestas de Sesión 1 (1-60) y Sesión 2 (61-120) con lo existente en la BD
               const uniquePeriodos = [...new Set(resultadosEstudiantes.map(e => e.periodo))];
               const zips = resultadosEstudiantes.map(e => e.zipgrade_id);
               
@@ -8091,7 +8156,9 @@
                     if (ex && ex.respuestas) {
                       r.respuestas = { ...ex.respuestas, ...r.respuestas };
                       r.total_correctas = Object.values(r.respuestas).filter(v => v === 1 || v === '1' || v === true).length;
-                      r.porcentaje = Math.round((r.total_correctas / 120) * 100);
+                      const gBase = extraerGradoBase(r.grado);
+                      const totalEsperado = gBase <= 4 ? 45 : (gBase === 5 ? 90 : (Object.keys(r.respuestas).length <= 60 ? 60 : 120));
+                      r.porcentaje = Math.round((r.total_correctas / totalEsperado) * 100);
                     }
                   }
                 });
@@ -8102,7 +8169,7 @@
               for (let b = 0; b < resultadosEstudiantes.length; b += BATCH) {
                 const lote = resultadosEstudiantes.slice(b, b + BATCH);
                 console.log(`🚀 Upserting lote ${b / BATCH + 1}: estudiantes ${b + 1} al ${Math.min(b + BATCH, resultadosEstudiantes.length)}`);
-                const { error: err, data: insertData } = await supabaseClient.from('eval_estudiantes_notas').upsert(lote, { onConflict: 'zipgrade_id,periodo,anio' });
+                const { error: err } = await supabaseClient.from('eval_estudiantes_notas').upsert(lote, { onConflict: 'zipgrade_id,periodo,anio' });
                 if (err) {
                   console.error('❌ Error en upsert lote:', err);
                   console.error('📄 Primer registro del lote fallido:', JSON.stringify(lote[0], null, 2));
@@ -8139,51 +8206,48 @@
               const name = ((row[lNameIdx] || "").trim() + " " + (row[fNameIdx] || "").trim()).trim();
               const studentId = (row[stdIdIdx] || "").trim();
 
-              // Obtener grupo: prioridad al Class del CSV (refleja el grupo real del quiz)
-              // El ZipGrade ID codifica el grupo original (fijo), pero Class indica
-              // el grupo donde el estudiante presentó ESTE quiz específico.
-              // Normalizar Class: ZipGrade exporta '11-01' pero el sistema usa '1101'
               const classRaw = classIdx !== -1 ? (row[classIdx] || "").toString().trim() : "";
-              const classVal = classRaw.replace(/^(\d{1,2})-(\d{2})$/, '$1$2'); // '11-01' → '1101'
-              let grupo = extraerGrupo(studentId); // fallback: grupo del ID
+              const classVal = classRaw.replace(/^(\d{1,2})-(\d{2})$/, '$1$2');
+              let grupo = extraerGrupo(studentId);
 
-              // Si Class tiene un grupo válido, usarlo como grupo real del período
               if (esGrupoValido(classVal)) {
                 grupo = classVal;
               } else if (!esGrupoValido(grupo)) {
-                if (classRaw) grupo = classRaw; // último fallback: usar Class tal como viene
+                if (classRaw) grupo = classRaw;
               }
 
               const sede = detectarSede(grupo);
               const gradoNumBase = extraerGradoBase(grupo);
               let gradoLimpio = grupo || gradoNumBase.toString();
               if (!gradoLimpio || gradoLimpio === "0") {
-                const matchG = quizName.match(/(\d+)/);
-                if (matchG) gradoLimpio = matchG[1];
+                gradoLimpio = _extraerGradoDeQuizCSV(quizName, fileName);
               }
 
               let periodoDetectado = detectarPeriodo(quizName);
-              if (fileName && (periodoDetectado === currentPeriodo || periodoDetectado === 1)) {
+              if (fileName) {
                 const pFile = detectarPeriodo(fileName);
-                if (pFile !== currentPeriodo) periodoDetectado = pFile;
+                if (periodoDetectado === currentPeriodo || (periodoDetectado === 1 && pFile !== 1)) {
+                  periodoDetectado = pFile;
+                }
               }
 
-              // Detectar S2 para aplicar offset
-              const nameLower = (quizName + " " + fileName).toLowerCase();
-              const isS2 = nameLower.includes('s2');
+              // Regla E1 vs E2/EF:
+              // - E1 (periodo 1): 1 sola sesión numerada Stu1 a Stu120 -> offset 0.
+              // - E2 y EF (periodo 2 y 3): 2 sesiones numeradas Stu1 a Stu60 (S1: 1-60, S2: 61-120 con offset +60).
+              const isS2 = _esSegundaSesionCSV(quizName, fileName, periodoDetectado);
+              const quizNormalizado = (isS2 && !/s2/i.test(quizName)) ? `${quizName}_S2` : quizName;
 
               // Extraer respuestas dinámicamente
               const respuestas = {};
-              // Buscamos Stu1, Stu2... en el header
               header.forEach((h, i) => {
                 const match = h.toString().match(/^Stu(\d+)$/i);
                 if (match) {
-                  let qNum = parseInt(match[1]);
-                  if (isS2) qNum += 60; // Aplicar offset +60 para S2
+                  let qNum = parseInt(match[1], 10);
+                  if (isS2 && qNum <= 60) qNum += 60; // Aplicar offset +60 para S2 en E2/EF
                   
                   const stuVal = (row[i] || "").toString().trim();
                   const keyVal = (row[i + 1] || "").toString().trim(); // PriKeyX es la siguiente col
-                  const ptsVal = parseFloat(row[i + 2]) || 0;       // PointsX es +2
+                  const ptsVal = parseFloat(row[i + 2]) || 0;          // PointsX es +2
                   const markVal = (row[i + 3] || "").toString().trim(); // MarkX es +3
 
                   respuestas[qNum.toString()] = {
@@ -8196,7 +8260,7 @@
               });
 
               batchCompletos.push({
-                quiz_name: quizName,
+                quiz_name: quizNormalizado,
                 grado: gradoLimpio,
                 periodo: periodoDetectado,
                 estudiante_nombre: name,
@@ -8212,7 +8276,7 @@
             if (batchCompletos.length === 0) return;
             updateStatus(`⏳ Guardando ${batchCompletos.length} reportes completos...`);
 
-            // Borrado quirúrgico global por archivo para asegurar purga de registros previos
+            // Borrado quirúrgico global por archivo (quiz_name normalizado distingue S1 vs S2)
             const uniqueCombs = [...new Set(batchCompletos.map(e => `${e.quiz_name}|${e.periodo}`))];
             console.log('🗑️ [procesarCompletos] Combinaciones a borrar:', uniqueCombs);
             for (const comb of uniqueCombs) {
