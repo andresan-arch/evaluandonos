@@ -3291,7 +3291,7 @@
       <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
       <script>
-        var CURRENT_APP_VERSION = "v123";
+        var CURRENT_APP_VERSION = "v124";
         window.MathJax = {
           tex: {
             inlineMath: [['$', '$'], ['\\(', '\\)']],
@@ -5172,8 +5172,8 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
         <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
-        <script src="src/shared/constants.js?v=123"></script>
-        <script src="src/shared/helpers.js?v=123"></script>
+        <script src="src/shared/constants.js?v=124"></script>
+        <script src="src/shared/helpers.js?v=124"></script>
         <script>
           // --- CONFIGURACIÓN Y ESTADO GLOBAL ---
 
@@ -6723,17 +6723,22 @@
                   }
                 });
                 hasStats = (rA + rB + rC + rD) > 0;
-              } else if (hasStats) {
+              }
+              let totalEvaluadosQuiz = 0;
+              if (currentRole !== 'tesis' && hasStats) {
                 sedesRes.forEach(r => {
                   totalCorrectas += (r.cant_correctas || 0);
                   rA += (r.resp_a_count || 0);
                   rB += (r.resp_b_count || 0);
                   rC += (r.resp_c_count || 0);
                   rD += (r.resp_d_count || 0);
+                  if (r.porc_correctas > 0 && r.cant_correctas > 0) {
+                    totalEvaluadosQuiz += Math.round((r.cant_correctas * 100) / r.porc_correctas);
+                  }
                 });
               }
 
-              const totalRespuestas = rA + rB + rC + rD;
+              const totalRespuestas = Math.max(rA + rB + rC + rD, totalEvaluadosQuiz);
               const porcGlobal = totalRespuestas > 0 ? Math.round((totalCorrectas / totalRespuestas) * 100) : 0;
 
               $('resultado-container').style.display = 'block';
@@ -7916,19 +7921,35 @@
 
               // Extraer distribución de respuestas (ZipGrade da porcentajes, convertimos a cantidad de estudiantes)
               const dist = { 'A': 0, 'B': 0, 'C': 0, 'D': 0 };
+              const pctMap = { 'A': 0, 'B': 0, 'C': 0, 'D': 0 };
               const mapping = [[r1Idx, r1pIdx], [r2Idx, r2pIdx], [r3Idx, r3pIdx], [r4Idx, r4pIdx]];
               mapping.forEach(pair => {
                 if (pair[0] === -1 || pair[1] === -1) return;
-                const val = (row[pair[0]] || "").toString().toUpperCase();
+                const val = (row[pair[0]] || "").toString().trim().toUpperCase();
                 const pct = parseFloat((row[pair[1]] || "0").toString().replace(',', '.')) || 0;
                 if (dist.hasOwnProperty(val)) {
-                  if (val === correctKey) {
-                    dist[val] = c_corr;
-                  } else {
-                    dist[val] = Math.round((totalEst * pct) / 100);
-                  }
+                  pctMap[val] = pct;
+                  dist[val] = Math.round((totalEst * pct) / 100);
                 }
               });
+
+              // Detectar múltiples claves válidas (ej. Grado 9° Pregunta 12: C y D en E1; A y B en E2)
+              let finalKey = correctKey;
+              if (gradoBase === 9 && pNumShifted === 12 && periodoDetectado === 1) {
+                finalKey = "C, D";
+              } else if (gradoBase === 9 && pNumShifted === 12 && periodoDetectado === 2) {
+                finalKey = "A, B";
+              } else if (correctKey.length === 1 && dist.hasOwnProperty(correctKey)) {
+                const pctPrimary = pctMap[correctKey] || 0;
+                if (Math.abs(pctPrimary - p_corr) <= 1.5) {
+                  dist[correctKey] = c_corr;
+                } else if (p_corr - pctPrimary > 1.5) {
+                  const otherOpt = ['A', 'B', 'C', 'D'].find(o => o !== correctKey && Math.abs((pctPrimary + pctMap[o]) - p_corr) <= 2.0);
+                  if (otherOpt) {
+                    finalKey = [correctKey, otherOpt].sort().join(', ');
+                  }
+                }
+              }
 
               const quizNormalizado = (isS2 && !/s2/i.test(quiz)) ? `${quiz}_S2` : quiz;
 
@@ -7938,7 +7959,7 @@
                 sede: sedeDetectada,
                 quiz_name: quizNormalizado,
                 pregunta_num: pNumShifted,
-                key: correctKey,
+                key: finalKey,
                 cant_correctas: c_corr,
                 porc_correctas: p_corr,
                 resp_a_count: dist['A'],
@@ -8245,10 +8266,17 @@
                   let qNum = parseInt(match[1], 10);
                   if (isS2 && qNum <= 60) qNum += 60; // Aplicar offset +60 para S2 en E2/EF
                   
-                  const stuVal = (row[i] || "").toString().trim();
-                  const keyVal = (row[i + 1] || "").toString().trim(); // PriKeyX es la siguiente col
-                  const ptsVal = parseFloat(row[i + 2]) || 0;          // PointsX es +2
-                  const markVal = (row[i + 3] || "").toString().trim(); // MarkX es +3
+                  const stuVal = (row[i] || "").toString().trim().toUpperCase();
+                  let keyVal = (row[i + 1] || "").toString().trim().toUpperCase(); // PriKeyX es la siguiente col
+                  let ptsVal = parseFloat(row[i + 2]) || 0;          // PointsX es +2
+                  let markVal = (row[i + 3] || "").toString().trim(); // MarkX es +3
+                  if (gradoNumBase === 9 && qNum === 12 && periodoDetectado === 1) {
+                    keyVal = "C, D";
+                    ptsVal = (stuVal === "C" || stuVal === "D") ? 1 : 0;
+                  } else if (gradoNumBase === 9 && qNum === 12 && periodoDetectado === 2) {
+                    keyVal = "A, B";
+                    ptsVal = (stuVal === "A" || stuVal === "B") ? 1 : 0;
+                  }
 
                   respuestas[qNum.toString()] = {
                     stu: stuVal,

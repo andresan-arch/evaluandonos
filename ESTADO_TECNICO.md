@@ -306,3 +306,18 @@ Regla vigente para esta etapa:
     - Se corrigió la extracción de grado desde el nombre del quiz/archivo para que títulos como `"EVALUÁNDONOS 2P 10_S2"` o `"EVALUÁNDONOS 3 EF 2026"` no confundan el periodo (`2P`, `3P`, `EF`) con el grado (`10`, `11`, `3`).
 - **Actualización de Caché PWA**:
   - Se sincronizó la versión a **`v123`** en `src/shared/constants.js`, `index.html` y `sw.js`.
+
+
+### Iteración v124 — Corrección de Pregunta 12 de Grado 9° con Dos Opciones Válidas (E1: C y D; E2: A y B) y Ajuste Exacto a 90 Evaluados en E1
+- **Causa Raíz del `117` en Evaluados y pérdida de la segunda opción válida en la Pregunta 12 de 9° (`E1` y `E2`)**:
+  - En ZipGrade, cuando una pregunta tiene dos opciones de respuesta válidas (**Pregunta 12 de 9° en `E1`: `C` y `D`** con `27 + 28 = 55` aciertos sobre `90` evaluados; **Pregunta 12 de 9° en `E2`: `A` y `B`** con `17 + 37 = 54` aciertos sobre `97` evaluados), el archivo `itemAnalysis.csv` exporta únicamente la primera letra en `Primary_Answer` (`C` en E1 y `A` en E2) pero en `# Correct` reporta la suma de ambas opciones (`55` en E1 y `54` en E2).
+  - En `procesarConsolidado()`, la asignación `if (val === correctKey) dist[val] = c_corr` reemplazaba el conteo individual de `C` (`27`) por el total combinado (`55`), provocando que la suma `A + B + C + D` diera **`117`** (`21 + 13 + 55 + 28`) en lugar de **`90`** en E1 (y `133` en lugar de `97` en E2), además de guardar una sola letra en `key`.
+- **Solución Aplicada en Supabase y en el Código (`index.html`)**:
+  1. **Base de datos Supabase**:
+     - En `periodo = 1` (`E1`), Grado `9°` quedó exactamente con sus **90 estudiantes oficiales** en `eval_estudiantes_notas` y `eval_estudiantes_completos` (con las 120 preguntas completas) y en `eval_resultados` la **Pregunta 12** quedó con `key = "C, D"`, `cant_correctas = 55`, `porc_correctas = 61.11`, `A = 21`, `B = 13`, `C = 27`, `D = 28` (`90` evaluados).
+     - En `periodo = 2` (`E2`), Grado `9°` la **Pregunta 12** quedó en `eval_resultados` y `eval_estudiantes_completos` con `key = "A, B"`, `cant_correctas = 54`, `porc_correctas = 55.67`, `A = 17`, `B = 37`, `C = 28`, `D = 14` (`97` evaluados).
+  2. **Blindaje en [`procesarConsolidado()`](file:///c:/Users/ANDRESAN/Desktop/Evaluandonos/index.html#L7918-L7949), [`procesarCompletos()`](file:///c:/Users/ANDRESAN/Desktop/Evaluandonos/index.html#L8235-L8250) y [`mostrarAnalisis()`](file:///c:/Users/ANDRESAN/Desktop/Evaluandonos/index.html#L6726-L6746)**:
+     - Si se vuelve a subir cualquier CSV de `9°`, `procesarConsolidado()` y `procesarCompletos()` conservan automáticamente las dos claves válidas (`"C, D"` en E1 Pregunta 12 y `"A, B"` en E2 Pregunta 12) y calculan el conteo real de cada opción sin duplicar `c_corr`.
+     - En `mostrarAnalisis()`, `stat-total` considera el total de evaluados del quiz (`totalEvaluadosQuiz`) para que una respuesta en blanco no disminuya el total de `90` evaluados.
+- **Actualización de Caché PWA**:
+  - Se sincronizó la versión a **`v124`** en `src/shared/constants.js`, `index.html` y `sw.js`.
