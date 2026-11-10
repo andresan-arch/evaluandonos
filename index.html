@@ -3291,7 +3291,7 @@
       <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
       <script>
-        var CURRENT_APP_VERSION = "v124";
+        var CURRENT_APP_VERSION = "v126";
         window.MathJax = {
           tex: {
             inlineMath: [['$', '$'], ['\\(', '\\)']],
@@ -5172,8 +5172,8 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
         <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
-        <script src="src/shared/constants.js?v=124"></script>
-        <script src="src/shared/helpers.js?v=124"></script>
+        <script src="src/shared/constants.js?v=126"></script>
+        <script src="src/shared/helpers.js?v=126"></script>
         <script>
           // --- CONFIGURACIÓN Y ESTADO GLOBAL ---
 
@@ -6269,6 +6269,7 @@
             const gNum = parseInt(grado) || 0;
             const anio = "2026";
             const per = periodoOverride !== null ? Number(periodoOverride) : Number(currentPeriodo);
+            const numReal = (per >= 2 && gNum >= 6 && Number(num) > 60) ? (Number(num) - 60) : Number(num);
 
             // Determinar el nombre del examen según el periodo
             let examen = "E1";
@@ -6281,7 +6282,7 @@
             const suffix = (index > 1) ? `_${index - 1}` : "";
 
             // Formato de archivo: [Num][Cod][Grado][Opcion][Suffix].png
-            const fileName = `${num}${cod}${gNum}${opcion.toUpperCase()}${suffix}.png`;
+            const fileName = `${numReal}${cod}${gNum}${opcion.toUpperCase()}${suffix}.png`;
 
             const url = `${AUTO_IMG_BASE_URL}${anio}/${examen}/${fileName}`;
             console.log(`🔍 Intentando cargar imagen (Pos ${index}):`, url);
@@ -6494,10 +6495,11 @@
                 return r.label;
               }) : [];
 
-              // --- Mapeo Visual: Ciencias Naturales -> Biología en 3-9 ---
+              // --- Mapeo Visual: Ciencias Naturales (y Física/Química en 6-9) -> Biología en 3-9 ---
               let unique = [...new Set([
                 ...filteredData.map(d => {
-                  if (parseInt(nivel) < 10 && normalizeText(d.asignatura).includes("naturales")) return "Biología";
+                  const normD = normalizeText(d.asignatura);
+                  if (parseInt(nivel) < 10 && (normD.includes("naturales") || normD.includes("fisica") || normD.includes("quimica"))) return "Biología";
                   return d.asignatura;
                 }),
                 ...labelsMatriz
@@ -6597,10 +6599,14 @@
             showLoading(true);
             try {
               const gBase = extraerGradoBase(g);
+              const esNaturales3a9 = gBase < 10 && (normalizeText(a) === "biologia" || normalizeText(a).includes("naturales"));
+              const orFilterAsig = esNaturales3a9
+                ? `asignatura.ilike."${queryAsig}",asignatura.ilike."${a}",asignatura.ilike."%${a}%",asignatura.ilike."%Física%",asignatura.ilike."%Fisica%"`
+                : `asignatura.ilike."${queryAsig}",asignatura.ilike."${a}",asignatura.ilike."%${a}%"`;
               // Consultar preguntas usando queryAsig (el nombre real en DB)
               let { data } = await supabaseClient.from('eval_preguntas')
                 .select('pregunta_num').eq('grado', gBase).eq('periodo', currentPeriodo)
-                .or(`asignatura.ilike."${queryAsig}",asignatura.ilike."${a}",asignatura.ilike."%${a}%"`)
+                .or(orFilterAsig)
                 .order('pregunta_num');
 
               if (!data || data.length === 0) {
@@ -6612,7 +6618,7 @@
                  else if (gBase >= 10) key = esE1 ? '10-11-E1' : '10-11-E2E3';
                  else key = esE1 ? '6-9-E1' : '6-9-E2E3';
                  const rangos = typeof MATRIZ_RANGOS !== 'undefined' ? MATRIZ_RANGOS[key] : [];
-                 const rangoAsig = rangos ? rangos.find(r => r.label.toLowerCase() === a.toLowerCase() || r.label.toLowerCase() === queryAsig.toLowerCase() || normalizeText(r.label) === normalizeText(a)) : null;
+                 const rangoAsig = rangos ? rangos.find(r => r.label.toLowerCase() === a.toLowerCase() || r.label.toLowerCase() === queryAsig.toLowerCase() || normalizeText(r.label) === normalizeText(a) || (esNaturales3a9 && normalizeText(r.label).includes("naturales"))) : null;
                  
                  const pSel = $('sel-pregunta');
                  if (!rangoAsig) {
@@ -6621,7 +6627,7 @@
                    const qs = [];
                    for (let i = rangoAsig.start; i <= rangoAsig.end; i++) qs.push(i);
                    pSel.innerHTML = qs.map(p => {
-                     const displayNum = (parseInt(currentPeriodo) >= 2 && p > 60) ? (p - 60) : p;
+                     const displayNum = (parseInt(currentPeriodo) >= 2 && gBase >= 6 && p > 60) ? (p - 60) : p;
                      return `<option value="${p}">#${displayNum}</option>`;
                    }).join('');
                    mostrarAnalisis();
@@ -6637,7 +6643,7 @@
                 pSel.innerHTML = '<option value="">Sin preguntas</option>';
               } else {
                 pSel.innerHTML = uniqueP.map(p => {
-                  const displayNum = (parseInt(currentPeriodo) >= 2 && p > 60) ? (p - 60) : p;
+                  const displayNum = (parseInt(currentPeriodo) >= 2 && gBase >= 6 && p > 60) ? (p - 60) : p;
                   return `<option value="${p}">#${displayNum}</option>`;
                 }).join('');
                 mostrarAnalisis();
@@ -6668,27 +6674,55 @@
 
             showLoading(true);
             try {
+              const esNaturales3a9 = gBase < 10 && (normalizeText(a) === "biologia" || normalizeText(a).includes("naturales"));
+              const orFilterAsig = esNaturales3a9
+                ? `asignatura.ilike."${queryAsig}",asignatura.ilike."${a}",asignatura.ilike."%${a}%",asignatura.ilike."%Física%",asignatura.ilike."%Fisica%"`
+                : `asignatura.ilike."${queryAsig}",asignatura.ilike."${a}",asignatura.ilike."%${a}%"`;
+
+              const asigNorm = normalizeText(a);
+              const esSegundaJornada = parseInt(currentPeriodo) >= 2 && gBase >= 6 && (
+                asigNorm.includes("competencia") || asigNorm.includes("ciudadana") ||
+                asigNorm.includes("natural") || asigNorm.includes("biologia") ||
+                asigNorm.includes("fisica") || asigNorm.includes("quimica") ||
+                asigNorm.includes("lenguaje") || asigNorm.includes("lectura") || asigNorm.includes("espanol")
+              );
+              const numBanco = (parseInt(currentPeriodo) >= 2 && gBase >= 6 && parseInt(n) > 60) ? (parseInt(n) - 60) : parseInt(n);
+              const numResultados = (esSegundaJornada && numBanco <= 60) ? (numBanco + 60) : parseInt(n);
+
               // Encontrar quiz_name asociado (opcional, pero útil si hay múltiples exámenes)
               const { data: qNameRes } = await supabaseClient.from('eval_resultados')
                 .select('quiz_name').eq('grado', gBase).eq('periodo', currentPeriodo).limit(1).maybeSingle();
 
-              // 1. Banco de preguntas (Protección contra duplicados con limit 1)
+              // 1. Banco de preguntas (en E2/EF 6°-11° las preguntas están guardadas de 1 a 60 por asignatura)
               let { data: pregData } = await supabaseClient.from('eval_preguntas')
                 .select('*').eq('grado', gBase).eq('periodo', currentPeriodo)
-                .or(`asignatura.ilike."${queryAsig}",asignatura.ilike."${a}",asignatura.ilike."%${a}%"`)
-                .eq('pregunta_num', n).limit(1);
+                .or(orFilterAsig)
+                .eq('pregunta_num', numBanco).limit(1);
+
+              if ((!pregData || pregData.length === 0) && numResultados !== numBanco) {
+                const resAlt = await supabaseClient.from('eval_preguntas')
+                  .select('*').eq('grado', gBase).eq('periodo', currentPeriodo)
+                  .or(orFilterAsig)
+                  .eq('pregunta_num', numResultados).limit(1);
+                pregData = resAlt.data;
+              }
 
               if (!pregData || pregData.length === 0) {
                 const res = await supabaseClient.from('eval_preguntas')
                   .select('*').eq('grado', gBase).eq('periodo', currentPeriodo)
-                  .eq('pregunta_num', n).limit(1);
+                  .eq('pregunta_num', numBanco).limit(1);
                 pregData = res.data;
               }
               const preg = (pregData && pregData.length > 0) ? pregData[0] : null;
 
-              // 2. Resultados detallados
-              const { data: sedesRes } = await supabaseClient.from('eval_resultados')
-                .select('*').eq('grado', gBase).eq('periodo', currentPeriodo).eq('pregunta_num', n);
+              // 2. Resultados detallados (en ZipGrade S2 usa offset +60: 61..120)
+              let { data: sedesRes } = await supabaseClient.from('eval_resultados')
+                .select('*').eq('grado', gBase).eq('periodo', currentPeriodo).eq('pregunta_num', numResultados);
+              if ((!sedesRes || sedesRes.length === 0) && numResultados !== numBanco) {
+                const resFallback = await supabaseClient.from('eval_resultados')
+                  .select('*').eq('grado', gBase).eq('periodo', currentPeriodo).eq('pregunta_num', numBanco);
+                sedesRes = resFallback.data;
+              }
 
               let hasStats = (sedesRes && sedesRes.length > 0);
               const stats = hasStats ? sedesRes[0] : { key: (preg && preg.respuesta_correcta) ? preg.respuesta_correcta : " " };
@@ -6710,7 +6744,7 @@
                 (compTesis || []).forEach(estRow => {
                   const estKey = (estRow.student_id || estRow.estudiante_nombre || '').toString().trim();
                   if (!estKey || seenEst.has(estKey) || !estRow.respuestas) return;
-                  const ansObj = estRow.respuestas[n] || estRow.respuestas[parseInt(n)];
+                  const ansObj = estRow.respuestas[numResultados] || estRow.respuestas[numBanco];
                   if (!ansObj) return;
                   seenEst.add(estKey);
                   const stuAns = (ansObj.stu || '').toString().trim().toUpperCase();
@@ -6759,15 +6793,16 @@
                 updateChart([rA, rB, rC, rD], stats.key);
               }
 
-              const displayNum = (parseInt(currentPeriodo) >= 2 && parseInt(n) > 60) ? (parseInt(n) - 60) : n;
+              const displayNum = (parseInt(currentPeriodo) >= 2 && gBase >= 6 && parseInt(n) > 60) ? (parseInt(n) - 60) : n;
 
               const mapping = preg || {
                 pregunta_num: displayNum, texto_pregunta: `Pregunta #${displayNum} (Sin texto en banco)`,
                 opcion_a: "A", opcion_b: "B", opcion_c: "C", opcion_d: "D"
               };
 
+              const mediaAsig = (preg && preg.asignatura) ? preg.asignatura : a;
               $('pregunta-display-num').innerText = `Pregunta #${displayNum} - ${a}`;
-              renderMedia('pregunta-texto', 'pregunta-media', mapping.texto_pregunta, gBase, a, displayNum);
+              renderMedia('pregunta-texto', 'pregunta-media', mapping.texto_pregunta, gBase, mediaAsig, displayNum);
 
               const labels = ["opcion_a", "opcion_b", "opcion_c", "opcion_d"];
               const opts = ["A", "B", "C", "D"];
@@ -6788,7 +6823,7 @@
 
               opts.forEach(o => {
                 const content = mapping[labels[opts.indexOf(o)]];
-                if (content) renderMedia(`txt-${o.toLowerCase()}`, `media-${o.toLowerCase()}`, content, gBase, a, displayNum, o);
+                if (content) renderMedia(`txt-${o.toLowerCase()}`, `media-${o.toLowerCase()}`, content, gBase, mediaAsig, displayNum, o);
               });
 
             } catch (e) {
@@ -7013,8 +7048,12 @@
             $('aimg-status').innerText = "Cargando pregs...";
             const { data } = await supabaseClient.from('eval_preguntas').select('pregunta_num').eq('grado', g).eq('periodo', p).eq('asignatura', a).order('pregunta_num');
             if (data) {
+              const gBase = extraerGradoBase(g);
               const distinct = [...new Set(data.map(i => i.pregunta_num))].sort((x, y) => x - y);
-              $('aimg-preg').innerHTML = '<option value="">Pregunta...</option>' + distinct.map(x => `<option value="${x}">#${x}</option>`).join('');
+              $('aimg-preg').innerHTML = '<option value="">Pregunta...</option>' + distinct.map(x => {
+                const displayNum = (p >= 2 && gBase >= 6 && x > 60) ? (x - 60) : x;
+                return `<option value="${x}">#${displayNum}</option>`;
+              }).join('');
             }
             $('aimg-detalle').style.display = 'none';
             $('aimg-status').innerText = "";
@@ -7033,7 +7072,9 @@
               return;
             }
 
-            if ($('aimg-title')) $('aimg-title').innerText = `🎨 Pregunta #${num} - ${a}`;
+            const gBase = extraerGradoBase(g);
+            const displayNum = (p >= 2 && gBase >= 6 && Number(num) > 60) ? (Number(num) - 60) : num;
+            if ($('aimg-title')) $('aimg-title').innerText = `🎨 Pregunta #${displayNum} - ${a}`;
             const fields = [
               { key: 'texto_pregunta', label: 'Texto/Imagen Pregunta' },
               { key: 'opcion_a', label: 'Opción A' },
@@ -7061,7 +7102,7 @@
                   imageCounter++;
                   let url = pPart.trim();
                   if (!url.toLowerCase().startsWith("http")) {
-                    url = obtenerUrlPredictiva(g, a, num, opcLetra, imageCounter, p);
+                    url = obtenerUrlPredictiva(g, a, displayNum, opcLetra, imageCounter, p);
                   }
                   if (url) {
                     previewHtml += `
@@ -7077,7 +7118,7 @@
               if (!previewHtml) previewHtml = `<span style="color:#64748b; font-size:0.65rem;">(Sin Imagen)</span>`;
 
               // Sugerencia Base
-              const sugerenciaNombre = `${num}${MATERIA_ADIVINAR[a.toUpperCase()] || 'X'}${g}${opcLetra}.png`;
+              const sugerenciaNombre = `${displayNum}${MATERIA_ADIVINAR[a.toUpperCase()] || 'X'}${g}${opcLetra}.png`;
 
               html += `
           <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:8px; margin-bottom:8px;">
@@ -7551,7 +7592,21 @@
               status.style.background = '#fef2f2';
               status.style.color = '#ef4444';
             }
-          } function previsualizarDatos() {
+          }
+
+          // Detecta automáticamente si un CSV está en UTF-8 o en Windows-1252 (ANSI exportado por Excel)
+          // para preservar tildes (á, é, í, ó, ú), eñes (ñ, Ñ) y signos (¿, ¡) sin caracteres corruptos ().
+          async function leerArchivoTextoConCodificacion(file) {
+            const buffer = await file.arrayBuffer();
+            let text = new TextDecoder('utf-8').decode(buffer);
+            if (text.includes('\uFFFD')) {
+              console.log(`🔤 Detectada codificación Windows-1252 (ANSI) en "${file.name}". Recodificando automáticamente a UTF-8...`);
+              text = new TextDecoder('windows-1252').decode(buffer);
+            }
+            return text.replace(/^\uFEFF/, '');
+          }
+
+          function previsualizarDatos() {
             const files = Array.from($('csv-file').files);
             if (files.length === 0) return alert("Selecciona primero uno o más archivos");
 
@@ -7562,11 +7617,11 @@
 
             let loadedCount = 0;
 
-            files.forEach((file, idx) => {
-              Papa.parse(file, {
+            files.forEach(async (file, idx) => {
+              const csvText = await leerArchivoTextoConCodificacion(file);
+              Papa.parse(csvText, {
                 header: false,
                 skipEmptyLines: 'greedy',
-                encoding: "UTF-8",
                 delimiter: "",
                 complete: function (results) {
                   let rows = results.data;
@@ -7799,15 +7854,11 @@
               }
 
               const asig = (asigIdx !== -1 ? (row[asigIdx] || "General") : "General").trim();
-              const asigNorm = normalizeText(asig);
-              const esAsigSesion2 = asigNorm.includes("competencia") || asigNorm.includes("ciudadana") ||
-                asigNorm.includes("natural") || asigNorm.includes("biologia") ||
-                asigNorm.includes("fisica") || asigNorm.includes("quimica") ||
-                asigNorm.includes("lenguaje") || asigNorm.includes("lectura") || asigNorm.includes("espanol");
 
-              // Si es E2 o EF (periodo >= 2) en Bachillerato (grado >= 6) y la pregunta viene numerada 1..60 en la Sesión 2, aplicar offset +60 (61..120)
-              if (periodoFila >= 2 && grado >= 6 && pNum >= 1 && pNum <= 60 && (_esSegundaSesionCSV("", fileName, periodoFila) || esAsigSesion2)) {
-                pNum += 60;
+              // En eval_preguntas (banco de preguntas), para E2 y EF (periodo >= 2) en Bachillerato (6° a 11°),
+              // las preguntas se guardan siempre con su numeración real de 1 a 60 (tanto en la 1ª como en la 2ª jornada).
+              if (periodoFila >= 2 && grado >= 6 && pNum > 60) {
+                pNum -= 60;
               }
 
               batchPreguntas.push({
@@ -7897,12 +7948,6 @@
               // Regla E1 vs E2/EF:
               // - E1 (periodo 1): 1 sola sesión de 1 a 120 preguntas -> sin offset.
               // - E2 y EF (periodo 2 y 3): 2 sesiones de 1 a 60 preguntas -> S2 aplica offset +60 (61 a 120).
-              const isS2 = _esSegundaSesionCSV(quiz, fileName, periodoDetectado);
-              let pNumShifted = pNum;
-              if (isS2 && pNum <= 60) {
-                pNumShifted += 60;
-              }
-
               // Extraer grado sin confundirse con tokens de periodo ("2P", "3P") o sesión ("S1", "S2")
               let gradoRaw = _extraerGradoDeQuizCSV(quiz, fileName);
               if (gradoRaw === "0" && classIdx !== -1 && row[classIdx]) {
@@ -7912,6 +7957,12 @@
               let gradoBase = extraerGradoBase(gradoRaw);
               let sedeDetectada = detectarSede(gradoRaw);
               if (!gradoBase) continue;
+
+              const isS2 = gradoBase >= 6 && _esSegundaSesionCSV(quiz, fileName, periodoDetectado);
+              let pNumShifted = pNum;
+              if (isS2 && pNum <= 60) {
+                pNumShifted += 60;
+              }
 
               // Limpiar para cálculo
               const p_corr = parseFloat((row[porcIdx] || "0").toString().replace(',', '.')) || 0;
@@ -8102,7 +8153,7 @@
               // Regla E1 vs E2/EF:
               // - E1 (periodo 1): 1 sola sesión numerada 1 a 120 -> offset 0.
               // - E2 y EF (periodo 2 y 3): 2 sesiones numeradas 1 a 60 (S1: 1-60 offset 0, S2: 1-60 offset +60 -> 61-120).
-              const esParte2 = _esSegundaSesionCSV(quizName, fileName, periodoDetectado);
+              const esParte2 = gradoNumBase >= 6 && _esSegundaSesionCSV(quizName, fileName, periodoDetectado);
               const offset = esParte2 ? 60 : 0;
 
               const respuestas = {};
@@ -8255,7 +8306,7 @@
               // Regla E1 vs E2/EF:
               // - E1 (periodo 1): 1 sola sesión numerada Stu1 a Stu120 -> offset 0.
               // - E2 y EF (periodo 2 y 3): 2 sesiones numeradas Stu1 a Stu60 (S1: 1-60, S2: 61-120 con offset +60).
-              const isS2 = _esSegundaSesionCSV(quizName, fileName, periodoDetectado);
+              const isS2 = gradoNumBase >= 6 && _esSegundaSesionCSV(quizName, fileName, periodoDetectado);
               const quizNormalizado = (isS2 && !/s2/i.test(quizName)) ? `${quizName}_S2` : quizName;
 
               // Extraer respuestas dinámicamente
@@ -8469,6 +8520,7 @@
             const asigVal = $('sel-est-det-asig').value;
             if (!asigVal) return;
             const [start, end] = asigVal.split('-').map(Number);
+            const gBase = extraerGradoBase($('sel-est-det-grado') ? $('sel-est-det-grado').value : '');
 
             const sel = $('sel-est-det-preg');
             sel.innerHTML = '<option value="">#</option>';
@@ -8476,7 +8528,7 @@
             for (let i = start; i <= end; i++) {
               const opt = document.createElement('option');
               opt.value = i;
-              const displayNum = (parseInt(currentPeriodo) >= 2 && i > 60) ? (i - 60) : i;
+              const displayNum = (parseInt(currentPeriodo) >= 2 && gBase >= 6 && i > 60) ? (i - 60) : i;
               opt.textContent = displayNum;
               sel.appendChild(opt);
             }
@@ -8502,21 +8554,38 @@
                 queryAsig = "CIENCIAS NATURALES";
               }
 
-              // 1. Obtener la pregunta del banco
+              // 1. Obtener la pregunta del banco (en E2/EF 6°-11° las preguntas están guardadas de 1 a 60 por asignatura)
+              const numBancoEst = (parseInt(currentPeriodo) >= 2 && gBase >= 6 && parseInt(qNum) > 60) ? (parseInt(qNum) - 60) : parseInt(qNum);
+              const esNaturales3a9Est = gBase < 10 && (normalizeText(asigLabel) === "biologia" || normalizeText(asigLabel).includes("naturales"));
+              const orFilterEst = esNaturales3a9Est
+                ? `asignatura.ilike."${queryAsig}",asignatura.ilike."${asigLabel}",asignatura.ilike."%${asigLabel}%",asignatura.ilike."%Física%",asignatura.ilike."%Fisica%"`
+                : `asignatura.ilike."${queryAsig}",asignatura.ilike."${asigLabel}",asignatura.ilike."%${asigLabel}%"`;
+
               let { data: pregDataArr } = await supabaseClient.from('eval_preguntas')
                 .select('*')
                 .eq('grado', gBase)
                 .eq('periodo', currentPeriodo)
-                .or(`asignatura.ilike."${queryAsig}",asignatura.ilike."${asigLabel}",asignatura.ilike."%${asigLabel}%"`)
-                .eq('pregunta_num', qNum)
+                .or(orFilterEst)
+                .eq('pregunta_num', numBancoEst)
                 .limit(1);
+
+              if ((!pregDataArr || pregDataArr.length === 0) && numBancoEst !== parseInt(qNum)) {
+                const resAlt = await supabaseClient.from('eval_preguntas')
+                  .select('*')
+                  .eq('grado', gBase)
+                  .eq('periodo', currentPeriodo)
+                  .or(orFilterEst)
+                  .eq('pregunta_num', qNum)
+                  .limit(1);
+                if (resAlt.data) pregDataArr = resAlt.data;
+              }
 
               if (!pregDataArr || pregDataArr.length === 0) {
                 const res = await supabaseClient.from('eval_preguntas')
                   .select('*')
                   .eq('grado', gBase)
                   .eq('periodo', currentPeriodo)
-                  .eq('pregunta_num', qNum)
+                  .eq('pregunta_num', numBancoEst)
                   .limit(1);
                 if (res.data) pregDataArr = res.data;
               }
@@ -8552,12 +8621,13 @@
               const respKey = keyFound ? keyFound.trim().toUpperCase() : null;
 
               // Renderizar Título e Información con número físico del examen
-              const displayNum = (parseInt(currentPeriodo) >= 2 && parseInt(qNum) > 60) ? (parseInt(qNum) - 60) : qNum;
+              const displayNum = (parseInt(currentPeriodo) >= 2 && gBase >= 6 && parseInt(qNum) > 60) ? (parseInt(qNum) - 60) : qNum;
+              const mediaAsig = (qData && qData.asignatura) ? qData.asignatura : asigLabel;
               $('est-det-pregunta-num').innerText = `Pregunta #${displayNum} - ${asigLabel}`;
 
               // Texto e Imagen Pregunta (ID CORREGIDOS)
               const txtPreg = qData ? qData.texto_pregunta : "Pregunta no encontrada en el banco.";
-              renderMedia('est-det-pregunta-texto', 'est-det-pregunta-media', txtPreg, gBase, asigLabel, displayNum);
+              renderMedia('est-det-pregunta-texto', 'est-det-pregunta-media', txtPreg, gBase, mediaAsig, displayNum);
 
               // Opciones
               const opts = ['a', 'b', 'c', 'd'];
@@ -8569,7 +8639,7 @@
 
                 if (qData) {
                   const content = qData[`opcion_${o}`];
-                  renderMedia(`est-txt-${o}`, `est-media-opt-${o}`, content, gBase, asigLabel, displayNum, o);
+                  renderMedia(`est-txt-${o}`, `est-media-opt-${o}`, content, gBase, mediaAsig, displayNum, o);
                 } else {
                   if (txt) txt.innerHTML = "(Sin texto)";
                   if ($(`est-media-opt-${o}`)) $(`est-media-opt-${o}`).innerHTML = "";

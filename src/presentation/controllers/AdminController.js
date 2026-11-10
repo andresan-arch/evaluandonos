@@ -43,6 +43,18 @@ export class AdminController {
   }
 
   /**
+   * Lee un archivo de texto detectando automáticamente UTF-8 vs Windows-1252 (ANSI exportado por Excel)
+   */
+  async leerArchivoTextoConCodificacion(file) {
+    const buffer = await file.arrayBuffer();
+    let text = new TextDecoder('utf-8').decode(buffer);
+    if (text.includes('\uFFFD')) {
+      text = new TextDecoder('windows-1252').decode(buffer);
+    }
+    return text.replace(/^\uFEFF/, '');
+  }
+
+  /**
    * Vincula los elementos de carga de archivos CSV
    */
   bindSubidaCSV() {
@@ -51,19 +63,15 @@ export class AdminController {
     const btnEstudiantes = document.getElementById('btn-upload-estudiantes');
 
     if (fileEstudiantes && btnEstudiantes) {
-      btnEstudiantes.addEventListener('click', () => {
+      btnEstudiantes.addEventListener('click', async () => {
         const file = fileEstudiantes.files[0];
         if (!file) {
           alert('Selecciona un archivo CSV/TSV de estudiantes primero');
           return;
         }
 
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-          const content = e.target.result;
-          await this.procesarEstudiantesCSV(content, file.name);
-        };
-        reader.readAsText(file);
+        const content = await this.leerArchivoTextoConCodificacion(file);
+        await this.procesarEstudiantesCSV(content, file.name);
       });
     }
 
@@ -72,19 +80,15 @@ export class AdminController {
     const btnResultados = document.getElementById('btn-upload-resultados');
 
     if (fileResultados && btnResultados) {
-      btnResultados.addEventListener('click', () => {
+      btnResultados.addEventListener('click', async () => {
         const file = fileResultados.files[0];
         if (!file) {
           alert('Selecciona un archivo CSV/TSV de resultados primero');
           return;
         }
 
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-          const content = e.target.result;
-          await this.procesarResultadosCSV(content, file.name);
-        };
-        reader.readAsText(file);
+        const content = await this.leerArchivoTextoConCodificacion(file);
+        await this.procesarResultadosCSV(content, file.name);
       });
     }
   }
@@ -163,9 +167,12 @@ export class AdminController {
           const total = parseInt(row['Total Questions'] || row['preguntas'] || row['total_preguntas'], 10);
           const quizName = (row['Quiz Name'] || row['Quiz_Name'] || '').toString().trim();
 
-          // E1: 1 sesión de 1-120 (offset 0). E2 y EF: 2 sesiones de 1-60 (S1 offset 0, S2 offset +60)
+          const gradoStr = row['Grupo'] || row['Class'] || row['grado'] || '';
+          const gBase = extraerGradoBase(gradoStr || quizName || filename);
+
+          // E1 y Primaria (3-5): 1 sesión (offset 0). Bachillerato (6-11) en E2 y EF: 2 sesiones de 1-60 (S1 offset 0, S2 offset +60)
           const periodoRow = detectarPeriodo(quizName || filename);
-          const isS2 = esSegundaSesionCSV(quizName, filename, periodoRow);
+          const isS2 = gBase >= 6 && esSegundaSesionCSV(quizName, filename, periodoRow);
           const offset = isS2 ? 60 : 0;
 
           if (zipId && nombre && !isNaN(correctas)) {
@@ -179,9 +186,6 @@ export class AdminController {
                 respuestas[num] = row[key] === '1' || row[key] === 1 || row[key] === 'Correct' ? 1 : 0;
               }
             });
-
-            const gradoStr = row['Grupo'] || row['Class'] || row['grado'] || '';
-            const gBase = extraerGradoBase(gradoStr);
 
             resultados.push({
               zipgrade_id: zipId.toString().trim(),

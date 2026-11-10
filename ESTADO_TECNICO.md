@@ -321,3 +321,34 @@ Regla vigente para esta etapa:
      - En `mostrarAnalisis()`, `stat-total` considera el total de evaluados del quiz (`totalEvaluadosQuiz`) para que una respuesta en blanco no disminuya el total de `90` evaluados.
 - **Actualización de Caché PWA**:
   - Se sincronizó la versión a **`v124`** en `src/shared/constants.js`, `index.html` y `sw.js`.
+
+
+### Iteración v125 — Conversión a UTF-8 de `Base de Datos Preguntas E3_2026.csv`, Recarga Limpia en Supabase y Detección Automática de Codificación (`UTF-8` vs `Windows-1252`)
+- **Causa Raíz de la Pérdida de Tildes y Eñes en `Base de Datos Preguntas E3_2026.csv`**:
+  - El archivo `csv/Base de Datos Preguntas E3_2026.csv` fue exportado desde Excel en codificación **Windows-1252 (ANSI)** en lugar de `UTF-8`.
+  - Al leerlo directamente como `UTF-8`, todos los caracteres acentuados (`á, é, í, ó, ú`), la letra `ñ` y los signos `¿ / ¡` se convertían en caracteres de reemplazo inválidos (`\uFFFD` / ``, 8,514 ocurrencias en las 900 preguntas de 3° a 11°).
+- **Solución Aplicada**:
+  1. **Conversión del archivo local a `UTF-8` (`csv/Base de Datos Preguntas E3_2026.csv`)**:
+     - Se decodificó el archivo desde `windows-1252` y se guardó en `UTF-8` (con BOM para compatibilidad directa con Excel), preservando intactos todos los acentos, `ñ`, signos de interrogación/exclamación y fórmulas matemáticas.
+  2. **Reemplazo limpio de las 900 preguntas de `EF` (`periodo = 3`) en Supabase (`eval_preguntas`)**:
+     - Se eliminaron los registros corruptos de `periodo = 3` en `eval_preguntas` y se reinsertaron las **900 preguntas** limpias de Grados `3°` a `11°` (`3°: 45`, `4°: 45`, `5°: 90`, `6° a 11°: 120 c/u` con el desplazamiento `+60` para la Sesión 2 de Bachillerato), verificando `0` caracteres corruptos (`\uFFFD = 0`) en los 3 periodos de la base de datos.
+  3. **Detección automática de codificación al subir cualquier CSV (`index.html` y `AdminController.js`)**:
+     - Se agregó la función `leerArchivoTextoConCodificacion(file)` en `index.html` (`previsualizarDatos`) y en `src/presentation/controllers/AdminController.js` (`bindSubidaCSV`), que inspecciona el `ArrayBuffer` del archivo con `TextDecoder('utf-8')` y, si detecta algún carácter `\uFFFD`, lo decodifica automáticamente con `TextDecoder('windows-1252')` antes de enviarlo a `Papa.parse`.
+- **Actualización de Caché PWA**:
+  - Se sincronizó la versión a **`v125`** en `src/shared/constants.js`, `index.html` y `sw.js`.
+
+
+### Iteración v126 — Alineación de Numeración por Sesiones en `E2` y `EF` (Primaria 3°–5° intacta vs Bachillerato 6°–9° y 10°–11° de 1 a 60 en `eval_preguntas`)
+- **Actualización de `eval_preguntas` en Supabase a numeración `1 a 60` para Grados `6° a 11°` (`E2` y `EF`)**:
+  - Se actualizaron los 565 registros de la Segunda Jornada en `eval_preguntas` (`periodo = 2` y `periodo = 3`, `grado >= 6`) para que su columna `pregunta_num` quede almacenada directamente de **`1` a `60`** (0 registros con `pregunta_num > 60` en 6° a 11°):
+    - **6° a 9° (Segunda parte)**: `Competencias (1–20)`, `Biología / Ciencias Naturales (21–40)`, `Lenguaje (41–60)`.
+    - **10° y 11° (Segunda parte)**: `Competencias (1–10)`, `Biología (11–20)`, `Física (21–30)`, `Química (31–40)`, `Lenguaje (41–60)`.
+  - En `procesarBancoPreguntas()` (`index.html`), al cargar cualquier CSV del Banco de Preguntas de `E2` o `EF` para `6° a 11°`, se conserva siempre la numeración `1 a 60` en `eval_preguntas`, mientras que `mostrarAnalisis()` y `mostrarAnalisisEstudiante()` enlazan automáticamente cada pregunta `1 a 60` de la Segunda Jornada con sus respuestas de ZipGrade (`61 a 120` en `eval_resultados` y `eval_estudiantes_completos`).
+- **Protección de Numeración de Primaria (`3°`, `4°` y `5°`)**:
+  - En Primaria (`3° y 4°`: `1–45`; `5°`: `1–90`), la evaluación es de una sola jornada en `E1`, `E2` y `EF` (`Ciencias Naturales/Biología` en 5° es `61–80` e `Inglés` en 5° es `81–90`).
+  - Se añadió la condición `gBase >= 6` en todos los puntos de visualización (`onAsigChange`, `mostrarAnalisis`, `cargarPreguntasEstudiante`, `mostrarAnalisisEstudiante`, `cargarPreguntasAdminImg`, `verDetallePreguntaAdmin`, `obtenerUrlPredictiva`) y de carga CSV (`procesarConsolidado`, `procesarEstudiantes`, `procesarCompletos`, `AdminController.js`) para que la resta/suma de `60` aplique **exclusivamente a Bachillerato (`6° a 11°`)** y nunca altere las preguntas `61–90` de **5° de Primaria**.
+- **Unificación de `Ciencias Naturales (Biología)` (`21 a 40`, Segunda Jornada) en `6° a 9°` (`E2` y `EF`)**:
+  - En `6° a 9°`, la Segunda Jornada tiene `Competencias Ciudadanas (1–20)`, `Ciencias Naturales (21–40)` y `Lenguaje (41–60)` (mientras que en `10° y 11°` la Segunda Jornada tiene `Competencias Ciudadanas (1–10)`, `Biología (11–20)`, `Física (21–30)`, `Química (31–40)` y `Lenguaje (41–60)`).
+  - En `cargarAsignaturas()`, `onAsigChange()`, `mostrarAnalisis()` y `mostrarAnalisisEstudiante()`, para `6° a 9°` (`gBase < 10`), las preguntas `36 a 40` de 7° y 8° que en el CSV venían con la etiqueta `Física` se agrupan automáticamente dentro de `Biología / Ciencias Naturales` (`#21 a #40`), conservando al mismo tiempo su código de asignatura original al resolver las imágenes predictivas (`40F7.png`, `36F8.png`–`39F8.png`).
+- **Actualización de Caché PWA**:
+  - Se sincronizó la versión a **`v126`** en `src/shared/constants.js`, `index.html` y `sw.js`.
