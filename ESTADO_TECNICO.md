@@ -366,3 +366,16 @@ Regla vigente para esta etapa:
   3. En `cargarPreguntasEstudiante()` y `cargarAsignaturasEstudiante()`, al seleccionar una asignatura o cambiar de estudiante se actualiza inmediatamente la pregunta en pantalla (`mostrarAnalisisEstudiante()`), manteniendo paridad total con `Análisis General`.
 - **Actualización de Caché PWA**:
   - Se sincronizó la versión a **`v127`** en `src/shared/constants.js`, `index.html` y `sw.js`.
+
+
+### Iteración v128 — Renderizado Automático de Fórmulas en Texto Plano (`^` y `_`), Reducción de Tamaño de Imágenes y Limpieza de Periodo 3 en `eval_preguntas`
+- **Eliminación de Registros de `periodo = 3` en `eval_preguntas` (Supabase)**:
+  - Por solicitud expresa del usuario, se eliminaron todos los registros con `periodo = 3` en la tabla `eval_preguntas` de Supabase (`Periodo 1: 900`, `Periodo 2: 547`, `Periodo 3: 0`).
+- **Conversión Automática de Notación Matemática en Texto Plano a Fórmulas MathJax (`formatearTextoMatematico`)**:
+  - Se actualizó [`formatearTextoMatematico(text)`](file:///c:/Users/ANDRESAN/Desktop/Evaluandonos/index.html#L3319-L3359) en [`index.html`](file:///c:/Users/ANDRESAN/Desktop/Evaluandonos/index.html) para que, además de proteger los signos de moneda (`$4500`, `$1000`) y respetar los bloques LaTeX existentes (`$...$`, `$$...$$`, `\(...\)`, `\[...\]`), detecte expresiones con superíndices (`^`) o subíndices (`_`) escritas en texto plano (como `40m^2`, `20m^2`, `100m^2`, `96m^2`, `x^2 - y^2 = 1`, `A^B - B^A`, `Z_1=3+2i`, `Q_3`, `sen^-1`) y las envuelva automáticamente como fórmulas inline `\(...\)` con llaves normalizadas (`^{...}`, `_{...}`) para que MathJax las renderice como fórmulas matemáticas reales.
+- **Reducción y Ajuste Proporcional del Tamaño de Imágenes (`renderMedia` y `.media-container img`)**:
+  - Se ajustó [`renderMedia()`](file:///c:/Users/ANDRESAN/Desktop/Evaluandonos/index.html#L6989-L7003) y las reglas CSS de [`.media-container img`](file:///c:/Users/ANDRESAN/Desktop/Evaluandonos/index.html#L447-L456) en [`index.html`](file:///c:/Users/ANDRESAN/Desktop/Evaluandonos/index.html):
+    - **Imágenes de enunciado (`opcion === 'P'`)**: `max-width: min(100%, 360px); max-height: 210px; width: auto; height: auto; object-fit: contain;` con margen compacto (`10px 0`).
+    - **Imágenes dentro de opciones de respuesta (`A`, `B`, `C`, `D`)**: `max-width: min(100%, 200px); max-height: 110px; width: auto; height: auto; object-fit: contain;` con margen reducido (`6px 0`).
+- **Actualización de Caché PWA**:
+  - Se sincronizó la versión a **`v128`** en [`src/shared/constants.js`](file:///c:/Users/ANDRESAN/Desktop/Evaluandonos/src/shared/constants.js#L2), [`index.html`](file:///c:/Users/ANDRESAN/Desktop/Evaluandonos/index.html#L5201-L5202) y [`sw.js`](file:///c:/Users/ANDRESAN/Desktop/Evaluandonos/sw.js#L1).

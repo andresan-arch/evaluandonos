@@ -445,9 +445,13 @@
     }
 
     .media-container img {
-      max-width: 100%;
+      max-width: min(100%, 360px);
+      max-height: 210px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
       border-radius: 12px;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
       border: 1px solid #e2e8f0;
     }
 
@@ -3328,10 +3332,28 @@
             str = str.replace(/(?<!\\)\$/, '<span class="tex2jax_ignore">&#36;</span>');
           }
 
-          // 3. Formatear subíndices en texto plano tipo Z_1, Z_2, Q_3, L_1, m_1 (cuando no están dentro de bloques LaTeX)
-          if (!str.includes('\\(') && !(remainingDollars && remainingDollars.length >= 2)) {
-            str = str.replace(/\b([A-Za-zΔ])_(\d+)\b/g, '$1<sub>$2</sub>');
-          }
+          // 3. Convertir expresiones con superíndices (^) o subíndices (_) en texto plano (ej: 40m^2, x^2 - y^2 = 1, A^B - B^A, Z_1, Q_3, sen^-1)
+          //    en fórmulas inline de MathJax \( ... \) cuando se encuentren fuera de delimitadores LaTeX o etiquetas HTML.
+          const tokenSplitRegex = /(<[^>]+>|\$\$[\s\S]*?\$\$|\$[^$]+\$|\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\])/g;
+          const plainMathExpRegex = /\b([A-Za-z0-9Δ]+(?:\s*[+\-*/=]\s*[A-Za-z0-9Δ]+)*\s*(?:\^(?:\{[^}]+\}|[+-]?\d+|[A-Za-z0-9]+)|(?<!_)_(?!_)(?:\{[^}]+\}|[+-]?\d+|[A-Za-z0-9]+))(?:\s*(?:[\^_](?:\{[^}]+\}|[+-]?\d+|[A-Za-z0-9]+)|[+\-*/=]\s*[A-Za-z0-9Δ+-]+(?:\^(?:\{[^}]+\}|[+-]?\d+|[A-Za-z0-9]+)|(?<!_)_(?!_)(?:\{[^}]+\}|[+-]?\d+|[A-Za-z0-9]+))?))*)/g;
+
+          str = str.split(tokenSplitRegex).map(part => {
+            if (!part) return part;
+            if (
+              part.startsWith('<') ||
+              part.startsWith('$') ||
+              part.startsWith('\\(') ||
+              part.startsWith('\\[')
+            ) {
+              return part;
+            }
+            return part.replace(plainMathExpRegex, (m) => {
+              const latexExpr = m
+                .replace(/\^(\{[^}]+\}|[+-]?\d+|[A-Za-z0-9]+)/g, (em, exp) => exp.startsWith('{') ? '^' + exp : '^{' + exp + '}')
+                .replace(/(?<!_)_(?!_)(\{[^}]+\}|[+-]?\d+|[A-Za-z0-9]+)/g, (sm, sub) => sub.startsWith('{') ? '_' + sub : '_{' + sub + '}');
+              return '\\(' + latexExpr + '\\)';
+            });
+          }).join('');
 
           return str;
         }
@@ -3714,9 +3736,13 @@
         }
 
         .media-container img {
-          max-width: 100%;
+          max-width: min(100%, 360px);
+          max-height: 210px;
+          width: auto;
+          height: auto;
+          object-fit: contain;
           border-radius: 12px;
-          margin-bottom: 1rem;
+          margin-bottom: 0.75rem;
           border: 1px solid #e2e8f0;
         }
 
@@ -5172,8 +5198,8 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
         <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
-        <script src="src/shared/constants.js?v=127"></script>
-        <script src="src/shared/helpers.js?v=127"></script>
+        <script src="src/shared/constants.js?v=128"></script>
+        <script src="src/shared/helpers.js?v=128"></script>
         <script>
           // --- CONFIGURACIÓN Y ESTADO GLOBAL ---
 
@@ -6961,10 +6987,15 @@
                 }
 
                 if (imgUrl) {
+                  const isOptionImg = opcion && opcion !== 'P';
+                  const imgSizeStyle = isOptionImg
+                    ? 'max-width: min(100%, 200px); max-height: 110px; width: auto; height: auto; object-fit: contain; border-radius: 10px;'
+                    : 'max-width: min(100%, 360px); max-height: 210px; width: auto; height: auto; object-fit: contain; border-radius: 12px;';
+                  const wrapMargin = isOptionImg ? '6px 0' : '10px 0';
                   combinedHtml += `
-              <div style="display:flex; flex-direction:column; gap:8px; align-items:center; width:100%; margin: 18px 0;">
+              <div style="display:flex; flex-direction:column; gap:6px; align-items:center; width:100%; margin: ${wrapMargin};">
                 <img src="${imgUrl}" 
-                     style="max-width:100%; border-radius:16px; border:1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);" 
+                     style="${imgSizeStyle} border:1px solid #e2e8f0; box-shadow: 0 4px 10px -2px rgba(0,0,0,0.08);" 
                      title="Imagen ${imageCounter}"
                      onerror="if (!this.dataset.tLower) { this.dataset.tLower = '1'; this.src = this.src.replace(/\\/([^\\/]+)$/, (m, f) => '/' + f.toLowerCase()); } else if (!this.dataset.tUpper) { this.dataset.tUpper = '1'; this.src = this.src.replace(/\\/([^\\/]+)$/, (m, f) => '/' + f.toUpperCase()); } else { this.style.display='none'; }">
               </div>`;
