@@ -352,3 +352,17 @@ Regla vigente para esta etapa:
   - En `cargarAsignaturas()`, `onAsigChange()`, `mostrarAnalisis()` y `mostrarAnalisisEstudiante()`, para `6° a 9°` (`gBase < 10`), las preguntas `36 a 40` de 7° y 8° que en el CSV venían con la etiqueta `Física` se agrupan automáticamente dentro de `Biología / Ciencias Naturales` (`#21 a #40`), conservando al mismo tiempo su código de asignatura original al resolver las imágenes predictivas (`40F7.png`, `36F8.png`–`39F8.png`).
 - **Actualización de Caché PWA**:
   - Se sincronizó la versión a **`v126`** en `src/shared/constants.js`, `index.html` y `sw.js`.
+
+
+### Iteración v127 — Sincronización de Preguntas entre Análisis General y Análisis por Estudiante (`coincideAsignaturaPregunta`)
+- **Causa Raíz del Desfase de Preguntas en `Análisis por Estudiante` (`mostrarAnalisisEstudiante`)**:
+  1. En `cargarAsignaturasEstudiante()`, las opciones del selector `#sel-est-det-asig` provenían de `MATRIZ_RANGOS` sin tildes o con nombres largos (`Matematicas`, `Ciencias Sociales`, `Ingles`, `Competencias Ciudadanas`, `Ciencias Naturales`, `Biologia`, `Fisica`, `Quimica`), mientras que en `eval_preguntas` (Supabase) están almacenadas con tildes o nombres cortos (`Matemáticas`, `Sociales`, `Inglés`, `Competencias`, `Biología`, `Física`, `Química`).
+  2. Como el operador `ILIKE` de PostgreSQL no ignora tildes (`a != á`, `e != é`, `i != í`) ni coincide `"Sociales"` con `"%Ciencias Sociales%"`, la consulta por asignatura en `mostrarAnalisisEstudiante()` devolvía `0` filas y caía en el fallback sin filtro de asignatura (`.eq('pregunta_num', numBancoEst).limit(1)`).
+  3. Dado que en `E2` y `EF` tanto la 1ª como la 2ª jornada están numeradas de `1` a `60` en `eval_preguntas`, ese fallback traía la pregunta de la otra jornada con el mismo número (ej. mostraba la pregunta de `Competencias` en lugar de `Matemáticas`, `Sociales` en lugar de `Biología`, o `Lenguaje` en lugar de `Inglés`).
+  4. Adicionalmente, al cambiar de asignatura en `cargarPreguntasEstudiante()` no se autoseleccionaba la primera pregunta ni se invocaba `mostrarAnalisisEstudiante()`, dejando en pantalla la pregunta de la asignatura anterior.
+- **Solución Aplicada en `index.html`**:
+  1. Se implementó [`coincideAsignaturaPregunta(dbAsig, targetAsig, gBase)`](file:///c:/Users/ANDRESAN/Desktop/Evaluandonos/index.html#L6570-L6592), que compara asignaturas normalizadas sin tildes y resuelve equivalencias (`Matemáticas/Matematicas`, `Ciencias Sociales/Sociales`, `Competencias Ciudadanas/Competencias`, `Ciencias Naturales/Biología` y `Física/Química` según el nivel), aplicándola tanto en `onAsigChange()` y `mostrarAnalisis()` como en `mostrarAnalisisEstudiante()`.
+  2. Se eliminó el fallback sin asignatura que cruzaba preguntas entre la 1ª y la 2ª jornada.
+  3. En `cargarPreguntasEstudiante()` y `cargarAsignaturasEstudiante()`, al seleccionar una asignatura o cambiar de estudiante se actualiza inmediatamente la pregunta en pantalla (`mostrarAnalisisEstudiante()`), manteniendo paridad total con `Análisis General`.
+- **Actualización de Caché PWA**:
+  - Se sincronizó la versión a **`v127`** en `src/shared/constants.js`, `index.html` y `sw.js`.
