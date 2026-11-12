@@ -1894,6 +1894,26 @@
 
 <body>
   <script>
+    // --- CONFIGURACIÓN DE MANTENIMIENTO PORTAL ESTUDIANTES ---
+    // Se habilita automáticamente el jueves 12 de noviembre de 2026 a las 11:00 a. m. (hora de Colombia, UTC-5)
+    window.ESTUDIANTES_MANTENIMIENTO_HASTA = new Date('2026-11-12T11:00:00-05:00').getTime();
+    window.estaEnMantenimientoEstudiantes = function () {
+      return Date.now() < window.ESTUDIANTES_MANTENIMIENTO_HASTA;
+    };
+    window.actualizarEstadoMantenimientoEstudiantes = function () {
+      const enMant = window.estaEnMantenimientoEstudiantes();
+      const mantBox = document.getElementById('est-mantenimiento-box');
+      const loginBox = document.getElementById('est-login-fields');
+      if (mantBox) mantBox.style.display = enMant ? 'block' : 'none';
+      if (loginBox) loginBox.style.display = enMant ? 'none' : 'block';
+      return enMant;
+    };
+    setInterval(() => {
+      if (typeof window.actualizarEstadoMantenimientoEstudiantes === 'function') {
+        window.actualizarEstadoMantenimientoEstudiantes();
+      }
+    }, 15000);
+
     // --- PRE-INICIALIZACIÓN BLINDADA (STABLE SCOPE HOISTING) ---
     // Garantiza que los controladores de la interfaz existan en memoria antes de renderizar los botones, evitando ReferenceErrors.
     window.$ = id => document.getElementById(id);
@@ -1903,6 +1923,9 @@
       const fEst = document.getElementById('form-estudiante');
       if (fDoc) fDoc.style.display = isEst ? 'none' : 'block';
       if (fEst) fEst.style.display = isEst ? 'block' : 'none';
+      if (isEst && typeof window.actualizarEstadoMantenimientoEstudiantes === 'function') {
+        window.actualizarEstadoMantenimientoEstudiantes();
+      }
 
       const btnDoc = document.getElementById('mode-docente');
       const btnEst = document.getElementById('mode-estudiante');
@@ -1961,12 +1984,25 @@
       </div>
 
       <div id="form-estudiante" style="display:none;">
-        <input type="text" id="li-est-id" placeholder="Número de Identificación">
-        <p style="font-size:0.75rem; color:#64748b; margin-bottom:1.5rem; line-height:1.4;">Consulta tu informe
-          individual ingresando el documento registrado.</p>
-        <button type="button" onclick="intentarLoginEstudiante()" id="btn-login-est"
-          style="width:100%; background:#10b981;">Consultar
-          Reporte</button>
+        <div id="est-mantenimiento-box"
+          style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 2px solid #f59e0b; border-radius: 16px; padding: 1.25rem 1rem; text-align: center; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.12);">
+          <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🛠️</div>
+          <h3 style="margin: 0 0 0.5rem 0; color: #92400e; font-size: 1.05rem; font-weight: 800;">Estamos en mantenimiento</h3>
+          <p style="font-size: 0.82rem; color: #78350f; margin: 0 0 0.75rem 0; line-height: 1.5; font-weight: 500;">
+            Estamos actualizando los resultados y reportes individuales para brindarte la información completa.
+          </p>
+          <div style="background: rgba(255, 255, 255, 0.85); border: 1px dashed #d97706; border-radius: 10px; padding: 8px 10px; font-size: 0.78rem; color: #92400e; font-weight: 700;">
+            🕚 Disponible nuevamente mañana a las <strong>11:00 a. m.</strong> (hora de Colombia)
+          </div>
+        </div>
+        <div id="est-login-fields" style="display:none;">
+          <input type="text" id="li-est-id" placeholder="Número de Identificación">
+          <p style="font-size:0.75rem; color:#64748b; margin-bottom:1.5rem; line-height:1.4;">Consulta tu informe
+            individual ingresando el documento registrado.</p>
+          <button type="button" onclick="intentarLoginEstudiante()" id="btn-login-est"
+            style="width:100%; background:#10b981;">Consultar
+            Reporte</button>
+        </div>
       </div>
 
       <div id="login-err" style="color: #ef4444; font-size: 0.8rem; margin-top: 1rem; display: none; font-weight:600;">
@@ -5160,6 +5196,9 @@
             const fEst = document.getElementById('form-estudiante');
             if (fDoc) fDoc.style.display = isEst ? 'none' : 'block';
             if (fEst) fEst.style.display = isEst ? 'block' : 'none';
+            if (isEst && typeof window.actualizarEstadoMantenimientoEstudiantes === 'function') {
+              window.actualizarEstadoMantenimientoEstudiantes();
+            }
 
             const btnDoc = document.getElementById('mode-docente');
             const btnEst = document.getElementById('mode-estudiante');
@@ -5198,8 +5237,8 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
         <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
-        <script src="src/shared/constants.js?v=128"></script>
-        <script src="src/shared/helpers.js?v=128"></script>
+        <script src="src/shared/constants.js?v=129"></script>
+        <script src="src/shared/helpers.js?v=129"></script>
         <script>
           // --- CONFIGURACIÓN Y ESTADO GLOBAL ---
 
@@ -5763,6 +5802,9 @@
             const isEst = mode === 'estudiante';
             $('form-docente').style.display = isEst ? 'none' : 'block';
             $('form-estudiante').style.display = isEst ? 'block' : 'none';
+            if (isEst && typeof window.actualizarEstadoMantenimientoEstudiantes === 'function') {
+              window.actualizarEstadoMantenimientoEstudiantes();
+            }
 
             const btnDoc = $('mode-docente');
             const btnEst = $('mode-estudiante');
@@ -5778,6 +5820,10 @@
           };
 
           window.intentarLoginEstudiante = async function intentarLoginEstudiante() {
+            if (typeof window.estaEnMantenimientoEstudiantes === 'function' && window.estaEnMantenimientoEstudiantes()) {
+              window.actualizarEstadoMantenimientoEstudiantes();
+              return;
+            }
             const idVal = $('li-est-id').value.trim();
             const btn = $('btn-login-est');
             const err = $('login-err');
@@ -5889,6 +5935,15 @@
           }
 
           window.loguearExitosoEstudiante = function loguearExitosoEstudiante(nombre, id) {
+            if (typeof window.estaEnMantenimientoEstudiantes === 'function' && window.estaEnMantenimientoEstudiantes()) {
+              localStorage.removeItem('studentId');
+              localStorage.removeItem('studentName');
+              localStorage.removeItem('studentZipId');
+              if ($('login-mask')) $('login-mask').style.display = 'flex';
+              if ($('loading')) $('loading').style.display = 'none';
+              window.switchLoginMode('estudiante');
+              return;
+            }
             if ($('login-mask')) $('login-mask').style.display = 'none';
             if ($('loading')) $('loading').style.display = 'none';
 
@@ -5921,6 +5976,14 @@
             const sId = localStorage.getItem('studentId');
             const sName = localStorage.getItem('studentName');
             if (sId && sName) {
+              if (typeof window.estaEnMantenimientoEstudiantes === 'function' && window.estaEnMantenimientoEstudiantes()) {
+                localStorage.removeItem('studentId');
+                localStorage.removeItem('studentName');
+                localStorage.removeItem('studentZipId');
+                if ($('login-mask')) $('login-mask').style.display = 'flex';
+                window.switchLoginMode('estudiante');
+                return;
+              }
               loguearExitosoEstudiante(sName, sId);
               return;
             }
