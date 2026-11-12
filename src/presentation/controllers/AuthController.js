@@ -52,6 +52,12 @@ export class AuthController {
     btnLogin.removeAttribute('onclick');
 
     btnLogin.addEventListener('click', async () => {
+      if (typeof window.estaEnMantenimientoEstudiantes === 'function' && window.estaEnMantenimientoEstudiantes()) {
+        if (typeof window.actualizarEstadoMantenimientoEstudiantes === 'function') {
+          window.actualizarEstadoMantenimientoEstudiantes();
+        }
+        return;
+      }
       const identificacion = inputId.value.trim();
 
       if (!identificacion) {
@@ -199,6 +205,16 @@ export class AuthController {
       const sId = localStorage.getItem('studentId');
       const sName = localStorage.getItem('studentName');
       if (sId && sName) {
+        if (typeof window.estaEnMantenimientoEstudiantes === 'function' && window.estaEnMantenimientoEstudiantes()) {
+          localStorage.removeItem('studentId');
+          localStorage.removeItem('studentName');
+          localStorage.removeItem('studentZipId');
+          this.mostrarVistaLogin();
+          if (typeof window.switchLoginMode === 'function') {
+            window.switchLoginMode('estudiante');
+          }
+          return;
+        }
         this.currentUser = { 
           estudiante_nombre: sName, 
           nombre: sName,

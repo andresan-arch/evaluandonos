@@ -107,7 +107,6 @@ export class ReportController {
 
       const grupo = resData[0].grado || resData[0].zipgrade_id || '';
       const gBase = extraerGradoBase(grupo);
-      const periodo = parseInt(window.currentPeriodo) || 2;
       const dataProcesada = ReportService.procesarReporteIndividual(resData[0], gBase, periodo);
       this.renderReporteIndividual(dataProcesada);
     } catch (err) {
@@ -214,8 +213,7 @@ export class ReportController {
       }
 
       const baseGrade = extraerGradoBase(grupo);
-      const periodo = parseInt(window.currentPeriodo) || 2;
-      const resGrupal = ReportService.procesarReporteGrupal(filtered, baseGrade, periodo);
+      const resGrupal = ReportService.procesarReporteGrupal(filtered, baseGrade, parseInt(periodo, 10) || 2);
       this.renderReporteGrupal(grupo, resGrupal);
     } catch (err) {
       console.error('Error al cargar reporte grupal:', err);

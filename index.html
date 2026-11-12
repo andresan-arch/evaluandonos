@@ -5237,8 +5237,8 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
         <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
-        <script src="src/shared/constants.js?v=129"></script>
-        <script src="src/shared/helpers.js?v=129"></script>
+        <script src="src/shared/constants.js?v=130"></script>
+        <script src="src/shared/helpers.js?v=130"></script>
         <script>
           // --- CONFIGURACIÓN Y ESTADO GLOBAL ---
 
@@ -5323,7 +5323,10 @@
             // 4. Informe Individual
             if ($('rep-grado')) $('rep-grado').innerHTML = '<option value="">Seleccione evaluación primero...</option>';
             if ($('rep-estudiante')) $('rep-estudiante').innerHTML = '<option value="">Seleccione grado primero...</option>';
-            if ($('reporte-content')) $('reporte-content').style.display = 'none';
+            if ($('reporte-content')) {
+              $('reporte-content').style.display = 'block';
+              $('reporte-content').innerHTML = '<p style="text-align:center; color:#64748b; padding:3rem;">Seleccione una evaluación (E1, E2 o EF), grupo y estudiante para consultar el informe individual.</p>';
+            }
 
             // 5. Informe Asignatura
             if ($('asig-sel-grado')) $('asig-sel-grado').innerHTML = '<option value="">Seleccione evaluación primero...</option>';
@@ -6118,7 +6121,7 @@
                 const sedesRurales = ['PUEBLILLO', 'SENDERO', 'YANACONAS', 'PISOJE BAJO', 'PRIMARIA'];
                 const isPrimariaDocente = assignedLower === "primaria";
 
-                if (role !== 'tesis' && (sedesRurales.includes(userSedeClean) || sedesRurales.includes(profileSede) || isPrimariaDocente)) {
+                if (role !== 'tesis' && role !== 'superadmin' && (sedesRurales.includes(userSedeClean) || sedesRurales.includes(profileSede) || isPrimariaDocente)) {
                   console.log(`🌟 Elevando permisos a ADMIN por pertenecer a sede rural o ser docente de Primaria: ${userSedeClean || profileSede || 'Primaria'}`);
                   currentRole = 'admin';
                   document.body.classList.add('is-admin');
@@ -6205,39 +6208,18 @@
                 if ($('btn-print-grupal')) $('btn-print-grupal').style.display = 'none';
               }
 
-              // --- RESTRICCIONES DE ROL LECTOR (BLOQUEO ESTRICTO POR REQUERIMIENTO) ---
-              if (currentRole === 'lector') {
-                // Es director de grupo si tiene una entrada con asignatura=ETICA en docentes_privacidad
-                // (Regla de negocio: al marcar "Es Director" se guarda ETICA para ese grupo)
-                const isDirector = userPermissions && userPermissions.some(p => p.tipo === 'ASIGNACION' && (p.asignatura || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim() === 'ETICA');
-                // Fallback: también es director si tiene grado_asignado en el perfil
-                const isDirectorFallback = assignedGrade && assignedGrade.length > 0;
-                const esDirectorGrupo = isDirector || isDirectorFallback;
-
-                // 1. Ocultar Informe Individual SIEMPRE para lectores
-                if (individualTab) individualTab.style.display = 'none';
-                if ($('m-nav-individual')) $('m-nav-individual').style.display = 'none';
-
-                // 2. Informe Grupal: SOLO para directores de grupo (tienen ETICA asignada)
-                if (!esDirectorGrupo) {
-                  if (grupalTab) grupalTab.style.display = 'none';
-                  if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'none';
-                } else {
-                  // Es director: puede ver el informe grupal de su(s) grupo(s)
-                  if (grupalTab) grupalTab.style.display = 'block';
-                  if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'flex';
-                  if ($('btn-print-grupal')) $('btn-print-grupal').style.display = 'flex';
-                }
-
-                // 3. Informe por Asignatura: visible para cualquier docente con asignaciones evaluadas
-                const tieneAsignacionEvaluada = userPermissions && userPermissions.some(p => p.tipo === 'ASIGNACION' && isSubjectEvaluated(p.asignatura, p.grado));
-                if (tieneAsignacionEvaluada) {
-                  if (asigTab) asigTab.style.display = 'block';
-                  if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'flex';
-                } else {
-                  if (asigTab) asigTab.style.display = 'none';
-                  if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'none';
-                }
+              // --- HABILITAR INFORMES PARA TODOS LOS ROLES DIFERENTES A ESTUDIANTE (SUPERADMIN, ADMIN, LECTOR) ---
+              if (currentRole !== 'tesis') {
+                const menuInformes = $('menu-informes');
+                if (menuInformes && menuInformes.parentElement) menuInformes.parentElement.style.display = 'block';
+                if ($('m-nav-informes')) $('m-nav-informes').style.display = 'flex';
+                if (individualTab) individualTab.style.display = 'block';
+                if ($('m-nav-individual')) $('m-nav-individual').style.display = 'flex';
+                if (grupalTab) grupalTab.style.display = 'block';
+                if ($('m-nav-grupal')) $('m-nav-grupal').style.display = 'flex';
+                if (asigTab) asigTab.style.display = 'block';
+                if ($('m-nav-asignatura')) $('m-nav-asignatura').style.display = 'flex';
+                if ($('btn-print-grupal')) $('btn-print-grupal').style.display = 'flex';
               }
 
               // --- RESTRICCIONES DE ROL TESIS (SOLO ANÁLISIS Y ESTADÍSTICAS) ---
@@ -8851,12 +8833,25 @@
 
           // --- REPORTES INDIVIDUALES ---
           async function cargarGradosReporte() {
+            if (!currentPeriodo) {
+              const selPer = $('rep-periodo');
+              if (selPer && selPer.value) {
+                currentPeriodo = parseInt(selPer.value, 10);
+              } else {
+                if ($('rep-grado')) $('rep-grado').innerHTML = '<option value="">Seleccione evaluación primero...</option>';
+                if ($('rep-estudiante')) $('rep-estudiante').innerHTML = '<option value="">Seleccione grado primero...</option>';
+                return;
+              }
+            }
             showLoading(true);
             try {
               const sedeManual = $('rep-sede').value;
-              const { data: resNotas, error } = await supabaseClient.from('eval_estudiantes_notas').select('grado').eq('periodo', currentPeriodo);
+              const [resNotas, resComp] = await Promise.all([
+                supabaseClient.from('eval_estudiantes_notas').select('grado').eq('periodo', currentPeriodo),
+                supabaseClient.from('eval_estudiantes_completos').select('grado').eq('periodo', currentPeriodo)
+              ]);
 
-              let data = resNotas || [];
+              let data = [...(resNotas.data || []), ...(resComp.data || [])];
 
               // FALLBACK SI NO HAY DATOS EN EL PERIODO ACTUAL (Notas)
               if (data.length === 0 && currentPeriodo > 1) {
@@ -8865,7 +8860,7 @@
               }
 
               // Obtener todos los grupos únicos directamente de la columna grado
-              const groupsNotas = data.map(d => d.grado.toString());
+              const groupsNotas = data.map(d => (d.grado || '').toString()).filter(Boolean);
               let allGroups = [...new Set(groupsNotas)].filter(esGrupoValido);
 
               // --- Filtro de Privacidad: Solo mostrar grupos permitidos ---
@@ -9104,6 +9099,7 @@
               }
 
               const est = historico.find(t => parseInt(t.periodo) === parseInt(currentPeriodo));
+              if ($('reporte-content')) $('reporte-content').style.display = 'block';
               if (!est) {
                 $('reporte-content').innerHTML = `
              <div style="text-align:center; padding:3rem; color:#64748b;">
@@ -9191,6 +9187,7 @@
           </div>
         `;
 
+              if ($('reporte-content')) $('reporte-content').style.display = 'block';
               $('reporte-content').innerHTML = `
           ${printActions}
           <div id="report-print-area">${html}</div>
@@ -9399,9 +9396,9 @@
              </table>
           </div>
 
-          ${historico && historico.length > 1 ? `
-          <div class="chart-container" style="height:60px; border:1px solid #2563eb; border-radius:6px; padding:2px 4px; background:rgba(255,255,255,0.9);">
-             <canvas id="chart-tendencia-${est.zipgrade_id}"></canvas>
+          ${historico && historico.length > 0 ? `
+          <div class="chart-container" style="height:68px; width:100%; box-sizing:border-box; border:1px solid #2563eb; border-radius:6px; padding:4px 10px; background:rgba(255,255,255,0.95); position:relative;">
+             <canvas id="chart-tendencia-${est.zipgrade_id}" style="width:100% !important; height:100% !important; display:block;"></canvas>
           </div>
           ` : ''}
 
@@ -9450,43 +9447,58 @@
             // Calcular el porcentaje desde las respuestas correctas (igual que el informe visual)
             // Esto garantiza que la gráfica muestre el mismo promedio que aparece en el boletín
             function calcularPctDesdeRespuestas(h) {
-              if (!h.respuestas) return Math.round(h.porcentaje || 0);
+              if (!h.respuestas || Object.keys(h.respuestas).length === 0) return Math.round(h.porcentaje || 0);
               const config = getConfigParaPeriodo(h.periodo);
               if (!config || config.length === 0) return Math.round(h.porcentaje || 0);
               let okTotal = 0, totalPregs = 0;
               config.forEach(subj => {
                 for (let i = subj.start; i <= subj.end; i++) {
                   totalPregs++;
-                  if (h.respuestas[i] === 1) okTotal++;
+                  if (h.respuestas[i] === 1 || h.respuestas[String(i)] === 1) okTotal++;
                 }
               });
+              if (okTotal === 0 && (h.porcentaje || 0) > 0) return Math.round(h.porcentaje || 0);
               return totalPregs > 0 ? Math.round((okTotal / totalPregs) * 100) : Math.round(h.porcentaje || 0);
             }
 
             const labels = histFiltrado.map(h => h.periodo === 3 ? 'EF' : 'E' + h.periodo);
             const data = histFiltrado.map(h => calcularPctDesdeRespuestas(h));
-            const colors = histFiltrado.map(h => getValoration(calcularPctDesdeRespuestas(h)).color);
+            const colors = data.map(pct => getValoration(pct).color);
 
             new Chart(ctx, {
-              type: 'line',
+              type: 'bar',
+              plugins: [ChartDataLabels],
               data: {
                 labels: labels,
                 datasets: [{
                   label: 'Promedio',
                   data: data,
-                  borderColor: '#4f46e5',
-                  backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                  pointBackgroundColor: colors,
-                  pointBorderColor: '#fff',
-                  pointBorderWidth: 1,
-                  pointRadius: 4,
-                  borderWidth: 2,
-                  tension: 0.3,
-                  fill: true
+                  backgroundColor: colors,
+                  borderColor: colors,
+                  borderWidth: 1,
+                  borderRadius: 6,
+                  maxBarThickness: 56
                 }]
               },
               options: {
-                responsive: true
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: { padding: { top: 16, bottom: 0, left: 8, right: 8 } },
+                plugins: {
+                  legend: { display: false },
+                  datalabels: {
+                    anchor: 'end',
+                    align: 'top',
+                    offset: -2,
+                    color: '#1e293b',
+                    font: { weight: 'bold', size: 11 },
+                    formatter: (v) => v
+                  }
+                },
+                scales: {
+                  y: { display: false, beginAtZero: true, min: 0, max: 118 },
+                  x: { grid: { display: false }, ticks: { color: '#1e293b', font: { weight: 'bold', size: 11 } } }
+                }
               }
             });
           }
@@ -10114,9 +10126,10 @@
             cfgH.forEach(subj => {
               for (let i = subj.start; i <= subj.end; i++) {
                 totalH++;
-                if (h.respuestas[i] === 1) okH++;
+                if (h.respuestas[i] === 1 || h.respuestas[String(i)] === 1) okH++;
               }
             });
+            if (okH === 0 && (h.porcentaje || 0) > 0) return Math.round(h.porcentaje || 0);
             return totalH > 0 ? Math.round((okH / totalH) * 100) : Math.round(h.porcentaje || 0);
           }
 
@@ -10257,22 +10270,24 @@
                       if (!canvas) return;
 
                       new Chart(canvas, {
-                        type: 'line',
+                        type: 'bar',
                         plugins: [ChartDataLabels],
                         data: {
                           labels: hist.map(h => h.periodo === 3 ? 'EF' : 'E' + h.periodo),
                           datasets: [{
                             data: hist.map(h => h.porcentaje),
-                            borderColor: '#4f46e5',
-                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                            pointBackgroundColor: hist.map(h => getVal(h.porcentaje).color),
-                            pointRadius: 5, borderWidth: 2, tension: 0.3, fill: true
+                            backgroundColor: hist.map(h => getVal(h.porcentaje).color),
+                            borderColor: hist.map(h => getVal(h.porcentaje).color),
+                            borderWidth: 1,
+                            borderRadius: 5,
+                            maxBarThickness: 48
                           }]
                         },
                         options: {
                           responsive: true, maintainAspectRatio: false, animation: false,
-                          plugins: { legend: { display: false }, datalabels: { align: 'top', font: { weight: 'bold', size: 9 }, formatter: (v) => v } },
-                          scales: { y: { display: false, min: 0, max: 115 }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } }
+                          layout: { padding: { top: 14, bottom: 0, left: 6, right: 6 } },
+                          plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'top', offset: -2, color: '#1e293b', font: { weight: 'bold', size: 9 }, formatter: (v) => v } },
+                          scales: { y: { display: false, beginAtZero: true, min: 0, max: 118 }, x: { grid: { display: false }, ticks: { color: '#1e293b', font: { weight: 'bold', size: 9 } } } }
                         }
                       });
                     });
@@ -10441,20 +10456,23 @@
                       const canvas = document.getElementById('chart-tendencia-' + zipId);
                       if (!canvas) return;
                       new Chart(canvas, {
-                        type: 'line', plugins: [ChartDataLabels],
+                        type: 'bar', plugins: [ChartDataLabels],
                         data: {
                           labels: hist.map(h => h.periodo === 3 ? 'EF' : 'E' + h.periodo),
                           datasets: [{
                             data: hist.map(h => h.porcentaje),
-                            borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                            pointBackgroundColor: hist.map(h => getValoration(h.porcentaje).color),
-                            pointRadius: 5, borderWidth: 2, tension: 0.3, fill: true
+                            backgroundColor: hist.map(h => getValoration(h.porcentaje).color),
+                            borderColor: hist.map(h => getValoration(h.porcentaje).color),
+                            borderWidth: 1,
+                            borderRadius: 5,
+                            maxBarThickness: 48
                           }]
                         },
                         options: {
                           responsive: true, maintainAspectRatio: false, animation: false,
-                          plugins: { legend: { display: false }, datalabels: { align: 'top', font: { weight: 'bold', size: 9 } } },
-                          scales: { y: { display: false, min: 0, max: 115 }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } }
+                          layout: { padding: { top: 14, bottom: 0, left: 6, right: 6 } },
+                          plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'top', offset: -2, color: '#1e293b', font: { weight: 'bold', size: 9 }, formatter: (v) => v } },
+                          scales: { y: { display: false, beginAtZero: true, min: 0, max: 118 }, x: { grid: { display: false }, ticks: { color: '#1e293b', font: { weight: 'bold', size: 9 } } } }
                         }
                       });
                     });
