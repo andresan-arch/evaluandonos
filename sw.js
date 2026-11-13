@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eval-cache-v130';
+const CACHE_NAME = 'eval-cache-v131';
 const urlsToCache = [
   './',
   './index.html',
@@ -37,8 +37,18 @@ self.addEventListener('fetch', event => {
   // Ignorar peticiones que no sean GET o esquemas no soportados por la caché (ej. chrome-extension)
   if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
+  // Nunca cachear version.json para garantizar detección inmediata de nuevas versiones
+  if (event.request.url.includes('version.json')) {
+    event.respondWith(fetch(event.request, { cache: 'no-store' }));
+    return;
+  }
+
+  const fetchRequest = event.request.mode === 'navigate'
+    ? fetch(event.request, { cache: 'no-store' })
+    : fetch(event.request);
+
   event.respondWith(
-    fetch(event.request)
+    fetchRequest
       .then(response => {
         // Actualizamos la caché con la respuesta de red si es válida
         if (response && response.status === 200 && response.type === 'basic') {

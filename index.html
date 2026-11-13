@@ -3332,7 +3332,7 @@
       <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
       <script>
-        var CURRENT_APP_VERSION = "v127";
+        var CURRENT_APP_VERSION = "v131";
         window.MathJax = {
           tex: {
             inlineMath: [['$', '$'], ['\\(', '\\)']],
@@ -5835,7 +5835,13 @@
             if (!idVal) return alert("Ingresa tu número de identificación");
 
             err.style.display = 'none';
-            btn.disabled = true; btn.innerText = "Buscando...";
+            btn.disabled = true; btn.innerText = "Verificando versión...";
+
+            if (typeof window.verificarActualizacionObligatoria === 'function') {
+              const mustUpdate = await window.verificarActualizacionObligatoria();
+              if (mustUpdate) return;
+            }
+            btn.innerText = "Buscando...";
 
             try {
               if (!supabaseClient && typeof supabase !== 'undefined') {
@@ -5978,7 +5984,7 @@
           async function checkSession() {
             // Prioridad a sesión de estudiante local
             const sId = localStorage.getItem('studentId');
-            const sName = localStorage.getItem('studentName');
+            let sName = localStorage.getItem('studentName');
             if (sId && sName) {
               if (typeof window.estaEnMantenimientoEstudiantes === 'function' && window.estaEnMantenimientoEstudiantes()) {
                 localStorage.removeItem('studentId');
@@ -5987,6 +5993,25 @@
                 if ($('login-mask')) $('login-mask').style.display = 'flex';
                 window.switchLoginMode('estudiante');
                 return;
+              }
+              // Refrescar siempre zipgrade_id desde maestro_estudiantes para evitar caché obsoleta tras cambios de grupo
+              try {
+                if (!supabaseClient && typeof supabase !== 'undefined') {
+                  supabaseClient = window.supabaseClient || (typeof SB_URL !== 'undefined' ? supabase.createClient(SB_URL, SB_KEY) : null);
+                }
+                if (supabaseClient) {
+                  const { data: estActual } = await supabaseClient.from('maestro_estudiantes')
+                    .select('nombre, zipgrade_id')
+                    .eq('identificacion', sId)
+                    .maybeSingle();
+                  if (estActual) {
+                    sName = estActual.nombre || sName;
+                    localStorage.setItem('studentName', sName);
+                    localStorage.setItem('studentZipId', estActual.zipgrade_id || "");
+                  }
+                }
+              } catch (e) {
+                console.warn("No se pudo refrescar zipgrade_id de sesión:", e);
               }
               loguearExitosoEstudiante(sName, sId);
               return;
@@ -6020,7 +6045,13 @@
             if (!userVal || !pass) return alert("Completa los datos");
 
             err.style.display = 'none';
-            btn.disabled = true; btn.innerText = "Verificando...";
+            btn.disabled = true; btn.innerText = "Verificando versión...";
+
+            if (typeof window.verificarActualizacionObligatoria === 'function') {
+              const mustUpdate = await window.verificarActualizacionObligatoria();
+              if (mustUpdate) return;
+            }
+            btn.innerText = "Verificando...";
 
             try {
               if (!supabaseClient && typeof supabase !== 'undefined') {
@@ -9099,7 +9130,18 @@
                 // Si llegamos aquí, el ID no está en la base de notas.
               }
 
-              const est = historico.find(t => parseInt(t.periodo) === parseInt(currentPeriodo));
+              let est = historico.find(t => parseInt(t.periodo) === parseInt(currentPeriodo));
+              if (!est && isStudentMode) {
+                const normFull = (s) => (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+                const targetName = normFull(localStorage.getItem('studentName'));
+                if (targetName) {
+                  const exactMatches = todos.filter(t => normFull(t.estudiante_nombre) === targetName);
+                  if (exactMatches.length === 1) {
+                    est = exactMatches[0];
+                    historico.push(est);
+                  }
+                }
+              }
               if ($('reporte-content')) $('reporte-content').style.display = 'block';
               if (!est) {
                 $('reporte-content').innerHTML = `
@@ -11380,12 +11422,67 @@
         </script>
 
         <script>
+          window.verificarActualizacionObligatoria = async function verificarActualizacionObligatoria() {
+            if (window.location.protocol === 'file:') return false;
+            try {
+              const controller = new AbortController();
+              const timer = setTimeout(() => controller.abort(), 4000);
+              const res = await fetch(`./version.json?t=${Date.now()}`, {
+                cache: 'no-store',
+                signal: controller.signal
+              });
+              clearTimeout(timer);
+              if (!res.ok) return false;
+              const info = await res.json();
+              const remoteVersion = (info && info.version) ? info.version.toString().trim() : '';
+              if (remoteVersion && remoteVersion !== CURRENT_APP_VERSION) {
+                // Mostrar pantalla bloqueante de actualización obligatoria
+                if (!document.getElementById('forced-update-overlay')) {
+                  const overlay = document.createElement('div');
+                  overlay.id = 'forced-update-overlay';
+                  overlay.style.cssText = 'position:fixed;inset:0;z-index:999999;background:rgba(15,23,42,0.92);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:Plus Jakarta Sans,sans-serif;text-align:center;padding:24px;';
+                  overlay.innerHTML = `
+                    <div style="background:#1e293b;border:1px solid #334155;border-radius:16px;padding:28px 32px;max-width:400px;box-shadow:0 20px 50px rgba(0,0,0,0.4);">
+                      <div style="font-size:2rem;margin-bottom:10px;">🔄</div>
+                      <h2 style="margin:0 0 8px;font-size:1.2rem;font-weight:700;">Actualización obligatoria</h2>
+                      <p style="margin:0;font-size:0.9rem;color:#cbd5e1;line-height:1.5;">Hay una nueva versión de la aplicación (${remoteVersion}). Actualizando automáticamente para continuar...</p>
+                    </div>
+                  `;
+                  document.body.appendChild(overlay);
+                }
+
+                if ('serviceWorker' in navigator) {
+                  try {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(registrations.map(r => r.unregister()));
+                  } catch (e) { console.log(e); }
+                }
+                if (typeof caches !== 'undefined') {
+                  try {
+                    const names = await caches.keys();
+                    await Promise.all(names.map(n => caches.delete(n)));
+                  } catch (e) { console.log(e); }
+                }
+                localStorage.setItem('app_version', remoteVersion);
+                setTimeout(() => {
+                  window.location.replace(`${window.location.pathname}?v=${encodeURIComponent(remoteVersion)}`);
+                }, 700);
+                return true;
+              }
+            } catch (e) {
+              console.warn("No se pudo verificar versión remota:", e);
+            }
+            return false;
+          };
+
           window.addEventListener('load', () => {
             if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
-              navigator.serviceWorker.register('sw.js')
+              navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
                 .then(reg => {
+                  reg.update().catch(() => {});
                   reg.onupdatefound = () => {
                     const installingWorker = reg.installing;
+                    if (!installingWorker) return;
                     installingWorker.onstatechange = () => {
                       if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
                         window.location.reload();
@@ -11411,10 +11508,15 @@
             setTimeout(() => window.location.reload(), 1000);
           }
 
-          window.addEventListener('DOMContentLoaded', () => {
+          window.addEventListener('DOMContentLoaded', async () => {
             const lblAnio = document.getElementById('lbl-anio');
             if (lblAnio && window.currentYear) {
               lblAnio.innerText = window.currentYear.toString();
+            }
+
+            if (typeof window.verificarActualizacionObligatoria === 'function') {
+              const updating = await window.verificarActualizacionObligatoria();
+              if (updating) return;
             }
 
             if (typeof checkSession === 'function') {
