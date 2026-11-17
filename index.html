@@ -3332,7 +3332,7 @@
       <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
       <script>
-        var CURRENT_APP_VERSION = "v131";
+        var CURRENT_APP_VERSION = "v132";
         window.MathJax = {
           tex: {
             inlineMath: [['$', '$'], ['\\(', '\\)']],
@@ -5972,6 +5972,11 @@
             document.body.classList.add('is-student');
             if ($('student-portal-info')) $('student-portal-info').style.setProperty('display', 'block', 'important');
             if ($('rep-filters')) $('rep-filters').style.setProperty('display', 'none', 'important');
+
+            if (!currentPeriodo) {
+              currentPeriodo = 3;
+              if (typeof syncPeriodoSelects === 'function') syncPeriodoSelects(currentPeriodo);
+            }
 
             switchMainTab('individual');
 

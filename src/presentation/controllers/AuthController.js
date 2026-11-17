@@ -67,6 +67,13 @@ export class AuthController {
 
       try {
         btnLogin.disabled = true;
+        btnLogin.textContent = 'Verificando versión...';
+
+        if (typeof window.verificarActualizacionObligatoria === 'function') {
+          const mustUpdate = await window.verificarActualizacionObligatoria();
+          if (mustUpdate) return;
+        }
+
         btnLogin.textContent = 'Autenticando...';
 
         const { success, student, error } = await AuthService.loginEstudiante(identificacion);
@@ -124,6 +131,15 @@ export class AuthController {
         const submitBtn = btnLogin || form?.querySelector('button[type="submit"]');
         if (submitBtn) {
           submitBtn.disabled = true;
+          submitBtn.textContent = 'Verificando versión...';
+        }
+
+        if (typeof window.verificarActualizacionObligatoria === 'function') {
+          const mustUpdate = await window.verificarActualizacionObligatoria();
+          if (mustUpdate) return;
+        }
+
+        if (submitBtn) {
           submitBtn.textContent = 'Autenticando...';
         }
 
@@ -203,7 +219,7 @@ export class AuthController {
     try {
       // 1. Prioridad a sesión de estudiante local
       const sId = localStorage.getItem('studentId');
-      const sName = localStorage.getItem('studentName');
+      let sName = localStorage.getItem('studentName');
       if (sId && sName) {
         if (typeof window.estaEnMantenimientoEstudiantes === 'function' && window.estaEnMantenimientoEstudiantes()) {
           localStorage.removeItem('studentId');
@@ -214,6 +230,14 @@ export class AuthController {
             window.switchLoginMode('estudiante');
           }
           return;
+        }
+        try {
+          const refreshed = await AuthService.loginEstudiante(sId);
+          if (refreshed && refreshed.success && refreshed.student) {
+            sName = refreshed.student.nombre || sName;
+          }
+        } catch (e) {
+          console.warn('No se pudo refrescar sesión estudiante:', e);
         }
         this.currentUser = { 
           estudiante_nombre: sName, 
@@ -258,7 +282,12 @@ export class AuthController {
    */
 
   mostrarError(mensaje) {
-    const errorDiv = document.getElementById('error-message') || document.getElementById('login-err');
+    const loginMask = document.getElementById('login-mask');
+    const loginErr = document.getElementById('login-err');
+    const isLoginVisible = loginMask && window.getComputedStyle(loginMask).display !== 'none';
+    const errorDiv = (isLoginVisible && loginErr)
+      ? loginErr
+      : (document.getElementById('error-message') || loginErr);
     if (errorDiv) {
       errorDiv.textContent = `❌ ${mensaje}`;
       errorDiv.style.display = 'block';

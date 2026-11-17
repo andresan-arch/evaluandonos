@@ -25,14 +25,31 @@ export class AuthService {
         return { success: false, student: null, error: 'Identificación requerida' };
       }
 
-      const student = await EstudianteRepository.buscarPorIdentificacion(identificacion);
+      let student = await EstudianteRepository.buscarPorIdentificacion(identificacion.trim());
 
       if (!student) {
-        return { success: false, student: null, error: 'Estudiante no encontrado' };
+        // Fallback: buscar en eval_estudiantes_notas por zipgrade_id
+        const { data: dataNotas } = await supabaseDatasource.getClient()
+          .from('eval_estudiantes_notas')
+          .select('estudiante_nombre, zipgrade_id')
+          .eq('zipgrade_id', identificacion.trim())
+          .limit(1);
+
+        if (dataNotas && dataNotas.length > 0) {
+          student = {
+            identificacion: identificacion.trim(),
+            nombre: dataNotas[0].estudiante_nombre,
+            zipgrade_id: dataNotas[0].zipgrade_id
+          };
+        }
+      }
+
+      if (!student) {
+        return { success: false, student: null, error: 'Identificación no encontrada en el sistema.' };
       }
 
       // Guardar sesión en localStorage
-      localStorage.setItem('studentId', identificacion);
+      localStorage.setItem('studentId', identificacion.trim());
       localStorage.setItem('studentName', student.nombre || student.estudiante_nombre || 'Estudiante');
       localStorage.setItem('studentZipId', student.zipgrade_id || "");
 

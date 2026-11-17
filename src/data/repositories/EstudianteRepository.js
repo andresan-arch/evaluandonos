@@ -21,16 +21,26 @@ export class EstudianteRepository {
    */
   static async buscarPorIdentificacion(identificacion) {
     try {
-      const { data, error } = await supabaseDatasource.getClient()
+      const client = supabaseDatasource.getClient();
+      const { data, error } = await client
         .from('maestro_estudiantes')
         .select('nombre, identificacion, zipgrade_id')
         .eq('anio', getCurrentYear())
         .eq('identificacion', identificacion)
-        .maybeSingle();
+        .limit(1);
 
       if (error) throw error;
+      if (data && data.length > 0) return data[0];
 
-      return data;
+      // Fallback sin filtro de año por si el registro no tiene anio asignado
+      const { data: fallbackData, error: fbError } = await client
+        .from('maestro_estudiantes')
+        .select('nombre, identificacion, zipgrade_id')
+        .eq('identificacion', identificacion)
+        .limit(1);
+
+      if (fbError) throw fbError;
+      return (fallbackData && fallbackData.length > 0) ? fallbackData[0] : null;
     } catch (err) {
       console.error('Error buscarPorIdentificacion:', err);
       return null;
